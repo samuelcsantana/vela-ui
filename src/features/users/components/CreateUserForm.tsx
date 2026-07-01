@@ -61,11 +61,14 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
 
     const previouslyFocusedElement = document.activeElement as HTMLElement | null;
 
+    // The dialog panel is always mounted while this effect is active, so the ref is always attached.
     const getFocusableElements = () =>
-      dialogRef.current ? Array.from(dialogRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)) : [];
+      Array.from(dialogRef.current!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
 
-    const initialFocusTarget = dialogRef.current?.querySelector<HTMLElement>('#name');
-    (initialFocusTarget ?? getFocusableElements()[0])?.focus();
+    // Falls back to the first focusable element if the form structure ever changes and #name is removed.
+    /* v8 ignore next */
+    const initialFocusTarget = dialogRef.current?.querySelector<HTMLElement>('#name') ?? getFocusableElements()[0];
+    initialFocusTarget?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
