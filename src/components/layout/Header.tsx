@@ -59,7 +59,7 @@ export const Header = () => {
           aria-label={isPortuguese ? 'English' : 'Português'}
           className={`${ICON_BUTTON_CLASSNAME} text-xs font-semibold`}
         >
-          {isPortuguese ? 'EN' : 'PT'}
+          {isPortuguese ? 'PT' : 'EN'}
         </button>
 
         <button

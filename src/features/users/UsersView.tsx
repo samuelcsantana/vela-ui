@@ -20,7 +20,7 @@ export const UsersView = () => {
         <button
           type="button"
           onClick={() => setIsCreateFormOpen(true)}
-          className="flex h-10 items-center gap-2 rounded-lg bg-slate-900 px-4 text-sm font-medium text-white transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:bg-white dark:text-slate-900 dark:hover:bg-gray-200 dark:focus-visible:outline-white"
+          className="flex h-10 items-center gap-2 rounded-lg bg-slate-900 px-4 text-sm font-medium text-white transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 dark:focus-visible:outline-white"
         >
           <Plus size={16} aria-hidden="true" />
           {t('users.addUser')}
