@@ -1,0 +1,32 @@
+import type { ReactNode } from 'react';
+import { Header } from './Header';
+import { Sidebar } from './Sidebar';
+
+interface AppLayoutProps {
+  children: ReactNode;
+}
+
+export const AppLayout = ({ children }: AppLayoutProps) => {
+  return (
+    <div className="min-h-screen flex">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-2 focus:top-2 focus:z-50 focus:rounded-md focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-slate-900 focus:shadow-md focus:outline focus:outline-2 focus:outline-slate-900"
+      >
+        Pular para o conteúdo principal
+      </a>
+
+      <Sidebar />
+      <div className="flex flex-1 flex-col">
+        <Header />
+        <main
+          id="main-content"
+          tabIndex={-1}
+          className="flex flex-1 items-center justify-center bg-slate-50 focus:outline-none"
+        >
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+};
