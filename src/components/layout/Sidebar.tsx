@@ -66,7 +66,7 @@ export const Sidebar = () => {
         id={SIDEBAR_ID}
         aria-label="Navegação principal"
         inert={isOffCanvasHidden}
-        className={`fixed inset-y-0 left-0 z-40 flex h-screen w-64 flex-col bg-slate-900 transition-transform duration-300 ease-in-out md:sticky md:top-0 md:z-auto md:border-r md:border-slate-200 md:transition-[width] md:duration-300 md:ease-in-out md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex h-screen w-64 flex-col bg-slate-900 transition-transform duration-300 ease-in-out md:sticky md:top-0 md:z-auto md:border-r md:border-slate-200 dark:md:border-slate-700 md:transition-[width] md:duration-300 md:ease-in-out md:translate-x-0 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } ${isSidebarOpen ? 'md:w-60' : 'md:w-16'}`}
       >

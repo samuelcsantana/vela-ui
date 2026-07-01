@@ -1,5 +1,6 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { Suspense, lazy } from 'react';
+import { useThemeEffect } from '../hooks/use-theme-effect';
 
 const TanStackRouterDevtools =
   process.env.NODE_ENV === 'production'
@@ -15,6 +16,8 @@ export const Route = createRootRoute({
 });
 
 function RootComponent() {
+  useThemeEffect();
+
   return (
     <>
       <Outlet />

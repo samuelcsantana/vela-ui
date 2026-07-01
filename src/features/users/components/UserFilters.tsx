@@ -59,11 +59,11 @@ export const UserFilters = () => {
           placeholder="Search by name..."
           aria-invalid={hasError}
           aria-describedby={hasError ? SEARCH_ERROR_ID : undefined}
-          className="h-10 w-full rounded-lg border border-slate-300 pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10"
+          className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-white dark:focus:ring-white/10"
           {...register('search')}
         />
       </div>
-      <p id={SEARCH_ERROR_ID} aria-live="polite" className="text-sm text-red-600 sm:self-center">
+      <p id={SEARCH_ERROR_ID} aria-live="polite" className="text-sm text-red-600 sm:self-center dark:text-red-400">
         {errors.search?.message}
       </p>
     </div>

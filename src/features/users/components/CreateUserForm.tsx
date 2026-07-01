@@ -21,7 +21,7 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 const FIELD_CLASSNAME =
-  'w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus-visible:outline-white';
 
 export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
   const createUserMutation = useCreateUser();
@@ -124,17 +124,17 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
         aria-modal="true"
         aria-labelledby={DIALOG_TITLE_ID}
         onClick={(event) => event.stopPropagation()}
-        className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
+        className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-slate-900"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-slate-900">
+          <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-slate-900 dark:text-white">
             Add user
           </h2>
           <button
             type="button"
             onClick={handleClose}
             aria-label="Close"
-            className="flex min-h-11 min-w-11 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+            className="flex min-h-11 min-w-11 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white"
           >
             <X size={18} aria-hidden="true" />
           </button>
@@ -142,7 +142,7 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="name" className="text-sm font-medium text-slate-700">
+            <label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-gray-300">
               Name
             </label>
             <input
@@ -153,13 +153,13 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               className={FIELD_CLASSNAME}
               {...register('name')}
             />
-            <p id="name-error" aria-live="polite" className="text-sm text-red-600">
+            <p id="name-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
               {errors.name?.message}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm font-medium text-slate-700">
+            <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-gray-300">
               Email
             </label>
             <input
@@ -170,13 +170,13 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               className={FIELD_CLASSNAME}
               {...register('email')}
             />
-            <p id="email-error" aria-live="polite" className="text-sm text-red-600">
+            <p id="email-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
               {errors.email?.message}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="role" className="text-sm font-medium text-slate-700">
+            <label htmlFor="role" className="text-sm font-medium text-slate-700 dark:text-gray-300">
               Role
             </label>
             <select
@@ -192,12 +192,12 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
                 </option>
               ))}
             </select>
-            <p id="role-error" aria-live="polite" className="text-sm text-red-600">
+            <p id="role-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
               {errors.role?.message}
             </p>
           </div>
 
-          <p aria-live="polite" className="text-sm text-red-600">
+          <p aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
             {createUserMutation.isError ? 'Unable to create user. Please try again.' : ''}
           </p>
 
@@ -205,14 +205,14 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
             <button
               type="button"
               onClick={handleClose}
-              className="min-h-11 rounded-md px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+              className="min-h-11 rounded-md px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-300 dark:hover:bg-slate-800 dark:focus-visible:outline-white"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={createUserMutation.isPending}
-              className="min-h-11 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
+              className="min-h-11 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-slate-900 dark:hover:bg-gray-200 dark:focus-visible:outline-white"
             >
               {createUserMutation.isPending ? 'Saving...' : 'Save'}
             </button>
