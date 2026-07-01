@@ -1,0 +1,19 @@
+{
+  "sidebar": {
+    "brand": "Vela UI",
+    "nav": "Main navigation",
+    "dashboard": "Dashboard",
+    "users": "Users",
+    "settings": "Settings"
+  },
+  "header": {
+    "toggleSidebar": "Toggle sidebar menu",
+    "toggleThemeToLight": "Switch to light theme",
+    "toggleThemeToDark": "Switch to dark theme",
+    "logout": "Log out",
+    "role": {
+      "admin": "Admin",
+      "user": "User"
+    }
+  }
+}

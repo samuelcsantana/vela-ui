@@ -3,19 +3,20 @@ import type { LinkProps } from '@tanstack/react-router';
 import { LayoutDashboard, Settings, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useMediaQuery } from '../../hooks/use-media-query';
 import { useLayoutStore } from '../../store/layout-store';
 
 interface NavItem {
-  label: string;
+  labelKey: string;
   icon: LucideIcon;
   to?: LinkProps['to'];
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', icon: LayoutDashboard, to: '/' },
-  { label: 'Usuários', icon: Users, to: '/users' },
-  { label: 'Configurações', icon: Settings },
+  { labelKey: 'sidebar.dashboard', icon: LayoutDashboard, to: '/' },
+  { labelKey: 'sidebar.users', icon: Users, to: '/users' },
+  { labelKey: 'sidebar.settings', icon: Settings },
 ];
 
 const NAV_ITEM_CLASSNAME =
@@ -26,6 +27,7 @@ const MOBILE_BREAKPOINT_QUERY = '(max-width: 767px)';
 export const SIDEBAR_ID = 'app-sidebar';
 
 export const Sidebar = () => {
+  const { t } = useTranslation();
   const isSidebarOpen = useLayoutStore((state) => state.isSidebarOpen);
   const toggleSidebar = useLayoutStore((state) => state.toggleSidebar);
   const isMobile = useMediaQuery(MOBILE_BREAKPOINT_QUERY);
@@ -64,18 +66,19 @@ export const Sidebar = () => {
 
       <nav
         id={SIDEBAR_ID}
-        aria-label="Navegação principal"
+        aria-label={t('sidebar.nav')}
         inert={isOffCanvasHidden}
         className={`fixed inset-y-0 left-0 z-40 flex h-screen w-64 flex-col bg-slate-900 transition-transform duration-300 ease-in-out md:sticky md:top-0 md:z-auto md:border-r md:border-slate-200 dark:md:border-slate-700 md:transition-[width] md:duration-300 md:ease-in-out md:translate-x-0 ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
         } ${isSidebarOpen ? 'md:w-60' : 'md:w-16'}`}
       >
         <div className="flex h-14 items-center justify-center border-b border-slate-800">
-          <span className="text-lg font-semibold text-white">{isSidebarOpen ? 'Vela UI' : 'V'}</span>
+          <span className="text-lg font-semibold text-white">{isSidebarOpen ? t('sidebar.brand') : 'V'}</span>
         </div>
 
         <div className="flex flex-1 flex-col gap-1 p-2">
-          {NAV_ITEMS.map(({ label, icon: Icon, to }) => {
+          {NAV_ITEMS.map(({ labelKey, icon: Icon, to }) => {
+            const label = t(labelKey);
             const labelSpan = (
               <span
                 className={`overflow-hidden whitespace-nowrap transition-all duration-300 ${
@@ -89,7 +92,7 @@ export const Sidebar = () => {
             if (!to) {
               return (
                 <button
-                  key={label}
+                  key={labelKey}
                   type="button"
                   disabled
                   aria-disabled="true"
@@ -103,7 +106,7 @@ export const Sidebar = () => {
 
             return (
               <Link
-                key={label}
+                key={labelKey}
                 to={to}
                 onClick={handleNavLinkClick}
                 className={NAV_ITEM_CLASSNAME}

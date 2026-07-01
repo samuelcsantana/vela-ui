@@ -1,0 +1,19 @@
+{
+  "sidebar": {
+    "brand": "Vela UI",
+    "nav": "Navegação principal",
+    "dashboard": "Dashboard",
+    "users": "Usuários",
+    "settings": "Configurações"
+  },
+  "header": {
+    "toggleSidebar": "Alternar menu lateral",
+    "toggleThemeToLight": "Ativar tema claro",
+    "toggleThemeToDark": "Ativar tema escuro",
+    "logout": "Sair",
+    "role": {
+      "admin": "Admin",
+      "user": "Usuário"
+    }
+  }
+}
