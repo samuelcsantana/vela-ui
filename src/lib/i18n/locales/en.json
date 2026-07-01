@@ -1,4 +1,12 @@
 {
+  "common": {
+    "appName": "Vela UI",
+    "skipToContent": "Skip to main content",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "saving": "Saving..."
+  },
   "sidebar": {
     "brand": "Vela UI",
     "nav": "Main navigation",
@@ -14,6 +22,50 @@
     "role": {
       "admin": "Admin",
       "user": "User"
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome to {{appName}}",
+    "subtitle": "Select an option from the sidebar menu to get started."
+  },
+  "auth": {
+    "portfolioNotice": "This is a portfolio project. Choose a demo access below — no password required.",
+    "accessAsAdmin": "Access Demo as Admin",
+    "accessAsUser": "Access Demo as User"
+  },
+  "users": {
+    "title": "Users",
+    "addUser": "Add User",
+    "fields": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "tenant": "Tenant"
+    },
+    "roles": {
+      "admin": "Admin",
+      "editor": "Editor",
+      "viewer": "Viewer"
+    },
+    "search": {
+      "label": "Search user by name",
+      "placeholder": "Search by name..."
+    },
+    "table": {
+      "caption": "List of registered users, with name, email, role and tenant",
+      "loading": "Loading users...",
+      "error": "Unable to load users.",
+      "empty": "No users found."
+    },
+    "form": {
+      "title": "Add user",
+      "submitError": "Unable to create user. Please try again."
+    },
+    "validation": {
+      "searchTooLong": "Search is too long",
+      "nameTooShort": "Enter at least 2 characters",
+      "invalidEmail": "Invalid email",
+      "roleRequired": "Select a role"
     }
   }
 }

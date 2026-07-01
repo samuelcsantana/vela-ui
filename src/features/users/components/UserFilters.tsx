@@ -3,6 +3,7 @@ import { useNavigate, useSearch } from '@tanstack/react-router';
 import { Search } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useDebounce } from '../../../hooks/use-debounce';
 import { userFiltersSchema, type UserFiltersValues } from '../schema';
 
@@ -11,6 +12,7 @@ const SEARCH_INPUT_ID = 'users-search';
 const SEARCH_ERROR_ID = 'users-search-error';
 
 export const UserFilters = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate({ from: '/users' });
   const { search } = useSearch({ from: '/_protected/users' });
 
@@ -46,7 +48,7 @@ export const UserFilters = () => {
     <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-start">
       <div className="relative w-full sm:max-w-md">
         <label htmlFor={SEARCH_INPUT_ID} className="sr-only">
-          Search user by name
+          {t('users.search.label')}
         </label>
         <Search
           size={16}
@@ -56,7 +58,7 @@ export const UserFilters = () => {
         <input
           id={SEARCH_INPUT_ID}
           type="text"
-          placeholder="Search by name..."
+          placeholder={t('users.search.placeholder')}
           aria-invalid={hasError}
           aria-describedby={hasError ? SEARCH_ERROR_ID : undefined}
           className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-white dark:focus:ring-white/10"
@@ -64,7 +66,7 @@ export const UserFilters = () => {
         />
       </div>
       <p id={SEARCH_ERROR_ID} aria-live="polite" className="text-sm text-red-600 sm:self-center dark:text-red-400">
-        {errors.search?.message}
+        {errors.search?.message ? t(errors.search.message) : ''}
       </p>
     </div>
   );

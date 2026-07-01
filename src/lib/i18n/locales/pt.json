@@ -1,4 +1,12 @@
 {
+  "common": {
+    "appName": "Vela UI",
+    "skipToContent": "Pular para o conteúdo principal",
+    "close": "Fechar",
+    "cancel": "Cancelar",
+    "save": "Salvar",
+    "saving": "Salvando..."
+  },
   "sidebar": {
     "brand": "Vela UI",
     "nav": "Navegação principal",
@@ -14,6 +22,50 @@
     "role": {
       "admin": "Admin",
       "user": "Usuário"
+    }
+  },
+  "dashboard": {
+    "welcome": "Bem-vindo à {{appName}}",
+    "subtitle": "Selecione uma opção no menu lateral para começar."
+  },
+  "auth": {
+    "portfolioNotice": "Este é um projeto de portfólio. Escolha um acesso de demonstração abaixo — não é necessária senha.",
+    "accessAsAdmin": "Acessar Demo como Admin",
+    "accessAsUser": "Acessar Demo como Usuário"
+  },
+  "users": {
+    "title": "Usuários",
+    "addUser": "Adicionar Usuário",
+    "fields": {
+      "name": "Nome",
+      "email": "Email",
+      "role": "Papel",
+      "tenant": "Tenant"
+    },
+    "roles": {
+      "admin": "Admin",
+      "editor": "Editor",
+      "viewer": "Visualizador"
+    },
+    "search": {
+      "label": "Buscar usuário por nome",
+      "placeholder": "Buscar por nome..."
+    },
+    "table": {
+      "caption": "Lista de usuários cadastrados, com nome, email, papel e tenant",
+      "loading": "Carregando usuários...",
+      "error": "Não foi possível carregar os usuários.",
+      "empty": "Nenhum usuário encontrado."
+    },
+    "form": {
+      "title": "Adicionar usuário",
+      "submitError": "Não foi possível criar o usuário. Tente novamente."
+    },
+    "validation": {
+      "searchTooLong": "Busca muito longa",
+      "nameTooShort": "Informe ao menos 2 caracteres",
+      "invalidEmail": "Email inválido",
+      "roleRequired": "Selecione um papel"
     }
   }
 }

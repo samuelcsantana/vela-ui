@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useCreateUser } from '../hooks/use-users';
 import { createUserSchema, type CreateUserValues } from '../schema';
 
@@ -10,11 +11,7 @@ interface CreateUserFormProps {
   onClose: () => void;
 }
 
-const ROLE_OPTIONS: Array<{ value: CreateUserValues['role']; label: string }> = [
-  { value: 'admin', label: 'Admin' },
-  { value: 'editor', label: 'Editor' },
-  { value: 'viewer', label: 'Viewer' },
-];
+const ROLE_VALUES: Array<CreateUserValues['role']> = ['admin', 'editor', 'viewer'];
 
 const DIALOG_TITLE_ID = 'create-user-title';
 const FOCUSABLE_SELECTOR =
@@ -24,6 +21,7 @@ const FIELD_CLASSNAME =
   'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus-visible:outline-white';
 
 export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
+  const { t } = useTranslation();
   const createUserMutation = useCreateUser();
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -128,12 +126,12 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
       >
         <div className="mb-4 flex items-center justify-between">
           <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-slate-900 dark:text-white">
-            Add user
+            {t('users.form.title')}
           </h2>
           <button
             type="button"
             onClick={handleClose}
-            aria-label="Close"
+            aria-label={t('common.close')}
             className="flex min-h-11 min-w-11 items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white"
           >
             <X size={18} aria-hidden="true" />
@@ -143,7 +141,7 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-gray-300">
-              Name
+              {t('users.fields.name')}
             </label>
             <input
               id="name"
@@ -154,13 +152,13 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               {...register('name')}
             />
             <p id="name-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
-              {errors.name?.message}
+              {errors.name?.message ? t(errors.name.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
             <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-gray-300">
-              Email
+              {t('users.fields.email')}
             </label>
             <input
               id="email"
@@ -171,13 +169,13 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               {...register('email')}
             />
             <p id="email-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
-              {errors.email?.message}
+              {errors.email?.message ? t(errors.email.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
             <label htmlFor="role" className="text-sm font-medium text-slate-700 dark:text-gray-300">
-              Role
+              {t('users.fields.role')}
             </label>
             <select
               id="role"
@@ -186,19 +184,19 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               className={FIELD_CLASSNAME}
               {...register('role')}
             >
-              {ROLE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+              {ROLE_VALUES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`users.roles.${value}`)}
                 </option>
               ))}
             </select>
             <p id="role-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
-              {errors.role?.message}
+              {errors.role?.message ? t(errors.role.message) : ''}
             </p>
           </div>
 
           <p aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
-            {createUserMutation.isError ? 'Unable to create user. Please try again.' : ''}
+            {createUserMutation.isError ? t('users.form.submitError') : ''}
           </p>
 
           <div className="mt-2 flex justify-end gap-2">
@@ -207,14 +205,14 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               onClick={handleClose}
               className="min-h-11 rounded-md px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-300 dark:hover:bg-slate-800 dark:focus-visible:outline-white"
             >
-              Cancel
+              {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={createUserMutation.isPending}
               className="min-h-11 rounded-md bg-slate-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-slate-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-white dark:text-slate-900 dark:hover:bg-gray-200 dark:focus-visible:outline-white"
             >
-              {createUserMutation.isPending ? 'Saving...' : 'Save'}
+              {createUserMutation.isPending ? t('common.saving') : t('common.save')}
             </button>
           </div>
         </form>

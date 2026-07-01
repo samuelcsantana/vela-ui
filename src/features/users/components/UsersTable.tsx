@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import type { User } from '../api/mock-api';
 
 interface UsersTableProps {
@@ -5,12 +6,6 @@ interface UsersTableProps {
   isLoading: boolean;
   isError: boolean;
 }
-
-const ROLE_LABELS: Record<User['role'], string> = {
-  admin: 'Admin',
-  editor: 'Editor',
-  viewer: 'Viewer',
-};
 
 const ROLE_BADGE_STYLES: Record<User['role'], string> = {
   admin: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300',
@@ -27,10 +22,12 @@ const CELL_CLASSNAME =
 const CELL_LABEL_CLASSNAME = 'md:hidden font-bold text-gray-600 dark:text-gray-400';
 
 export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <p role="status" aria-live="polite" className="py-8 text-center text-sm text-slate-500 dark:text-gray-400">
-        Loading users...
+        {t('users.table.loading')}
       </p>
     );
   }
@@ -38,7 +35,7 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
   if (isError) {
     return (
       <p role="alert" aria-live="polite" className="py-8 text-center text-sm text-red-600 dark:text-red-400">
-        Unable to load users.
+        {t('users.table.error')}
       </p>
     );
   }
@@ -46,7 +43,7 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
   if (!users || users.length === 0) {
     return (
       <p role="status" aria-live="polite" className="py-8 text-center text-sm text-slate-500 dark:text-gray-400">
-        No users found.
+        {t('users.table.empty')}
       </p>
     );
   }
@@ -54,7 +51,7 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
   return (
     <div className="w-full md:rounded-xl md:border md:border-gray-200 md:bg-white md:shadow-sm md:overflow-hidden dark:md:border-slate-700 dark:md:bg-slate-900">
       <table role="table" className="w-full border-collapse text-left text-sm">
-        <caption className="sr-only">List of registered users, with name, email, role and tenant</caption>
+        <caption className="sr-only">{t('users.table.caption')}</caption>
         <thead role="rowgroup" className="hidden md:table-header-group">
           <tr role="row" className="bg-gray-50/80 text-left dark:bg-slate-800/80">
             <th
@@ -62,28 +59,28 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
               role="columnheader"
               className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-slate-700 dark:text-gray-400"
             >
-              Name
+              {t('users.fields.name')}
             </th>
             <th
               scope="col"
               role="columnheader"
               className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-slate-700 dark:text-gray-400"
             >
-              Email
+              {t('users.fields.email')}
             </th>
             <th
               scope="col"
               role="columnheader"
               className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-slate-700 dark:text-gray-400"
             >
-              Role
+              {t('users.fields.role')}
             </th>
             <th
               scope="col"
               role="columnheader"
               className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-slate-700 dark:text-gray-400"
             >
-              Tenant
+              {t('users.fields.tenant')}
             </th>
           </tr>
         </thead>
@@ -99,21 +96,21 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
                 role="rowheader"
                 className={`${CELL_CLASSNAME} text-left font-medium text-gray-900 dark:text-white`}
               >
-                <span className={CELL_LABEL_CLASSNAME}>Name</span>
+                <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.name')}</span>
                 {user.name}
               </th>
               <td role="cell" className={`${CELL_CLASSNAME} text-gray-500 dark:text-gray-400`}>
-                <span className={CELL_LABEL_CLASSNAME}>Email</span>
+                <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.email')}</span>
                 {user.email}
               </td>
               <td role="cell" className={CELL_CLASSNAME}>
-                <span className={CELL_LABEL_CLASSNAME}>Role</span>
+                <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.role')}</span>
                 <span className={`${BADGE_CLASSNAME} ${ROLE_BADGE_STYLES[user.role]}`}>
-                  {ROLE_LABELS[user.role]}
+                  {t(`users.roles.${user.role}`)}
                 </span>
               </td>
               <td role="cell" className={CELL_CLASSNAME}>
-                <span className={CELL_LABEL_CLASSNAME}>Tenant</span>
+                <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.tenant')}</span>
                 <span className={`${BADGE_CLASSNAME} ${TENANT_BADGE_STYLES}`}>{user.tenantId}</span>
               </td>
             </tr>
