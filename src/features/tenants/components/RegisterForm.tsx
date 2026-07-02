@@ -73,7 +73,7 @@ export const RegisterForm = () => {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      <div className="fixed right-4 top-4">
+      <div className="fixed right-4 top-4 rounded-md border border-slate-200 bg-white shadow-sm">
         <LanguageToggle />
       </div>
 
