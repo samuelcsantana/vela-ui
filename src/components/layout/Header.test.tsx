@@ -1,20 +1,25 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { api } from '../../lib/api';
 import { useAuthStore, type AuthUser } from '../../features/auth/store/auth-store';
 import { useLayoutStore } from '../../store/layout-store';
 import { useThemeStore } from '../../store/theme-store';
 import { Header } from './Header';
 
-const { mockNavigate, mockChangeLanguage, mockI18n, mockUseMediaQuery } = vi.hoisted(() => ({
-  mockNavigate: vi.fn(),
+const { mockRouterNavigate, mockChangeLanguage, mockI18n, mockUseMediaQuery } = vi.hoisted(() => ({
+  mockRouterNavigate: vi.fn(),
   mockChangeLanguage: vi.fn(),
   mockI18n: { language: 'en' },
   mockUseMediaQuery: vi.fn(),
 }));
 
-vi.mock('@tanstack/react-router', () => ({
-  useNavigate: () => mockNavigate,
+vi.mock('../../lib/api', () => ({
+  api: { post: vi.fn() },
+}));
+
+vi.mock('../../router', () => ({
+  router: { navigate: mockRouterNavigate },
 }));
 
 vi.mock('react-i18next', () => ({
@@ -111,6 +116,7 @@ describe('Header', () => {
   });
 
   it('shows the user name, role, and logs out on click', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ data: {} });
     useAuthStore.setState({ user: MOCK_ADMIN, isAuthenticated: true });
     const user = userEvent.setup();
     render(<Header />);
@@ -120,7 +126,8 @@ describe('Header', () => {
 
     await user.click(screen.getByRole('button', { name: 'header.logout' }));
 
-    expect(mockNavigate).toHaveBeenCalledWith({ to: '/login' });
+    expect(api.post).toHaveBeenCalledWith('/auth/logout');
+    await vi.waitFor(() => expect(mockRouterNavigate).toHaveBeenCalledWith({ to: '/login' }));
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
     expect(useAuthStore.getState().user).toBeNull();
   });

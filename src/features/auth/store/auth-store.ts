@@ -21,7 +21,7 @@ interface AuthState {
   user: AuthUser | null;
   isAuthenticated: boolean;
   login: (credentials: LoginCredentials) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -33,7 +33,20 @@ export const useAuthStore = create<AuthState>()(
         const { data } = await api.post<{ user: AuthUser }>('/auth/login', credentials);
         set({ user: data.user, isAuthenticated: true });
       },
-      logout: () => set({ user: null, isAuthenticated: false }),
+      logout: async () => {
+        try {
+          await api.post('/auth/logout');
+        } catch (error) {
+          console.error('Logout request failed', error);
+        }
+
+        set({ user: null, isAuthenticated: false });
+
+        // Dynamic import avoids a circular dependency: router.tsx -> routeTree.gen.ts
+        // -> _protected.tsx -> this store.
+        const { router } = await import('../../../router');
+        router.navigate({ to: '/login' });
+      },
     }),
     {
       name: 'vela-ui-auth',

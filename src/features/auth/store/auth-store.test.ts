@@ -6,6 +6,14 @@ vi.mock('../../../lib/api', () => ({
   api: { post: vi.fn() },
 }));
 
+const { mockNavigate } = vi.hoisted(() => ({
+  mockNavigate: vi.fn(),
+}));
+
+vi.mock('../../../router', () => ({
+  router: { navigate: mockNavigate },
+}));
+
 const MOCK_USER: AuthUser = {
   id: 'user-1',
   name: 'Test User',
@@ -19,6 +27,7 @@ const MOCK_CREDENTIALS = { email: 'test@velaui.demo', password: 'secret' };
 describe('useAuthStore', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     localStorage.clear();
     useAuthStore.setState({ user: null, isAuthenticated: false });
   });
@@ -38,14 +47,30 @@ describe('useAuthStore', () => {
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
   });
 
-  it('logs a user out', async () => {
+  it('logs a user out by posting to /auth/logout, clearing state, and redirecting to /login', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({ data: { user: MOCK_USER } });
     await useAuthStore.getState().login(MOCK_CREDENTIALS);
+    vi.mocked(api.post).mockResolvedValueOnce({ data: {} });
 
-    useAuthStore.getState().logout();
+    await useAuthStore.getState().logout();
 
+    expect(api.post).toHaveBeenCalledWith('/auth/logout');
     expect(useAuthStore.getState().user).toBeNull();
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
+    expect(mockNavigate).toHaveBeenCalledWith({ to: '/login' });
+  });
+
+  it('still clears state and redirects when the logout request fails', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ data: { user: MOCK_USER } });
+    await useAuthStore.getState().login(MOCK_CREDENTIALS);
+    vi.mocked(api.post).mockRejectedValueOnce(new Error('Network error'));
+
+    await useAuthStore.getState().logout();
+
+    expect(console.error).toHaveBeenCalledWith('Logout request failed', expect.any(Error));
+    expect(useAuthStore.getState().user).toBeNull();
+    expect(useAuthStore.getState().isAuthenticated).toBe(false);
+    expect(mockNavigate).toHaveBeenCalledWith({ to: '/login' });
   });
 
   it('persists only user and isAuthenticated to localStorage', async () => {

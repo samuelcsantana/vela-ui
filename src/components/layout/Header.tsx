@@ -1,4 +1,3 @@
-import { useNavigate } from '@tanstack/react-router';
 import { LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../features/auth/store/auth-store';
@@ -21,14 +20,12 @@ export const Header = () => {
   const theme = useThemeStore((state) => state.theme);
   const setTheme = useThemeStore((state) => state.setTheme);
   const prefersDark = useMediaQuery(DARK_MEDIA_QUERY);
-  const navigate = useNavigate();
 
   const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
   const isPortuguese = i18n.language === 'pt';
 
   const handleLogout = () => {
-    logout();
-    navigate({ to: '/login' });
+    void logout();
   };
 
   const handleToggleTheme = () => {
