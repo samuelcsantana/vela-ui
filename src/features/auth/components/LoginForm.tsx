@@ -1,22 +1,16 @@
 import { useNavigate } from '@tanstack/react-router';
 import { ShieldCheck, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuthStore, type AuthUser } from '../store/auth-store';
+import { useAuthStore, type LoginCredentials } from '../store/auth-store';
 
-const DEMO_ADMIN: AuthUser = {
-  id: 'demo-admin',
-  name: 'Ana Souza',
+const DEMO_ADMIN: LoginCredentials = {
   email: 'admin@velaui.demo',
-  role: 'admin',
-  tenantId: 'tenant-demo',
+  password: 'demo-admin',
 };
 
-const DEMO_USER: AuthUser = {
-  id: 'demo-user',
-  name: 'Carlos Lima',
+const DEMO_USER: LoginCredentials = {
   email: 'user@velaui.demo',
-  role: 'user',
-  tenantId: 'tenant-demo',
+  password: 'demo-user',
 };
 
 const DEMO_BUTTON_CLASSNAME =
@@ -27,8 +21,8 @@ export const LoginForm = () => {
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
 
-  const handleDemoLogin = (user: AuthUser) => {
-    login(user);
+  const handleDemoLogin = async (credentials: LoginCredentials) => {
+    await login(credentials);
     navigate({ to: '/' });
   };
 
