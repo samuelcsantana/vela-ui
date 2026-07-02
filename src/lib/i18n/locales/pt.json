@@ -39,7 +39,11 @@
       "submitting": "Criando...",
       "submitError": "Não foi possível criar a conta. Tente novamente.",
       "success": "Conta criada com sucesso. Você já pode entrar.",
-      "backToLogin": "Já tem uma conta? Entrar"
+      "backToLogin": "Já tem uma conta? Entrar",
+      "errors": {
+        "slugTaken": "Este slug já está em uso. Escolha outro.",
+        "emailTaken": "Já existe uma conta com este email."
+      }
     },
     "validation": {
       "companyNameTooShort": "Informe ao menos 2 caracteres",

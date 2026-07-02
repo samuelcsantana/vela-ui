@@ -12,6 +12,17 @@ import { registerSchema, type RegisterValues } from '../schema';
 const FIELD_CLASSNAME =
   'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
 
+// The API returns plain-English error strings (see swagger.json), which can't be
+// rendered as-is in a localized UI. Known conflicts are mapped to translated
+// copy; anything unrecognized falls back to a generic translated message.
+const KNOWN_ERROR_KEYS: Record<string, string> = {
+  'A tenant with this slug already exists': 'auth.register.errors.slugTaken',
+  'A user with this email already exists': 'auth.register.errors.emailTaken',
+};
+
+const getRegisterErrorKey = (apiMessage: string | undefined): string =>
+  (apiMessage && KNOWN_ERROR_KEYS[apiMessage]) || 'auth.register.submitError';
+
 export const RegisterForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -53,7 +64,7 @@ export const RegisterForm = () => {
   });
 
   const errorMessage = registerTenantMutation.isError
-    ? (getApiErrorMessage(registerTenantMutation.error) ?? t('auth.register.submitError'))
+    ? t(getRegisterErrorKey(getApiErrorMessage(registerTenantMutation.error)))
     : '';
 
   return (

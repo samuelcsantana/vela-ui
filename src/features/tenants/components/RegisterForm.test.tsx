@@ -120,21 +120,52 @@ describe('RegisterForm', () => {
     expect(submitButton).toBeDisabled();
   });
 
-  it("shows the backend's error message when the mutation fails with an API error", () => {
-    const apiError = new axios.AxiosError('Request failed', '409', undefined, undefined, {
+  const buildApiError = (message: string) =>
+    new axios.AxiosError('Request failed', '409', undefined, undefined, {
       status: 409,
       statusText: 'Conflict',
       headers: {},
       config: {} as never,
-      data: { error: 'A tenant with this slug already exists' },
+      data: { error: message },
     });
-    mockUseRegisterTenant.mockReturnValue({ mutate: mockMutate, isPending: false, isError: true, error: apiError });
+
+  it('shows a translated message when the slug is already taken', () => {
+    mockUseRegisterTenant.mockReturnValue({
+      mutate: mockMutate,
+      isPending: false,
+      isError: true,
+      error: buildApiError('A tenant with this slug already exists'),
+    });
     render(<RegisterForm />);
 
-    expect(screen.getByText('A tenant with this slug already exists')).toBeInTheDocument();
+    expect(screen.getByText('auth.register.errors.slugTaken')).toBeInTheDocument();
   });
 
-  it('falls back to a generic error message when the failure has no API error body', () => {
+  it('shows a translated message when the email is already registered', () => {
+    mockUseRegisterTenant.mockReturnValue({
+      mutate: mockMutate,
+      isPending: false,
+      isError: true,
+      error: buildApiError('A user with this email already exists'),
+    });
+    render(<RegisterForm />);
+
+    expect(screen.getByText('auth.register.errors.emailTaken')).toBeInTheDocument();
+  });
+
+  it('falls back to a generic translated message for an unrecognized API error', () => {
+    mockUseRegisterTenant.mockReturnValue({
+      mutate: mockMutate,
+      isPending: false,
+      isError: true,
+      error: buildApiError('Something unexpected happened'),
+    });
+    render(<RegisterForm />);
+
+    expect(screen.getByText('auth.register.submitError')).toBeInTheDocument();
+  });
+
+  it('falls back to a generic translated message when the failure has no API error body', () => {
     mockUseRegisterTenant.mockReturnValue({
       mutate: mockMutate,
       isPending: false,
