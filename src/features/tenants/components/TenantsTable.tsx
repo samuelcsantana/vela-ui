@@ -1,4 +1,4 @@
-import { Pencil } from 'lucide-react';
+import { Pencil, Trash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../../lib/format';
 import type { Tenant } from '../api/tenants-api';
@@ -8,13 +8,14 @@ interface TenantsTableProps {
   isLoading: boolean;
   isError: boolean;
   onEdit: (tenant: Tenant) => void;
+  onDelete: (tenant: Tenant) => void;
 }
 
 const CELL_CLASSNAME =
   'flex justify-between items-center md:table-cell py-3 px-4 border-b border-gray-100 dark:border-slate-700/60 last:border-0 md:border-0';
 const CELL_LABEL_CLASSNAME = 'md:hidden font-bold text-gray-600 dark:text-gray-400';
 
-export const TenantsTable = ({ tenants, isLoading, isError, onEdit }: TenantsTableProps) => {
+export const TenantsTable = ({ tenants, isLoading, isError, onEdit, onDelete }: TenantsTableProps) => {
   const { t } = useTranslation();
 
   if (isLoading) {
@@ -124,14 +125,24 @@ export const TenantsTable = ({ tenants, isLoading, isError, onEdit }: TenantsTab
               </td>
               <td role="cell" className={CELL_CLASSNAME}>
                 <span className={CELL_LABEL_CLASSNAME}>{t('tenants.fields.actions')}</span>
-                <button
-                  type="button"
-                  onClick={() => onEdit(tenant)}
-                  aria-label={t('tenants.editTenant')}
-                  className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white"
-                >
-                  <Pencil size={16} aria-hidden="true" />
-                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onEdit(tenant)}
+                    aria-label={t('tenants.editTenant')}
+                    className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white"
+                  >
+                    <Pencil size={16} aria-hidden="true" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDelete(tenant)}
+                    aria-label={t('tenants.deleteTenant')}
+                    className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-red-950/40 dark:hover:text-red-400 dark:focus-visible:outline-white"
+                  >
+                    <Trash size={16} aria-hidden="true" />
+                  </button>
+                </div>
               </td>
             </tr>
           ))}

@@ -15,27 +15,27 @@ const MOCK_TENANTS: Tenant[] = [
 
 describe('TenantsTable', () => {
   it('shows a loading status while fetching', () => {
-    render(<TenantsTable tenants={undefined} isLoading isError={false} onEdit={vi.fn()} />);
+    render(<TenantsTable tenants={undefined} isLoading isError={false} onEdit={vi.fn()} onDelete={vi.fn()} />);
     expect(screen.getByRole('status')).toHaveTextContent('tenants.table.loading');
   });
 
   it('shows an alert when the fetch fails', () => {
-    render(<TenantsTable tenants={undefined} isLoading={false} isError onEdit={vi.fn()} />);
+    render(<TenantsTable tenants={undefined} isLoading={false} isError onEdit={vi.fn()} onDelete={vi.fn()} />);
     expect(screen.getByRole('alert')).toHaveTextContent('tenants.table.error');
   });
 
   it('shows an empty state when tenants is undefined', () => {
-    render(<TenantsTable tenants={undefined} isLoading={false} isError={false} onEdit={vi.fn()} />);
+    render(<TenantsTable tenants={undefined} isLoading={false} isError={false} onEdit={vi.fn()} onDelete={vi.fn()} />);
     expect(screen.getByRole('status')).toHaveTextContent('tenants.table.empty');
   });
 
   it('shows an empty state when the tenants list is empty', () => {
-    render(<TenantsTable tenants={[]} isLoading={false} isError={false} onEdit={vi.fn()} />);
+    render(<TenantsTable tenants={[]} isLoading={false} isError={false} onEdit={vi.fn()} onDelete={vi.fn()} />);
     expect(screen.getByRole('status')).toHaveTextContent('tenants.table.empty');
   });
 
-  it('renders every tenant with name, slug, color swatch, formatted creation date, and an edit action', () => {
-    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={vi.fn()} />);
+  it('renders every tenant with name, slug, color swatch, formatted creation date, and edit/delete actions', () => {
+    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={vi.fn()} onDelete={vi.fn()} />);
 
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(3); // header + 2 tenants
@@ -46,10 +46,11 @@ describe('TenantsTable', () => {
     expect(screen.getByText('Jan 15, 2026')).toBeInTheDocument();
     expect(screen.getByText('Feb 20, 2026')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'tenants.editTenant' })).toHaveLength(2);
+    expect(screen.getAllByRole('button', { name: 'tenants.deleteTenant' })).toHaveLength(2);
   });
 
   it('shows a placeholder dash when the tenant has no primaryColor', () => {
-    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={vi.fn()} />);
+    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={vi.fn()} onDelete={vi.fn()} />);
 
     expect(screen.getByText('—')).toBeInTheDocument();
   });
@@ -57,11 +58,22 @@ describe('TenantsTable', () => {
   it('calls onEdit with the clicked tenant', async () => {
     const onEdit = vi.fn();
     const user = userEvent.setup();
-    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={onEdit} />);
+    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={onEdit} onDelete={vi.fn()} />);
 
     const editButtons = screen.getAllByRole('button', { name: 'tenants.editTenant' });
     await user.click(editButtons[1]);
 
     expect(onEdit).toHaveBeenCalledWith(MOCK_TENANTS[1]);
+  });
+
+  it('calls onDelete with the clicked tenant', async () => {
+    const onDelete = vi.fn();
+    const user = userEvent.setup();
+    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={vi.fn()} onDelete={onDelete} />);
+
+    const deleteButtons = screen.getAllByRole('button', { name: 'tenants.deleteTenant' });
+    await user.click(deleteButtons[1]);
+
+    expect(onDelete).toHaveBeenCalledWith(MOCK_TENANTS[1]);
   });
 });

@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { api } from '../../../lib/api';
 import {
   createTenant,
+  deleteTenant,
   fetchPublicTenants,
   fetchTenantBySlug,
   fetchTenants,
@@ -12,7 +13,7 @@ import {
 } from './tenants-api';
 
 vi.mock('../../../lib/api', () => ({
-  api: { get: vi.fn(), post: vi.fn(), patch: vi.fn() },
+  api: { get: vi.fn(), post: vi.fn(), patch: vi.fn(), delete: vi.fn() },
 }));
 
 const MOCK_TENANTS: Tenant[] = [
@@ -135,6 +136,16 @@ describe('updateTenant', () => {
 
     const sentFormData = vi.mocked(api.patch).mock.calls[0][1] as FormData;
     expect(formDataToObject(sentFormData)).toEqual({ primaryColor: '#ff0000' });
+  });
+});
+
+describe('deleteTenant', () => {
+  it('deletes /tenants/{id}', async () => {
+    vi.mocked(api.delete).mockResolvedValueOnce({ data: { message: 'Tenant deleted' } });
+
+    await deleteTenant('tenant-1');
+
+    expect(api.delete).toHaveBeenCalledWith('/tenants/tenant-1');
   });
 });
 

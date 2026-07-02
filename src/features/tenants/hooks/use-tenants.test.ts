@@ -1,18 +1,20 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createQueryWrapper, createTestQueryClient } from '../../../test/react-query';
-import { createTenant, fetchTenants, updateTenant, type Tenant } from '../api/tenants-api';
-import { useCreateTenant, useTenants, useUpdateTenant } from './use-tenants';
+import { createTenant, deleteTenant, fetchTenants, updateTenant, type Tenant } from '../api/tenants-api';
+import { useCreateTenant, useDeleteTenant, useTenants, useUpdateTenant } from './use-tenants';
 
 vi.mock('../api/tenants-api', () => ({
   fetchTenants: vi.fn(),
   createTenant: vi.fn(),
   updateTenant: vi.fn(),
+  deleteTenant: vi.fn(),
 }));
 
 const mockFetchTenants = vi.mocked(fetchTenants);
 const mockCreateTenant = vi.mocked(createTenant);
 const mockUpdateTenant = vi.mocked(updateTenant);
+const mockDeleteTenant = vi.mocked(deleteTenant);
 
 const MOCK_TENANTS: Tenant[] = [
   { id: '1', slug: 'vela', name: 'Vela Corp', primaryColor: '#0052cc', logoUrl: null, createdAt: '2026-01-01T00:00:00.000Z' },
@@ -129,5 +131,42 @@ describe('useUpdateTenant', () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(invalidateSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('useDeleteTenant', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('removes the deleted tenant from the cache on success', async () => {
+    mockDeleteTenant.mockResolvedValue(undefined);
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData(['tenants'], MOCK_TENANTS);
+
+    const { result } = renderHook(() => useDeleteTenant(), { wrapper: createQueryWrapper(queryClient) });
+
+    act(() => {
+      result.current.mutate('1');
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockDeleteTenant).toHaveBeenCalledWith('1');
+    expect(queryClient.getQueryData(['tenants'])).toEqual([]);
+  });
+
+  it('leaves the cache untouched when the mutation fails', async () => {
+    mockDeleteTenant.mockRejectedValue(new Error('tenant still has users'));
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData(['tenants'], MOCK_TENANTS);
+
+    const { result } = renderHook(() => useDeleteTenant(), { wrapper: createQueryWrapper(queryClient) });
+
+    act(() => {
+      result.current.mutate('1');
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(queryClient.getQueryData(['tenants'])).toEqual(MOCK_TENANTS);
   });
 });

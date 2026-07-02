@@ -97,6 +97,7 @@
     "title": "Empresas",
     "addTenant": "Nova Empresa",
     "editTenant": "Editar empresa",
+    "deleteTenant": "Excluir empresa",
     "fields": {
       "name": "Nome",
       "slug": "Slug",
@@ -120,7 +121,15 @@
       "logoPreviewAlt": "Pré-visualização do logo",
       "submitError": "Não foi possível criar a empresa. Tente novamente.",
       "editSubmitError": "Não foi possível atualizar a empresa. Tente novamente.",
-      "editSuccess": "Empresa atualizada com sucesso."
+      "editSuccess": "Empresa atualizada com sucesso.",
+      "deleteSuccess": "Empresa excluída com sucesso.",
+      "deleteSubmitError": "Não foi possível excluir a empresa. Tente novamente."
+    },
+    "deleteDialog": {
+      "title": "Você tem certeza absoluta?",
+      "description": "Esta ação não pode ser desfeita. Isso excluirá permanentemente \"{{name}}\".",
+      "confirm": "Excluir",
+      "confirmPending": "Excluindo..."
     },
     "validation": {
       "nameTooShort": "Informe ao menos 2 caracteres",
@@ -129,7 +138,8 @@
       "primaryColorInvalid": "Use uma cor hexadecimal, ex: #0052cc"
     },
     "errors": {
-      "slugTaken": "Este slug já está em uso. Escolha outro."
+      "slugTaken": "Este slug já está em uso. Escolha outro.",
+      "hasUsers": "Esta empresa ainda possui usuários. Remova ou reatribua-os primeiro."
     }
   }
 }

@@ -97,6 +97,7 @@
     "title": "Tenants",
     "addTenant": "New Tenant",
     "editTenant": "Edit tenant",
+    "deleteTenant": "Delete tenant",
     "fields": {
       "name": "Name",
       "slug": "Slug",
@@ -120,7 +121,15 @@
       "logoPreviewAlt": "Logo preview",
       "submitError": "Unable to create the tenant. Please try again.",
       "editSubmitError": "Unable to update the tenant. Please try again.",
-      "editSuccess": "Tenant updated successfully."
+      "editSuccess": "Tenant updated successfully.",
+      "deleteSuccess": "Tenant deleted successfully.",
+      "deleteSubmitError": "Unable to delete the tenant. Please try again."
+    },
+    "deleteDialog": {
+      "title": "Are you absolutely sure?",
+      "description": "This action cannot be undone. This will permanently delete \"{{name}}\".",
+      "confirm": "Delete",
+      "confirmPending": "Deleting..."
     },
     "validation": {
       "nameTooShort": "Enter at least 2 characters",
@@ -129,7 +138,8 @@
       "primaryColorInvalid": "Use a hex color, e.g. #0052cc"
     },
     "errors": {
-      "slugTaken": "This slug is already taken. Please choose another one."
+      "slugTaken": "This slug is already taken. Please choose another one.",
+      "hasUsers": "This tenant still has users. Remove or reassign them first."
     }
   }
 }

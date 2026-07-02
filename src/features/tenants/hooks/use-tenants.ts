@@ -1,5 +1,13 @@
 import { useMutation, useQuery, useQueryClient, type UseMutationResult, type UseQueryResult } from '@tanstack/react-query';
-import { createTenant, fetchTenants, updateTenant, type CreateTenantInput, type Tenant, type UpdateTenantInput } from '../api/tenants-api';
+import {
+  createTenant,
+  deleteTenant,
+  fetchTenants,
+  updateTenant,
+  type CreateTenantInput,
+  type Tenant,
+  type UpdateTenantInput,
+} from '../api/tenants-api';
 
 const TENANTS_QUERY_KEY = ['tenants'] as const;
 
@@ -33,6 +41,18 @@ export function useUpdateTenant(): UseMutationResult<Tenant, unknown, UpdateTena
     mutationFn: ({ id, input }: UpdateTenantVariables) => updateTenant(id, input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TENANTS_QUERY_KEY });
+    },
+  });
+}
+
+export function useDeleteTenant(): UseMutationResult<void, unknown, string> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => deleteTenant(id),
+    // Removes the row from the cache directly instead of refetching, so the table updates instantly.
+    onSuccess: (_data, id) => {
+      queryClient.setQueryData<Tenant[]>(TENANTS_QUERY_KEY, (previous) => previous?.filter((tenant) => tenant.id !== id));
     },
   });
 }
