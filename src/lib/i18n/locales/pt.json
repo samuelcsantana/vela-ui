@@ -38,6 +38,7 @@
       "companyNameHelper": "Ex: Sicredi, Nubank, Acme Corp",
       "slug": "Slug",
       "slugHelper": "Define a URL do seu workspace. Ex: /sicredi",
+      "passwordHelper": "Mínimo de 6 caracteres",
       "submit": "Criar Conta",
       "submitting": "Criando...",
       "submitError": "Não foi possível criar a conta. Tente novamente.",

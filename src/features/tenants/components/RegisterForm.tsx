@@ -40,20 +40,23 @@ export const RegisterForm = () => {
     watch,
     setValue,
     reset,
-    formState: { errors },
+    formState: { errors, dirtyFields, isSubmitted },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
+    mode: 'onChange',
     defaultValues: { companyName: '', slug: '', email: '', password: '' },
   });
 
   const companyName = watch('companyName');
 
+  // Only auto-populates the value — never forces validation, otherwise the slug
+  // field would show a "too short" error before the user has typed anything.
   useEffect(() => {
     if (isSlugEdited.current) {
       return;
     }
 
-    setValue('slug', slugify(companyName), { shouldValidate: true });
+    setValue('slug', slugify(companyName));
   }, [companyName, setValue]);
 
   const onSubmit = handleSubmit((values) => {
@@ -70,6 +73,11 @@ export const RegisterForm = () => {
   const errorMessage = registerTenantMutation.isError
     ? t(getRegisterErrorKey(getApiErrorMessage(registerTenantMutation.error)))
     : '';
+
+  // A field only shows its error once the user has actually edited it, or after a
+  // submit attempt (which must surface every remaining problem regardless of what
+  // was touched) — never merely because the resolver validated the whole schema.
+  const shouldShowFieldError = (field: keyof RegisterValues) => Boolean(dirtyFields[field]) || isSubmitted;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
@@ -96,9 +104,11 @@ export const RegisterForm = () => {
             <input
               id="companyName"
               type="text"
-              aria-invalid={Boolean(errors.companyName)}
+              aria-invalid={shouldShowFieldError('companyName') && Boolean(errors.companyName)}
               aria-describedby={
-                errors.companyName ? 'companyName-helper companyName-error' : 'companyName-helper'
+                shouldShowFieldError('companyName') && errors.companyName
+                  ? 'companyName-helper companyName-error'
+                  : 'companyName-helper'
               }
               className={FIELD_CLASSNAME}
               {...register('companyName')}
@@ -107,7 +117,9 @@ export const RegisterForm = () => {
               {t('auth.register.companyNameHelper')}
             </p>
             <p id="companyName-error" aria-live="polite" className="text-sm text-red-600">
-              {errors.companyName?.message ? t(errors.companyName.message) : ''}
+              {shouldShowFieldError('companyName') && errors.companyName?.message
+                ? t(errors.companyName.message)
+                : ''}
             </p>
           </div>
 
@@ -118,8 +130,10 @@ export const RegisterForm = () => {
             <input
               id="slug"
               type="text"
-              aria-invalid={Boolean(errors.slug)}
-              aria-describedby={errors.slug ? 'slug-helper slug-error' : 'slug-helper'}
+              aria-invalid={shouldShowFieldError('slug') && Boolean(errors.slug)}
+              aria-describedby={
+                shouldShowFieldError('slug') && errors.slug ? 'slug-helper slug-error' : 'slug-helper'
+              }
               className={FIELD_CLASSNAME}
               {...register('slug', {
                 onChange: () => {
@@ -131,7 +145,7 @@ export const RegisterForm = () => {
               {t('auth.register.slugHelper')}
             </p>
             <p id="slug-error" aria-live="polite" className="text-sm text-red-600">
-              {errors.slug?.message ? t(errors.slug.message) : ''}
+              {shouldShowFieldError('slug') && errors.slug?.message ? t(errors.slug.message) : ''}
             </p>
           </div>
 
@@ -142,13 +156,13 @@ export const RegisterForm = () => {
             <input
               id="email"
               type="email"
-              aria-invalid={Boolean(errors.email)}
-              aria-describedby={errors.email ? 'email-error' : undefined}
+              aria-invalid={shouldShowFieldError('email') && Boolean(errors.email)}
+              aria-describedby={shouldShowFieldError('email') && errors.email ? 'email-error' : undefined}
               className={FIELD_CLASSNAME}
               {...register('email')}
             />
             <p id="email-error" aria-live="polite" className="text-sm text-red-600">
-              {errors.email?.message ? t(errors.email.message) : ''}
+              {shouldShowFieldError('email') && errors.email?.message ? t(errors.email.message) : ''}
             </p>
           </div>
 
@@ -159,13 +173,20 @@ export const RegisterForm = () => {
             <input
               id="password"
               type="password"
-              aria-invalid={Boolean(errors.password)}
-              aria-describedby={errors.password ? 'password-error' : undefined}
+              aria-invalid={shouldShowFieldError('password') && Boolean(errors.password)}
+              aria-describedby={
+                shouldShowFieldError('password') && errors.password
+                  ? 'password-helper password-error'
+                  : 'password-helper'
+              }
               className={FIELD_CLASSNAME}
               {...register('password')}
             />
+            <p id="password-helper" className={HELPER_TEXT_CLASSNAME}>
+              {t('auth.register.passwordHelper')}
+            </p>
             <p id="password-error" aria-live="polite" className="text-sm text-red-600">
-              {errors.password?.message ? t(errors.password.message) : ''}
+              {shouldShowFieldError('password') && errors.password?.message ? t(errors.password.message) : ''}
             </p>
           </div>
 

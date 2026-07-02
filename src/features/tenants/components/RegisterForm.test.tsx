@@ -68,11 +68,45 @@ describe('RegisterForm', () => {
     expect(screen.getByRole('note')).toHaveTextContent('auth.register.sandboxNotice');
   });
 
-  it('shows helper text under the company name and slug fields', () => {
+  it('shows helper text under the company name, slug, and password fields', () => {
     render(<RegisterForm />);
 
     expect(screen.getByText('auth.register.companyNameHelper')).toBeInTheDocument();
     expect(screen.getByText('auth.register.slugHelper')).toBeInTheDocument();
+    expect(screen.getByText('auth.register.passwordHelper')).toBeInTheDocument();
+  });
+
+  it('shows no validation errors on initial render, before any interaction', () => {
+    render(<RegisterForm />);
+
+    expect(screen.queryByText('auth.validation.companyNameTooShort')).not.toBeInTheDocument();
+    expect(screen.queryByText('auth.validation.slugTooShort')).not.toBeInTheDocument();
+    expect(screen.queryByText('users.validation.invalidEmail')).not.toBeInTheDocument();
+    expect(screen.queryByText('users.validation.passwordTooShort')).not.toBeInTheDocument();
+  });
+
+  it('shows the email format error live while typing, without submitting', async () => {
+    const user = userEvent.setup();
+    render(<RegisterForm />);
+
+    await user.type(screen.getByLabelText('users.fields.email'), 'not-an-email');
+
+    expect(await screen.findByText('users.validation.invalidEmail')).toBeInTheDocument();
+    expect(mockMutate).not.toHaveBeenCalled();
+
+    await user.type(screen.getByLabelText('users.fields.email'), '@vela.com');
+
+    await waitFor(() => expect(screen.queryByText('users.validation.invalidEmail')).not.toBeInTheDocument());
+  });
+
+  it('does not leak the company name error onto the untouched slug field while typing', async () => {
+    const user = userEvent.setup();
+    render(<RegisterForm />);
+
+    await user.type(screen.getByLabelText('auth.register.companyName'), 'A');
+
+    expect(await screen.findByText('auth.validation.companyNameTooShort')).toBeInTheDocument();
+    expect(screen.queryByText('auth.validation.slugTooShort')).not.toBeInTheDocument();
   });
 
   it('links back to the login page', () => {
