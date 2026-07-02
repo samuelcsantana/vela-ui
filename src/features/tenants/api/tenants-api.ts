@@ -1,0 +1,16 @@
+import { api } from '../../../lib/api';
+
+// Mirrors the tenant schema in swagger.json exactly.
+export interface Tenant {
+  id: string;
+  slug: string;
+  name: string;
+  primaryColor: string | null;
+  logoUrl: string | null;
+  createdAt: string;
+}
+
+export async function fetchTenants(): Promise<Tenant[]> {
+  const { data } = await api.get<Tenant[]>('/tenants');
+  return data;
+}

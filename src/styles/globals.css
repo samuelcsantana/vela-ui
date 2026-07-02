@@ -12,6 +12,8 @@
   --border: 214 32% 91%;
   --muted: 210 40% 96%;
   --muted-foreground: 215 16% 47%;
+  /* Overwritten at runtime by useTenantBranding once the logged-in user's tenant resolves. */
+  --tenant-brand: #0052cc;
 }
 
 .dark {
@@ -32,4 +34,5 @@
   --color-border: hsl(var(--border));
   --color-muted: hsl(var(--muted));
   --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-brand: var(--tenant-brand);
 }

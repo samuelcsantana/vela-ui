@@ -38,7 +38,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-slate-200 bg-white px-4 dark:border-slate-700 dark:bg-slate-900">
+    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b-2 border-brand bg-white px-4 dark:bg-slate-900">
       <button
         type="button"
         onClick={toggleSidebar}

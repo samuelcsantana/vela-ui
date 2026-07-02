@@ -110,7 +110,7 @@ export const Sidebar = () => {
                 to={to}
                 onClick={handleNavLinkClick}
                 className={NAV_ITEM_CLASSNAME}
-                activeProps={{ className: 'bg-gray-800 text-white font-semibold' }}
+                activeProps={{ className: 'bg-brand text-white font-semibold' }}
               >
                 <Icon size={20} className="shrink-0" aria-hidden="true" />
                 {labelSpan}

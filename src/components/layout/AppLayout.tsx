@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useTenantBranding } from '../../features/tenants/hooks/use-tenant-branding';
 import { Header } from './Header';
 import { Sidebar } from './Sidebar';
 
@@ -9,6 +10,7 @@ interface AppLayoutProps {
 
 export const AppLayout = ({ children }: AppLayoutProps) => {
   const { t } = useTranslation();
+  useTenantBranding();
 
   return (
     <div className="min-h-screen flex">
