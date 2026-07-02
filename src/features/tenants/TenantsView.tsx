@@ -2,12 +2,15 @@ import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CreateTenantForm } from './components/CreateTenantForm';
+import { EditTenantForm } from './components/EditTenantForm';
 import { TenantsTable } from './components/TenantsTable';
 import { useTenants } from './hooks/use-tenants';
+import type { Tenant } from './api/tenants-api';
 
 export const TenantsView = () => {
   const { t } = useTranslation();
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
+  const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const { data: tenants, isLoading, isError } = useTenants();
 
   return (
@@ -24,9 +27,10 @@ export const TenantsView = () => {
         </button>
       </div>
 
-      <TenantsTable tenants={tenants} isLoading={isLoading} isError={isError} />
+      <TenantsTable tenants={tenants} isLoading={isLoading} isError={isError} onEdit={setEditingTenant} />
 
       <CreateTenantForm isOpen={isCreateFormOpen} onClose={() => setIsCreateFormOpen(false)} />
+      <EditTenantForm tenant={editingTenant} onClose={() => setEditingTenant(null)} />
     </div>
   );
 };

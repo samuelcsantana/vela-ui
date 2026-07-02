@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type { Tenant } from '../api/tenants-api';
 import { TenantsTable } from './TenantsTable';
@@ -14,27 +15,27 @@ const MOCK_TENANTS: Tenant[] = [
 
 describe('TenantsTable', () => {
   it('shows a loading status while fetching', () => {
-    render(<TenantsTable tenants={undefined} isLoading isError={false} />);
+    render(<TenantsTable tenants={undefined} isLoading isError={false} onEdit={vi.fn()} />);
     expect(screen.getByRole('status')).toHaveTextContent('tenants.table.loading');
   });
 
   it('shows an alert when the fetch fails', () => {
-    render(<TenantsTable tenants={undefined} isLoading={false} isError />);
+    render(<TenantsTable tenants={undefined} isLoading={false} isError onEdit={vi.fn()} />);
     expect(screen.getByRole('alert')).toHaveTextContent('tenants.table.error');
   });
 
   it('shows an empty state when tenants is undefined', () => {
-    render(<TenantsTable tenants={undefined} isLoading={false} isError={false} />);
+    render(<TenantsTable tenants={undefined} isLoading={false} isError={false} onEdit={vi.fn()} />);
     expect(screen.getByRole('status')).toHaveTextContent('tenants.table.empty');
   });
 
   it('shows an empty state when the tenants list is empty', () => {
-    render(<TenantsTable tenants={[]} isLoading={false} isError={false} />);
+    render(<TenantsTable tenants={[]} isLoading={false} isError={false} onEdit={vi.fn()} />);
     expect(screen.getByRole('status')).toHaveTextContent('tenants.table.empty');
   });
 
-  it('renders every tenant with name, slug, color swatch, and formatted creation date', () => {
-    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} />);
+  it('renders every tenant with name, slug, color swatch, formatted creation date, and an edit action', () => {
+    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={vi.fn()} />);
 
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(3); // header + 2 tenants
@@ -44,11 +45,23 @@ describe('TenantsTable', () => {
     expect(screen.getByText('#0052cc')).toBeInTheDocument();
     expect(screen.getByText('Jan 15, 2026')).toBeInTheDocument();
     expect(screen.getByText('Feb 20, 2026')).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: 'tenants.editTenant' })).toHaveLength(2);
   });
 
   it('shows a placeholder dash when the tenant has no primaryColor', () => {
-    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} />);
+    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={vi.fn()} />);
 
     expect(screen.getByText('—')).toBeInTheDocument();
+  });
+
+  it('calls onEdit with the clicked tenant', async () => {
+    const onEdit = vi.fn();
+    const user = userEvent.setup();
+    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={onEdit} />);
+
+    const editButtons = screen.getAllByRole('button', { name: 'tenants.editTenant' });
+    await user.click(editButtons[1]);
+
+    expect(onEdit).toHaveBeenCalledWith(MOCK_TENANTS[1]);
   });
 });

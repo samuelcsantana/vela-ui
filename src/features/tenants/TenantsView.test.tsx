@@ -15,14 +15,25 @@ vi.mock('./hooks/use-tenants', () => ({
   useTenants: () => mockUseTenants(),
 }));
 
+const MOCK_TENANT = { id: '1', name: 'Vela Corp' };
+
 vi.mock('./components/TenantsTable', () => ({
-  TenantsTable: (props: { tenants: unknown; isLoading: boolean; isError: boolean }) => (
+  TenantsTable: (props: {
+    tenants: unknown;
+    isLoading: boolean;
+    isError: boolean;
+    onEdit: (tenant: typeof MOCK_TENANT) => void;
+  }) => (
     <div
       data-testid="tenants-table-stub"
       data-loading={String(props.isLoading)}
       data-error={String(props.isError)}
       data-tenants={JSON.stringify(props.tenants)}
-    />
+    >
+      <button type="button" onClick={() => props.onEdit(MOCK_TENANT)}>
+        edit-first
+      </button>
+    </div>
   ),
 }));
 
@@ -32,6 +43,17 @@ vi.mock('./components/CreateTenantForm', () => ({
       <div data-testid="create-tenant-form-stub">
         <button type="button" onClick={onClose}>
           close
+        </button>
+      </div>
+    ) : null,
+}));
+
+vi.mock('./components/EditTenantForm', () => ({
+  EditTenantForm: ({ tenant, onClose }: { tenant: typeof MOCK_TENANT | null; onClose: () => void }) =>
+    tenant ? (
+      <div data-testid="edit-tenant-form-stub" data-tenant={JSON.stringify(tenant)}>
+        <button type="button" onClick={onClose}>
+          close-edit
         </button>
       </div>
     ) : null,
@@ -70,5 +92,19 @@ describe('TenantsView', () => {
 
     await user.click(screen.getByRole('button', { name: 'close' }));
     expect(screen.queryByTestId('create-tenant-form-stub')).not.toBeInTheDocument();
+  });
+
+  it('opens the edit tenant dialog with the selected tenant and closes it again', async () => {
+    const user = userEvent.setup();
+    render(<TenantsView />);
+
+    expect(screen.queryByTestId('edit-tenant-form-stub')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'edit-first' }));
+    const editForm = screen.getByTestId('edit-tenant-form-stub');
+    expect(editForm).toHaveAttribute('data-tenant', JSON.stringify(MOCK_TENANT));
+
+    await user.click(screen.getByRole('button', { name: 'close-edit' }));
+    expect(screen.queryByTestId('edit-tenant-form-stub')).not.toBeInTheDocument();
   });
 });

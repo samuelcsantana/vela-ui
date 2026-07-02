@@ -1,16 +1,18 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createQueryWrapper, createTestQueryClient } from '../../../test/react-query';
-import { createTenant, fetchTenants, type Tenant } from '../api/tenants-api';
-import { useCreateTenant, useTenants } from './use-tenants';
+import { createTenant, fetchTenants, updateTenant, type Tenant } from '../api/tenants-api';
+import { useCreateTenant, useTenants, useUpdateTenant } from './use-tenants';
 
 vi.mock('../api/tenants-api', () => ({
   fetchTenants: vi.fn(),
   createTenant: vi.fn(),
+  updateTenant: vi.fn(),
 }));
 
 const mockFetchTenants = vi.mocked(fetchTenants);
 const mockCreateTenant = vi.mocked(createTenant);
+const mockUpdateTenant = vi.mocked(updateTenant);
 
 const MOCK_TENANTS: Tenant[] = [
   { id: '1', slug: 'vela', name: 'Vela Corp', primaryColor: '#0052cc', logoUrl: null, createdAt: '2026-01-01T00:00:00.000Z' },
@@ -78,6 +80,51 @@ describe('useCreateTenant', () => {
 
     act(() => {
       result.current.mutate({ name: 'Sicredi', slug: 'sicredi' });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(invalidateSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('useUpdateTenant', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('updates the tenant and invalidates the tenants query on success', async () => {
+    const updatedTenant: Tenant = {
+      id: '1',
+      slug: 'vela',
+      name: 'Vela Corp Updated',
+      primaryColor: '#0052cc',
+      logoUrl: null,
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+    mockUpdateTenant.mockResolvedValue(updatedTenant);
+    const queryClient = createTestQueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    const { result } = renderHook(() => useUpdateTenant(), { wrapper: createQueryWrapper(queryClient) });
+
+    act(() => {
+      result.current.mutate({ id: '1', input: { name: 'Vela Corp Updated' } });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockUpdateTenant).toHaveBeenCalledWith('1', { name: 'Vela Corp Updated' });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['tenants'] });
+  });
+
+  it('does not invalidate the tenants query when the mutation fails', async () => {
+    mockUpdateTenant.mockRejectedValue(new Error('slug taken'));
+    const queryClient = createTestQueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    const { result } = renderHook(() => useUpdateTenant(), { wrapper: createQueryWrapper(queryClient) });
+
+    act(() => {
+      result.current.mutate({ id: '1', input: { name: 'Vela Corp Updated' } });
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));

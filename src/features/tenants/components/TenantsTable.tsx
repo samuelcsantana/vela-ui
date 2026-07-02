@@ -1,3 +1,4 @@
+import { Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../../lib/format';
 import type { Tenant } from '../api/tenants-api';
@@ -6,13 +7,14 @@ interface TenantsTableProps {
   tenants: Tenant[] | undefined;
   isLoading: boolean;
   isError: boolean;
+  onEdit: (tenant: Tenant) => void;
 }
 
 const CELL_CLASSNAME =
   'flex justify-between items-center md:table-cell py-3 px-4 border-b border-gray-100 dark:border-slate-700/60 last:border-0 md:border-0';
 const CELL_LABEL_CLASSNAME = 'md:hidden font-bold text-gray-600 dark:text-gray-400';
 
-export const TenantsTable = ({ tenants, isLoading, isError }: TenantsTableProps) => {
+export const TenantsTable = ({ tenants, isLoading, isError, onEdit }: TenantsTableProps) => {
   const { t } = useTranslation();
 
   if (isLoading) {
@@ -73,6 +75,13 @@ export const TenantsTable = ({ tenants, isLoading, isError }: TenantsTableProps)
             >
               {t('tenants.fields.dateCreated')}
             </th>
+            <th
+              scope="col"
+              role="columnheader"
+              className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-slate-700 dark:text-gray-400"
+            >
+              {t('tenants.fields.actions')}
+            </th>
           </tr>
         </thead>
         <tbody role="rowgroup" className="block md:table-row-group">
@@ -112,6 +121,17 @@ export const TenantsTable = ({ tenants, isLoading, isError }: TenantsTableProps)
               <td role="cell" className={`${CELL_CLASSNAME} text-gray-500 dark:text-gray-400`}>
                 <span className={CELL_LABEL_CLASSNAME}>{t('tenants.fields.dateCreated')}</span>
                 {formatDate(tenant.createdAt)}
+              </td>
+              <td role="cell" className={CELL_CLASSNAME}>
+                <span className={CELL_LABEL_CLASSNAME}>{t('tenants.fields.actions')}</span>
+                <button
+                  type="button"
+                  onClick={() => onEdit(tenant)}
+                  aria-label={t('tenants.editTenant')}
+                  className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white"
+                >
+                  <Pencil size={16} aria-hidden="true" />
+                </button>
               </td>
             </tr>
           ))}

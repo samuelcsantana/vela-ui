@@ -96,25 +96,30 @@
   "tenants": {
     "title": "Tenants",
     "addTenant": "New Tenant",
+    "editTenant": "Edit tenant",
     "fields": {
       "name": "Name",
       "slug": "Slug",
       "primaryColor": "Primary Color",
       "logoUrl": "Logo URL",
-      "dateCreated": "Date Created"
+      "dateCreated": "Date Created",
+      "actions": "Actions"
     },
     "table": {
-      "caption": "List of registered tenants, with name, slug, primary color and date created",
+      "caption": "List of registered tenants, with name, slug, primary color, date created and actions",
       "loading": "Loading tenants...",
       "error": "Unable to load tenants.",
       "empty": "No tenants found."
     },
     "form": {
       "title": "New tenant",
+      "editTitle": "Edit tenant",
       "slugHelper": "Defines the tenant's login URL. E.g.: /sicredi/login",
       "primaryColorHelper": "Used for White-label branding (optional)",
       "logoUrlHelper": "Public URL to the tenant's logo (optional)",
-      "submitError": "Unable to create the tenant. Please try again."
+      "submitError": "Unable to create the tenant. Please try again.",
+      "editSubmitError": "Unable to update the tenant. Please try again.",
+      "editSuccess": "Tenant updated successfully."
     },
     "validation": {
       "nameTooShort": "Enter at least 2 characters",

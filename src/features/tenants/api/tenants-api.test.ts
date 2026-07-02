@@ -6,12 +6,13 @@ import {
   fetchTenantBySlug,
   fetchTenants,
   joinTenant,
+  updateTenant,
   type PublicTenant,
   type Tenant,
 } from './tenants-api';
 
 vi.mock('../../../lib/api', () => ({
-  api: { get: vi.fn(), post: vi.fn() },
+  api: { get: vi.fn(), post: vi.fn(), patch: vi.fn() },
 }));
 
 const MOCK_TENANTS: Tenant[] = [
@@ -58,6 +59,18 @@ describe('fetchTenantBySlug', () => {
 
     expect(api.get).toHaveBeenCalledWith('/tenants/vela');
     expect(tenant).toEqual(MOCK_TENANTS[0]);
+  });
+});
+
+describe('updateTenant', () => {
+  it('patches /tenants/{id} with only the given fields and returns the updated tenant', async () => {
+    const updated = { ...MOCK_TENANTS[0], name: 'Vela Corp Updated' };
+    vi.mocked(api.patch).mockResolvedValueOnce({ data: updated });
+
+    const result = await updateTenant('tenant-1', { name: 'Vela Corp Updated' });
+
+    expect(api.patch).toHaveBeenCalledWith('/tenants/tenant-1', { name: 'Vela Corp Updated' });
+    expect(result).toEqual(updated);
   });
 });
 

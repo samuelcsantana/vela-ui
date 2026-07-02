@@ -96,25 +96,30 @@
   "tenants": {
     "title": "Empresas",
     "addTenant": "Nova Empresa",
+    "editTenant": "Editar empresa",
     "fields": {
       "name": "Nome",
       "slug": "Slug",
       "primaryColor": "Cor Primária",
       "logoUrl": "URL do Logo",
-      "dateCreated": "Data de Criação"
+      "dateCreated": "Data de Criação",
+      "actions": "Ações"
     },
     "table": {
-      "caption": "Lista de empresas cadastradas, com nome, slug, cor primária e data de criação",
+      "caption": "Lista de empresas cadastradas, com nome, slug, cor primária, data de criação e ações",
       "loading": "Carregando empresas...",
       "error": "Não foi possível carregar as empresas.",
       "empty": "Nenhuma empresa encontrada."
     },
     "form": {
       "title": "Nova empresa",
+      "editTitle": "Editar empresa",
       "slugHelper": "Define a URL de login da empresa. Ex: /sicredi/login",
       "primaryColorHelper": "Usado para a marca White-label (opcional)",
       "logoUrlHelper": "URL pública do logo da empresa (opcional)",
-      "submitError": "Não foi possível criar a empresa. Tente novamente."
+      "submitError": "Não foi possível criar a empresa. Tente novamente.",
+      "editSubmitError": "Não foi possível atualizar a empresa. Tente novamente.",
+      "editSuccess": "Empresa atualizada com sucesso."
     },
     "validation": {
       "nameTooShort": "Informe ao menos 2 caracteres",

@@ -35,6 +35,19 @@ export async function fetchTenantBySlug(slug: string): Promise<Tenant> {
   return data;
 }
 
+export interface UpdateTenantInput {
+  name?: string;
+  slug?: string;
+  primaryColor?: string;
+  logoUrl?: string;
+}
+
+// PATCH /api/tenants/{id} — admin only. Partial update; only send fields that changed.
+export async function updateTenant(id: string, input: UpdateTenantInput): Promise<Tenant> {
+  const { data } = await api.patch<Tenant>(`/tenants/${id}`, input);
+  return data;
+}
+
 // Only the non-sensitive fields exposed by GET /api/tenants/public.
 export interface PublicTenant {
   id: string;
