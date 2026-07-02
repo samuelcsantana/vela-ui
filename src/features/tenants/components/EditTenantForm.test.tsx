@@ -54,7 +54,13 @@ describe('EditTenantForm', () => {
     expect(screen.getByLabelText('tenants.fields.name')).toHaveValue('Vela Corp');
     expect(screen.getByLabelText('tenants.fields.slug')).toHaveValue('vela');
     expect(screen.getByLabelText('tenants.fields.primaryColor')).toHaveValue('#0052cc');
-    expect(screen.getByLabelText('tenants.fields.logoUrl')).toHaveValue('https://example.com/logo.png');
+    expect(screen.getByAltText('tenants.form.logoPreviewAlt')).toHaveAttribute('src', 'https://example.com/logo.png');
+  });
+
+  it('shows no logo preview when the tenant has no logo', () => {
+    render(<EditTenantForm tenant={{ ...MOCK_TENANT, logoUrl: null }} onClose={vi.fn()} />);
+
+    expect(screen.queryByAltText('tenants.form.logoPreviewAlt')).not.toBeInTheDocument();
   });
 
   it('pre-fills the color input with the default brand color when the tenant has none set', () => {
@@ -160,32 +166,23 @@ describe('EditTenantForm', () => {
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it('shows a validation error when logoUrl is set to an invalid URL', async () => {
-    const user = userEvent.setup();
-    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
-
-    const logoUrlInput = screen.getByLabelText('tenants.fields.logoUrl');
-    await user.clear(logoUrlInput);
-    await user.type(logoUrlInput, 'not-a-url');
-    await user.click(screen.getByRole('button', { name: 'common.save' }));
-
-    expect(await screen.findByText('tenants.validation.logoUrlInvalid')).toBeInTheDocument();
-    expect(mockMutate).not.toHaveBeenCalled();
-  });
-
-  it('sends undefined for logoUrl when it is dirtied and cleared to empty', async () => {
+  it('replaces the logo preview with the newly selected file and sends it as the logo field', async () => {
     mockMutate.mockImplementation((_variables, { onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
     });
     const user = userEvent.setup();
     render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
 
-    await user.clear(screen.getByLabelText('tenants.fields.logoUrl'));
+    const logoFile = new File(['fake-image-content'], 'logo.png', { type: 'image/png' });
+    await user.upload(screen.getByLabelText('tenants.fields.logo'), logoFile);
+
+    expect(await screen.findByAltText('tenants.form.logoPreviewAlt')).toHaveAttribute('src', 'blob:mock-url');
+
     await user.click(screen.getByRole('button', { name: 'common.save' }));
 
     await waitFor(() =>
       expect(mockMutate).toHaveBeenCalledWith(
-        { id: 'tenant-1', input: { logoUrl: undefined } },
+        { id: 'tenant-1', input: { logo: logoFile } },
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       ),
     );
@@ -244,6 +241,23 @@ describe('EditTenantForm', () => {
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       ),
     );
+  });
+
+  it('does not revoke a remote logo URL on unmount', () => {
+    const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL');
+    const { unmount } = render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    unmount();
+
+    expect(revokeObjectURLSpy).not.toHaveBeenCalled();
+  });
+
+  it('ignores a file input change with no selected file', () => {
+    render(<EditTenantForm tenant={{ ...MOCK_TENANT, logoUrl: null }} onClose={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText('tenants.fields.logo'), { target: { files: [] } });
+
+    expect(screen.queryByAltText('tenants.form.logoPreviewAlt')).not.toBeInTheDocument();
   });
 
   it('shows a translated message when the new slug is already taken by another tenant', () => {

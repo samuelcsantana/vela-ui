@@ -101,7 +101,7 @@
       "name": "Nome",
       "slug": "Slug",
       "primaryColor": "Cor Primária",
-      "logoUrl": "URL do Logo",
+      "logo": "Logo",
       "dateCreated": "Data de Criação",
       "actions": "Ações"
     },
@@ -116,7 +116,8 @@
       "editTitle": "Editar empresa",
       "slugHelper": "Define a URL de login da empresa. Ex: /sicredi/login",
       "primaryColorHelper": "Usado para a marca White-label (opcional)",
-      "logoUrlHelper": "URL pública do logo da empresa (opcional)",
+      "logoHelper": "Envie um arquivo de imagem (opcional)",
+      "logoPreviewAlt": "Pré-visualização do logo",
       "submitError": "Não foi possível criar a empresa. Tente novamente.",
       "editSubmitError": "Não foi possível atualizar a empresa. Tente novamente.",
       "editSuccess": "Empresa atualizada com sucesso."
@@ -125,8 +126,7 @@
       "nameTooShort": "Informe ao menos 2 caracteres",
       "slugTooShort": "Informe ao menos 2 caracteres",
       "slugInvalid": "Use apenas letras minúsculas, números e hífens",
-      "primaryColorInvalid": "Use uma cor hexadecimal, ex: #0052cc",
-      "logoUrlInvalid": "Informe uma URL válida"
+      "primaryColorInvalid": "Use uma cor hexadecimal, ex: #0052cc"
     },
     "errors": {
       "slugTaken": "Este slug já está em uso. Escolha outro."

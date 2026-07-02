@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { getApiErrorMessage } from '../../../lib/api';
@@ -20,6 +20,9 @@ const FOCUSABLE_SELECTOR =
 const FIELD_CLASSNAME =
   'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus-visible:outline-white';
 
+const FILE_FIELD_CLASSNAME =
+  'w-full cursor-pointer rounded-md border border-slate-300 bg-white text-sm text-slate-900 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:file:bg-slate-700 dark:file:text-gray-200 dark:hover:file:bg-slate-600';
+
 const HELPER_TEXT_CLASSNAME = 'text-xs text-slate-500 dark:text-gray-400';
 
 const KNOWN_ERROR_KEYS: Record<string, string> = {
@@ -34,6 +37,8 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
   const createTenantMutation = useCreateTenant();
   const dialogRef = useRef<HTMLDivElement>(null);
   const isSlugEdited = useRef(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
 
   const {
     register,
@@ -44,7 +49,7 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
     formState: { errors },
   } = useForm<CreateTenantValues>({
     resolver: zodResolver(createTenantSchema),
-    defaultValues: { name: '', slug: '', primaryColor: '', logoUrl: '' },
+    defaultValues: { name: '', slug: '', primaryColor: '' },
   });
 
   const name = watch('name');
@@ -57,9 +62,34 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
     setValue('slug', slugify(name));
   }, [name, setValue]);
 
+  // Revokes the previous preview URL whenever it changes or the component unmounts.
+  useEffect(() => {
+    return () => {
+      if (logoPreviewUrl) {
+        URL.revokeObjectURL(logoPreviewUrl);
+      }
+    };
+  }, [logoPreviewUrl]);
+
+  const resetLogo = () => {
+    setLogoFile(null);
+    setLogoPreviewUrl(null);
+  };
+
+  const handleLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    setLogoFile(file);
+    setLogoPreviewUrl(URL.createObjectURL(file));
+  };
+
   const handleClose = () => {
     reset();
     isSlugEdited.current = false;
+    resetLogo();
     onClose();
   };
 
@@ -137,12 +167,13 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
         name: values.name,
         slug: values.slug,
         primaryColor: values.primaryColor || undefined,
-        logoUrl: values.logoUrl || undefined,
+        logo: logoFile ?? undefined,
       },
       {
         onSuccess: () => {
           reset();
           isSlugEdited.current = false;
+          resetLogo();
           onClose();
         },
       },
@@ -243,24 +274,24 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="logoUrl" className="text-sm font-medium text-slate-700 dark:text-gray-300">
-              {t('tenants.fields.logoUrl')}
+            <label htmlFor="logo" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+              {t('tenants.fields.logo')}
             </label>
             <input
-              id="logoUrl"
-              type="text"
-              placeholder="https://..."
-              aria-invalid={Boolean(errors.logoUrl)}
-              aria-describedby={errors.logoUrl ? 'logoUrl-helper logoUrl-error' : 'logoUrl-helper'}
-              className={FIELD_CLASSNAME}
-              {...register('logoUrl')}
+              id="logo"
+              type="file"
+              accept="image/*"
+              onChange={handleLogoChange}
+              className={FILE_FIELD_CLASSNAME}
             />
-            <p id="logoUrl-helper" className={HELPER_TEXT_CLASSNAME}>
-              {t('tenants.form.logoUrlHelper')}
-            </p>
-            <p id="logoUrl-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
-              {errors.logoUrl?.message ? t(errors.logoUrl.message) : ''}
-            </p>
+            <p className={HELPER_TEXT_CLASSNAME}>{t('tenants.form.logoHelper')}</p>
+            {logoPreviewUrl ? (
+              <img
+                src={logoPreviewUrl}
+                alt={t('tenants.form.logoPreviewAlt')}
+                className="mt-1 h-16 w-16 rounded-md border border-slate-200 object-contain dark:border-slate-700"
+              />
+            ) : null}
           </div>
 
           <p aria-live="polite" className="text-sm text-red-600 dark:text-red-400">

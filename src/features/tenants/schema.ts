@@ -11,7 +11,6 @@ export const createTenantSchema = z.object({
     .regex(/^#[0-9a-fA-F]{6}$/, 'tenants.validation.primaryColorInvalid')
     .optional()
     .or(z.literal('')),
-  logoUrl: z.string().url('tenants.validation.logoUrlInvalid').optional().or(z.literal('')),
 });
 
 export type CreateTenantValues = z.infer<typeof createTenantSchema>;

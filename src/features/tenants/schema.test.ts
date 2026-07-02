@@ -10,11 +10,7 @@ describe('createTenantSchema', () => {
   });
 
   it('accepts a fully valid payload including optional fields', () => {
-    const result = createTenantSchema.safeParse({
-      ...validInput,
-      primaryColor: '#0052cc',
-      logoUrl: 'https://example.com/logo.png',
-    });
+    const result = createTenantSchema.safeParse({ ...validInput, primaryColor: '#0052cc' });
     expect(result.success).toBe(true);
   });
 
@@ -45,14 +41,6 @@ describe('createTenantSchema', () => {
     }
   });
 
-  it('rejects a logoUrl that is not a valid URL', () => {
-    const result = createTenantSchema.safeParse({ ...validInput, logoUrl: 'not-a-url' });
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('tenants.validation.logoUrlInvalid');
-    }
-  });
 });
 
 describe('joinTenantSchema', () => {

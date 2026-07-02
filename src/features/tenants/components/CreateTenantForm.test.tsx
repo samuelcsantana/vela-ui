@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -147,17 +147,15 @@ describe('CreateTenantForm', () => {
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it('rejects an invalid primaryColor and logoUrl when provided', async () => {
+  it('rejects an invalid primaryColor when provided', async () => {
     const user = userEvent.setup();
     render(<CreateTenantForm isOpen onClose={vi.fn()} />);
 
     await user.type(screen.getByLabelText('tenants.fields.name'), 'Sicredi');
     await user.type(screen.getByLabelText('tenants.fields.primaryColor'), 'blue');
-    await user.type(screen.getByLabelText('tenants.fields.logoUrl'), 'not-a-url');
     await user.click(screen.getByRole('button', { name: 'common.save' }));
 
     expect(await screen.findByText('tenants.validation.primaryColorInvalid')).toBeInTheDocument();
-    expect(screen.getByText('tenants.validation.logoUrlInvalid')).toBeInTheDocument();
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
@@ -174,31 +172,44 @@ describe('CreateTenantForm', () => {
 
     await waitFor(() =>
       expect(mockMutate).toHaveBeenCalledWith(
-        { name: 'Sicredi', slug: 'sicredi', primaryColor: undefined, logoUrl: undefined },
+        { name: 'Sicredi', slug: 'sicredi', primaryColor: undefined, logo: undefined },
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       ),
     );
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('submits the optional fields when provided', async () => {
+  it('submits the optional fields when provided, including the selected logo file and its preview', async () => {
     mockMutate.mockImplementation((_values, { onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
     });
     const user = userEvent.setup();
     render(<CreateTenantForm isOpen onClose={vi.fn()} />);
 
+    const logoFile = new File(['fake-image-content'], 'logo.png', { type: 'image/png' });
+
     await user.type(screen.getByLabelText('tenants.fields.name'), 'Sicredi');
     await user.type(screen.getByLabelText('tenants.fields.primaryColor'), '#32a852');
-    await user.type(screen.getByLabelText('tenants.fields.logoUrl'), 'https://example.com/logo.png');
+    await user.upload(screen.getByLabelText('tenants.fields.logo'), logoFile);
+
+    expect(await screen.findByAltText('tenants.form.logoPreviewAlt')).toBeInTheDocument();
+
     await user.click(screen.getByRole('button', { name: 'common.save' }));
 
     await waitFor(() =>
       expect(mockMutate).toHaveBeenCalledWith(
-        { name: 'Sicredi', slug: 'sicredi', primaryColor: '#32a852', logoUrl: 'https://example.com/logo.png' },
+        { name: 'Sicredi', slug: 'sicredi', primaryColor: '#32a852', logo: logoFile },
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       ),
     );
+  });
+
+  it('ignores a file input change with no selected file', () => {
+    render(<CreateTenantForm isOpen onClose={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText('tenants.fields.logo'), { target: { files: [] } });
+
+    expect(screen.queryByAltText('tenants.form.logoPreviewAlt')).not.toBeInTheDocument();
   });
 
   it('shows a translated message when the slug is already taken', () => {

@@ -20,12 +20,23 @@ export interface CreateTenantInput {
   name: string;
   slug: string;
   primaryColor?: string;
-  logoUrl?: string;
+  logo?: File;
 }
 
-// POST /api/tenants — admin only.
+// POST /api/tenants — admin only. multipart/form-data: the logo file (if any) is
+// uploaded to S3 server-side, which sets logoUrl on the tenant.
 export async function createTenant(input: CreateTenantInput): Promise<Tenant> {
-  const { data } = await api.post<Tenant>('/tenants', input);
+  const formData = new FormData();
+  formData.append('name', input.name);
+  formData.append('slug', input.slug);
+  if (input.primaryColor) {
+    formData.append('primaryColor', input.primaryColor);
+  }
+  if (input.logo) {
+    formData.append('logo', input.logo);
+  }
+
+  const { data } = await api.post<Tenant>('/tenants', formData);
   return data;
 }
 
@@ -39,12 +50,27 @@ export interface UpdateTenantInput {
   name?: string;
   slug?: string;
   primaryColor?: string;
-  logoUrl?: string;
+  logo?: File;
 }
 
-// PATCH /api/tenants/{id} — admin only. Partial update; only send fields that changed.
+// PATCH /api/tenants/{id} — admin only. multipart/form-data; only send fields that
+// changed. A new logo file (if any) is uploaded to S3 server-side, replacing logoUrl.
 export async function updateTenant(id: string, input: UpdateTenantInput): Promise<Tenant> {
-  const { data } = await api.patch<Tenant>(`/tenants/${id}`, input);
+  const formData = new FormData();
+  if (input.name !== undefined) {
+    formData.append('name', input.name);
+  }
+  if (input.slug !== undefined) {
+    formData.append('slug', input.slug);
+  }
+  if (input.primaryColor !== undefined) {
+    formData.append('primaryColor', input.primaryColor);
+  }
+  if (input.logo !== undefined) {
+    formData.append('logo', input.logo);
+  }
+
+  const { data } = await api.patch<Tenant>(`/tenants/${id}`, formData);
   return data;
 }
 

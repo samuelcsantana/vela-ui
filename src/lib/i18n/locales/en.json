@@ -101,7 +101,7 @@
       "name": "Name",
       "slug": "Slug",
       "primaryColor": "Primary Color",
-      "logoUrl": "Logo URL",
+      "logo": "Logo",
       "dateCreated": "Date Created",
       "actions": "Actions"
     },
@@ -116,7 +116,8 @@
       "editTitle": "Edit tenant",
       "slugHelper": "Defines the tenant's login URL. E.g.: /sicredi/login",
       "primaryColorHelper": "Used for White-label branding (optional)",
-      "logoUrlHelper": "Public URL to the tenant's logo (optional)",
+      "logoHelper": "Upload an image file (optional)",
+      "logoPreviewAlt": "Logo preview",
       "submitError": "Unable to create the tenant. Please try again.",
       "editSubmitError": "Unable to update the tenant. Please try again.",
       "editSuccess": "Tenant updated successfully."
@@ -125,8 +126,7 @@
       "nameTooShort": "Enter at least 2 characters",
       "slugTooShort": "Enter at least 2 characters",
       "slugInvalid": "Use only lowercase letters, numbers, and hyphens",
-      "primaryColorInvalid": "Use a hex color, e.g. #0052cc",
-      "logoUrlInvalid": "Enter a valid URL"
+      "primaryColorInvalid": "Use a hex color, e.g. #0052cc"
     },
     "errors": {
       "slugTaken": "This slug is already taken. Please choose another one."
