@@ -15,7 +15,7 @@ const DEMO_USER: LoginCredentials = {
 };
 
 const DEMO_BUTTON_CLASSNAME =
-  'flex min-h-11 items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900';
+  'flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900';
 
 export const LoginForm = () => {
   const { t } = useTranslation();

@@ -9,7 +9,7 @@ import { SIDEBAR_ID } from './Sidebar';
 const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 
 const ICON_BUTTON_CLASSNAME =
-  'flex min-h-11 min-w-11 items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-300 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white';
+  'flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-300 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white';
 
 export const Header = () => {
   const { t, i18n } = useTranslation();
