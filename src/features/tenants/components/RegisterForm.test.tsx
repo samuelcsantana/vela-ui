@@ -85,15 +85,6 @@ describe('RegisterForm', () => {
     expect(screen.queryByText('users.validation.passwordTooShort')).not.toBeInTheDocument();
   });
 
-  it('reserves a fixed min-height for every error slot so the layout does not shift when an error appears', () => {
-    render(<RegisterForm />);
-
-    expect(document.getElementById('companyName-error')).toHaveClass('min-h-5');
-    expect(document.getElementById('slug-error')).toHaveClass('min-h-5');
-    expect(document.getElementById('email-error')).toHaveClass('min-h-5');
-    expect(document.getElementById('password-error')).toHaveClass('min-h-5');
-  });
-
   it('shows the email format error live while typing, without submitting', async () => {
     const user = userEvent.setup();
     render(<RegisterForm />);

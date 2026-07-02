@@ -116,7 +116,7 @@ export const RegisterForm = () => {
             <p id="companyName-helper" className={HELPER_TEXT_CLASSNAME}>
               {t('auth.register.companyNameHelper')}
             </p>
-            <p id="companyName-error" aria-live="polite" className="min-h-5 text-sm text-red-600">
+            <p id="companyName-error" aria-live="polite" className="text-sm text-red-600">
               {shouldShowFieldError('companyName') && errors.companyName?.message
                 ? t(errors.companyName.message)
                 : ''}
@@ -144,7 +144,7 @@ export const RegisterForm = () => {
             <p id="slug-helper" className={HELPER_TEXT_CLASSNAME}>
               {t('auth.register.slugHelper')}
             </p>
-            <p id="slug-error" aria-live="polite" className="min-h-5 text-sm text-red-600">
+            <p id="slug-error" aria-live="polite" className="text-sm text-red-600">
               {shouldShowFieldError('slug') && errors.slug?.message ? t(errors.slug.message) : ''}
             </p>
           </div>
@@ -161,7 +161,7 @@ export const RegisterForm = () => {
               className={FIELD_CLASSNAME}
               {...register('email')}
             />
-            <p id="email-error" aria-live="polite" className="min-h-5 text-sm text-red-600">
+            <p id="email-error" aria-live="polite" className="text-sm text-red-600">
               {shouldShowFieldError('email') && errors.email?.message ? t(errors.email.message) : ''}
             </p>
           </div>
@@ -185,12 +185,12 @@ export const RegisterForm = () => {
             <p id="password-helper" className={HELPER_TEXT_CLASSNAME}>
               {t('auth.register.passwordHelper')}
             </p>
-            <p id="password-error" aria-live="polite" className="min-h-5 text-sm text-red-600">
+            <p id="password-error" aria-live="polite" className="text-sm text-red-600">
               {shouldShowFieldError('password') && errors.password?.message ? t(errors.password.message) : ''}
             </p>
           </div>
 
-          <p aria-live="polite" className="min-h-5 text-sm text-red-600">
+          <p aria-live="polite" className="text-sm text-red-600">
             {errorMessage}
           </p>
 
