@@ -26,9 +26,12 @@
   },
   "auth": {
     "portfolioNotice": "Este é um projeto de portfólio. Escolha um acesso de demonstração abaixo — não é necessária senha.",
+    "loginSubmit": "Entrar",
+    "loginSubmitting": "Entrando...",
+    "loginError": "Não foi possível entrar. Tente novamente.",
+    "demoSectionLabel": "Ou experimente uma conta demo",
     "accessAsAdmin": "Acessar Demo como Admin",
     "accessAsUser": "Acessar Demo como Usuário",
-    "demoLoginError": "Não foi possível entrar. Tente novamente.",
     "signUpLink": "Não tem uma conta? Cadastre-se",
     "register": {
       "title": "Crie a conta da sua empresa",
@@ -52,7 +55,8 @@
     "validation": {
       "companyNameTooShort": "Informe ao menos 2 caracteres",
       "slugTooShort": "Informe ao menos 2 caracteres",
-      "slugInvalid": "Use apenas letras minúsculas, números e hífens"
+      "slugInvalid": "Use apenas letras minúsculas, números e hífens",
+      "passwordRequired": "Senha é obrigatória"
     }
   },
   "users": {

@@ -26,9 +26,12 @@
   },
   "auth": {
     "portfolioNotice": "This is a portfolio project. Choose a demo access below — no password required.",
+    "loginSubmit": "Log in",
+    "loginSubmitting": "Signing in...",
+    "loginError": "Unable to sign in. Please try again.",
+    "demoSectionLabel": "Or try a demo account",
     "accessAsAdmin": "Access Demo as Admin",
     "accessAsUser": "Access Demo as User",
-    "demoLoginError": "Unable to sign in. Please try again.",
     "signUpLink": "Don't have an account? Sign up",
     "register": {
       "title": "Create your company account",
@@ -52,7 +55,8 @@
     "validation": {
       "companyNameTooShort": "Enter at least 2 characters",
       "slugTooShort": "Enter at least 2 characters",
-      "slugInvalid": "Use only lowercase letters, numbers, and hyphens"
+      "slugInvalid": "Use only lowercase letters, numbers, and hyphens",
+      "passwordRequired": "Password is required"
     }
   },
   "users": {

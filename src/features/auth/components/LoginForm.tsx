@@ -1,8 +1,11 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from '@tanstack/react-router';
-import { ShieldCheck, UserRound } from 'lucide-react';
+import { LogIn, ShieldCheck, UserRound } from 'lucide-react';
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LanguageToggle, LIGHT_TOGGLE_CLASSNAME } from '../../../components/LanguageToggle';
+import { loginSchema, type LoginValues } from '../schema';
 import { useAuthStore, type LoginCredentials } from '../store/auth-store';
 
 const DEMO_ADMIN: LoginCredentials = {
@@ -15,26 +18,44 @@ const DEMO_USER: LoginCredentials = {
   password: 'guest123',
 };
 
+const FIELD_CLASSNAME =
+  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
+
 const DEMO_BUTTON_CLASSNAME =
-  'flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900';
+  'flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md px-4 py-3 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:cursor-not-allowed disabled:opacity-60';
 
 export const LoginForm = () => {
   const { t } = useTranslation();
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
-  const handleDemoLogin = async (credentials: LoginCredentials) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: '', password: '' },
+  });
+
+  const attemptLogin = async (credentials: LoginCredentials) => {
     setError(null);
+    setIsPending(true);
 
     try {
       await login(credentials);
       navigate({ to: '/' });
     } catch (err) {
-      console.error('Demo login failed', err);
-      setError(t('auth.demoLoginError'));
+      console.error('Login failed', err);
+      setError(t('auth.loginError'));
+    } finally {
+      setIsPending(false);
     }
   };
+
+  const onSubmit = handleSubmit((values) => attemptLogin(values));
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
@@ -48,10 +69,62 @@ export const LoginForm = () => {
           <p className="mt-2 text-sm text-slate-500">{t('auth.portfolioNotice')}</p>
         </div>
 
+        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+          <div className="flex flex-col gap-1">
+            <label htmlFor="email" className="text-sm font-medium text-slate-700">
+              {t('users.fields.email')}
+            </label>
+            <input
+              id="email"
+              type="email"
+              aria-invalid={Boolean(errors.email)}
+              aria-describedby={errors.email ? 'email-error' : undefined}
+              className={FIELD_CLASSNAME}
+              {...register('email')}
+            />
+            <p id="email-error" aria-live="polite" className="text-sm text-red-600">
+              {errors.email?.message ? t(errors.email.message) : ''}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="password" className="text-sm font-medium text-slate-700">
+              {t('users.fields.password')}
+            </label>
+            <input
+              id="password"
+              type="password"
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={errors.password ? 'password-error' : undefined}
+              className={FIELD_CLASSNAME}
+              {...register('password')}
+            />
+            <p id="password-error" aria-live="polite" className="text-sm text-red-600">
+              {errors.password?.message ? t(errors.password.message) : ''}
+            </p>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isPending}
+            className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md bg-brand px-4 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <LogIn size={18} aria-hidden="true" />
+            {isPending ? t('auth.loginSubmitting') : t('auth.loginSubmit')}
+          </button>
+        </form>
+
+        <div className="my-5 flex items-center gap-3">
+          <div className="h-px flex-1 bg-slate-200" />
+          <span className="text-xs text-slate-400">{t('auth.demoSectionLabel')}</span>
+          <div className="h-px flex-1 bg-slate-200" />
+        </div>
+
         <div className="flex flex-col gap-3">
           <button
             type="button"
-            onClick={() => handleDemoLogin(DEMO_ADMIN)}
+            disabled={isPending}
+            onClick={() => attemptLogin(DEMO_ADMIN)}
             className={`${DEMO_BUTTON_CLASSNAME} bg-slate-900 text-white hover:bg-slate-700`}
           >
             <ShieldCheck size={18} aria-hidden="true" />
@@ -60,7 +133,8 @@ export const LoginForm = () => {
 
           <button
             type="button"
-            onClick={() => handleDemoLogin(DEMO_USER)}
+            disabled={isPending}
+            onClick={() => attemptLogin(DEMO_USER)}
             className={`${DEMO_BUTTON_CLASSNAME} border border-slate-300 text-slate-700 hover:bg-slate-100`}
           >
             <UserRound size={18} aria-hidden="true" />
