@@ -2,6 +2,7 @@ import { useSearch } from '@tanstack/react-router';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '../auth/store/auth-store';
 import { CreateUserForm } from './components/CreateUserForm';
 import { UserFilters } from './components/UserFilters';
 import { UsersTable } from './components/UsersTable';
@@ -10,6 +11,7 @@ import { useUsers } from './hooks/use-users';
 export const UsersView = () => {
   const { t } = useTranslation();
   const { search, page } = useSearch({ from: '/_protected/users' });
+  const role = useAuthStore((state) => state.user?.role);
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const { data: users, isLoading, isError } = useUsers({ search, page });
 
@@ -28,7 +30,7 @@ export const UsersView = () => {
       </div>
 
       <UserFilters />
-      <UsersTable users={users} isLoading={isLoading} isError={isError} />
+      <UsersTable users={users} isLoading={isLoading} isError={isError} showTenantColumn={role === 'VELA_ADMIN'} />
 
       <CreateUserForm isOpen={isCreateFormOpen} onClose={() => setIsCreateFormOpen(false)} />
     </div>

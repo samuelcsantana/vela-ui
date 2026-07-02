@@ -1,7 +1,7 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createQueryWrapper, createTestQueryClient } from '../../../test/react-query';
-import type { User } from '../api/users-api';
+import type { CreatedUser, User } from '../api/users-api';
 import { createUser, fetchUsers } from '../api/users-api';
 import { useCreateUser, useUsers } from './use-users';
 
@@ -14,8 +14,22 @@ const mockFetchUsers = vi.mocked(fetchUsers);
 const mockCreateUser = vi.mocked(createUser);
 
 const MOCK_USERS: User[] = [
-  { id: '1', email: 'ana@velaui.demo', role: 'ADMIN', tenantId: 'tenant-alpha', createdAt: '2026-01-01T00:00:00.000Z' },
-  { id: '2', email: 'bruno@velaui.demo', role: 'MEMBER', tenantId: 'tenant-alpha', createdAt: '2026-01-02T00:00:00.000Z' },
+  {
+    id: '1',
+    email: 'ana@velaui.demo',
+    role: 'ADMIN',
+    tenantId: 'tenant-alpha',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    tenant: { name: 'Vela Corp', slug: 'vela' },
+  },
+  {
+    id: '2',
+    email: 'bruno@velaui.demo',
+    role: 'MEMBER',
+    tenantId: 'tenant-alpha',
+    createdAt: '2026-01-02T00:00:00.000Z',
+    tenant: { name: 'Vela Corp', slug: 'vela' },
+  },
 ];
 
 describe('useUsers', () => {
@@ -68,7 +82,7 @@ describe('useCreateUser', () => {
   });
 
   it('invalidates the users query after a successful mutation', async () => {
-    const createdUser: User = {
+    const createdUser: CreatedUser = {
       id: 'server-id',
       email: 'new@velaui.demo',
       role: 'MEMBER',

@@ -76,4 +76,10 @@ describe('TenantsTable', () => {
 
     expect(onDelete).toHaveBeenCalledWith(MOCK_TENANTS[1]);
   });
+
+  it('hides the delete action when onDelete is not provided', () => {
+    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={vi.fn()} />);
+
+    expect(screen.queryByRole('button', { name: 'tenants.deleteTenant' })).not.toBeInTheDocument();
+  });
 });

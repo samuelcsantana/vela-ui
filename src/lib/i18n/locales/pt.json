@@ -71,6 +71,7 @@
       "email": "Email",
       "password": "Senha",
       "role": "Papel",
+      "tenant": "Empresa",
       "dateJoined": "Data de entrada"
     },
     "search": {

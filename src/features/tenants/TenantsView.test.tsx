@@ -4,13 +4,15 @@ import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { TenantsView } from './TenantsView';
 
-const { mockUseTenants, mockUseDeleteTenant, mockDeleteMutate, mockDeleteReset, mockShowToast } = vi.hoisted(() => ({
-  mockUseTenants: vi.fn(),
-  mockUseDeleteTenant: vi.fn(),
-  mockDeleteMutate: vi.fn(),
-  mockDeleteReset: vi.fn(),
-  mockShowToast: vi.fn(),
-}));
+const { mockUseTenants, mockUseDeleteTenant, mockDeleteMutate, mockDeleteReset, mockShowToast, mockUseAuthStore } =
+  vi.hoisted(() => ({
+    mockUseTenants: vi.fn(),
+    mockUseDeleteTenant: vi.fn(),
+    mockDeleteMutate: vi.fn(),
+    mockDeleteReset: vi.fn(),
+    mockShowToast: vi.fn(),
+    mockUseAuthStore: vi.fn(),
+  }));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string, options?: Record<string, unknown>) => (options ? `${key}:${JSON.stringify(options)}` : key) }),
@@ -26,6 +28,10 @@ vi.mock('../../store/toast-store', () => ({
     selector({ showToast: mockShowToast }),
 }));
 
+vi.mock('../auth/store/auth-store', () => ({
+  useAuthStore: (selector: (state: { user: { role: string } | null }) => unknown) => mockUseAuthStore(selector),
+}));
+
 const MOCK_TENANT = { id: '1', name: 'Vela Corp' };
 
 vi.mock('./components/TenantsTable', () => ({
@@ -34,20 +40,23 @@ vi.mock('./components/TenantsTable', () => ({
     isLoading: boolean;
     isError: boolean;
     onEdit: (tenant: typeof MOCK_TENANT) => void;
-    onDelete: (tenant: typeof MOCK_TENANT) => void;
+    onDelete?: (tenant: typeof MOCK_TENANT) => void;
   }) => (
     <div
       data-testid="tenants-table-stub"
       data-loading={String(props.isLoading)}
       data-error={String(props.isError)}
       data-tenants={JSON.stringify(props.tenants)}
+      data-can-delete={String(Boolean(props.onDelete))}
     >
       <button type="button" onClick={() => props.onEdit(MOCK_TENANT)}>
         edit-first
       </button>
-      <button type="button" onClick={() => props.onDelete(MOCK_TENANT)}>
-        delete-first
-      </button>
+      {props.onDelete ? (
+        <button type="button" onClick={() => props.onDelete?.(MOCK_TENANT)}>
+          delete-first
+        </button>
+      ) : null}
     </div>
   ),
 }));
@@ -115,6 +124,7 @@ describe('TenantsView', () => {
       isError: false,
       error: null,
     });
+    mockUseAuthStore.mockImplementation((selector) => selector({ user: { role: 'VELA_ADMIN' } }));
   });
 
   it('fetches tenants and forwards the result to the table', () => {
@@ -126,11 +136,20 @@ describe('TenantsView', () => {
     expect(table).toHaveAttribute('data-tenants', JSON.stringify([{ id: '1' }]));
   });
 
-  it('renders the title and add-tenant button', () => {
+  it('renders the title and add-tenant button for a VELA_ADMIN', () => {
     render(<TenantsView />);
 
     expect(screen.getByRole('heading', { name: 'tenants.title' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'tenants.addTenant' })).toBeInTheDocument();
+    expect(screen.getByTestId('tenants-table-stub')).toHaveAttribute('data-can-delete', 'true');
+  });
+
+  it('hides the add-tenant button and delete action for a tenant-scoped ADMIN', () => {
+    mockUseAuthStore.mockImplementation((selector) => selector({ user: { role: 'ADMIN' } }));
+    render(<TenantsView />);
+
+    expect(screen.queryByRole('button', { name: 'tenants.addTenant' })).not.toBeInTheDocument();
+    expect(screen.getByTestId('tenants-table-stub')).toHaveAttribute('data-can-delete', 'false');
   });
 
   it('opens the create tenant dialog and closes it again', async () => {

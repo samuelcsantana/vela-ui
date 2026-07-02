@@ -6,9 +6,11 @@ interface UsersTableProps {
   users: User[] | undefined;
   isLoading: boolean;
   isError: boolean;
+  showTenantColumn: boolean;
 }
 
 const ROLE_BADGE_STYLES: Record<string, string> = {
+  VELA_ADMIN: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300',
   ADMIN: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300',
   MEMBER: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
 };
@@ -21,7 +23,7 @@ const CELL_CLASSNAME =
   'flex justify-between items-center md:table-cell py-3 px-4 border-b border-gray-100 dark:border-slate-700/60 last:border-0 md:border-0';
 const CELL_LABEL_CLASSNAME = 'md:hidden font-bold text-gray-600 dark:text-gray-400';
 
-export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
+export const UsersTable = ({ users, isLoading, isError, showTenantColumn }: UsersTableProps) => {
   const { t } = useTranslation();
 
   if (isLoading) {
@@ -68,6 +70,15 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
             >
               {t('users.fields.role')}
             </th>
+            {showTenantColumn ? (
+              <th
+                scope="col"
+                role="columnheader"
+                className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-slate-700 dark:text-gray-400"
+              >
+                {t('users.fields.tenant')}
+              </th>
+            ) : null}
             <th
               scope="col"
               role="columnheader"
@@ -98,6 +109,12 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
                   {user.role}
                 </span>
               </td>
+              {showTenantColumn ? (
+                <td role="cell" className={`${CELL_CLASSNAME} text-gray-500 dark:text-gray-400`}>
+                  <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.tenant')}</span>
+                  {user.tenant.name}
+                </td>
+              ) : null}
               <td role="cell" className={`${CELL_CLASSNAME} text-gray-500 dark:text-gray-400`}>
                 <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.dateJoined')}</span>
                 {formatDate(user.createdAt)}

@@ -2,11 +2,14 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { api } from '../../../lib/api';
 
+// Mirrors the `role` enum documented in swagger.json for POST /api/auth/login.
+export type UserRole = 'VELA_ADMIN' | 'ADMIN' | 'MEMBER';
+
 // Mirrors the response of POST /api/auth/login in swagger.json exactly.
 export interface AuthUser {
   id: string;
   email: string;
-  role: string;
+  role: UserRole;
   tenantId: string;
 }
 

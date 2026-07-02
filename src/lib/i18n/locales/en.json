@@ -71,6 +71,7 @@
       "email": "Email",
       "password": "Password",
       "role": "Role",
+      "tenant": "Tenant",
       "dateJoined": "Date Joined"
     },
     "search": {

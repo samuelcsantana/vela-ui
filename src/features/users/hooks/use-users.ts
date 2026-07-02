@@ -5,7 +5,7 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from '@tanstack/react-query';
-import { createUser, fetchUsers, type CreateUserInput, type User } from '../api/users-api';
+import { createUser, fetchUsers, type CreatedUser, type CreateUserInput, type User } from '../api/users-api';
 import type { UsersSearchValues } from '../schema';
 
 const USERS_QUERY_KEY = ['users'] as const;
@@ -25,7 +25,7 @@ export function useUsers({ search }: UsersSearchValues): UseQueryResult<User[], 
   });
 }
 
-export function useCreateUser(): UseMutationResult<User, Error, CreateUserInput> {
+export function useCreateUser(): UseMutationResult<CreatedUser, Error, CreateUserInput> {
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -1,13 +1,20 @@
 import { describe, expect, it, vi } from 'vitest';
 import { api } from '../../../lib/api';
-import { createUser, fetchUsers, type User } from './users-api';
+import { createUser, fetchUsers, type CreatedUser, type User } from './users-api';
 
 vi.mock('../../../lib/api', () => ({
   api: { get: vi.fn(), post: vi.fn() },
 }));
 
 const MOCK_USERS: User[] = [
-  { id: '1', email: 'ana@velaui.demo', role: 'ADMIN', tenantId: 'tenant-alpha', createdAt: '2026-01-01T00:00:00.000Z' },
+  {
+    id: '1',
+    email: 'ana@velaui.demo',
+    role: 'ADMIN',
+    tenantId: 'tenant-alpha',
+    createdAt: '2026-01-01T00:00:00.000Z',
+    tenant: { name: 'Vela Corp', slug: 'vela' },
+  },
 ];
 
 describe('fetchUsers', () => {
@@ -23,7 +30,7 @@ describe('fetchUsers', () => {
 
 describe('createUser', () => {
   it('posts /users with the given input and returns the created user', async () => {
-    const createdUser: User = {
+    const createdUser: CreatedUser = {
       id: '2',
       email: 'new@velaui.demo',
       role: 'MEMBER',

@@ -8,7 +8,7 @@ interface TenantsTableProps {
   isLoading: boolean;
   isError: boolean;
   onEdit: (tenant: Tenant) => void;
-  onDelete: (tenant: Tenant) => void;
+  onDelete?: (tenant: Tenant) => void;
 }
 
 const CELL_CLASSNAME =
@@ -134,14 +134,16 @@ export const TenantsTable = ({ tenants, isLoading, isError, onEdit, onDelete }: 
                   >
                     <Pencil size={16} aria-hidden="true" />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => onDelete(tenant)}
-                    aria-label={t('tenants.deleteTenant')}
-                    className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-red-950/40 dark:hover:text-red-400 dark:focus-visible:outline-white"
-                  >
-                    <Trash size={16} aria-hidden="true" />
-                  </button>
+                  {onDelete ? (
+                    <button
+                      type="button"
+                      onClick={() => onDelete(tenant)}
+                      aria-label={t('tenants.deleteTenant')}
+                      className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-red-950/40 dark:hover:text-red-400 dark:focus-visible:outline-white"
+                    >
+                      <Trash size={16} aria-hidden="true" />
+                    </button>
+                  ) : null}
                 </div>
               </td>
             </tr>

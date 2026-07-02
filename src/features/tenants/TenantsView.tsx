@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
 import { getApiErrorMessage } from '../../lib/api';
 import { useToastStore } from '../../store/toast-store';
+import { useAuthStore } from '../auth/store/auth-store';
 import { CreateTenantForm } from './components/CreateTenantForm';
 import { EditTenantForm } from './components/EditTenantForm';
 import { TenantsTable } from './components/TenantsTable';
@@ -20,6 +21,8 @@ const getDeleteTenantErrorKey = (apiMessage: string | undefined): string =>
 export const TenantsView = () => {
   const { t } = useTranslation();
   const showToast = useToastStore((state) => state.showToast);
+  const role = useAuthStore((state) => state.user?.role);
+  const isVelaAdmin = role === 'VELA_ADMIN';
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const [deletingTenant, setDeletingTenant] = useState<Tenant | null>(null);
@@ -60,14 +63,16 @@ export const TenantsView = () => {
     <div className="flex w-full max-w-4xl flex-col gap-4 p-4 md:p-6">
       <div className="flex items-center justify-between gap-2">
         <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{t('tenants.title')}</h1>
-        <button
-          type="button"
-          onClick={() => setIsCreateFormOpen(true)}
-          className="flex h-10 cursor-pointer items-center gap-2 rounded-lg bg-brand px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:focus-visible:outline-white"
-        >
-          <Plus size={16} aria-hidden="true" />
-          {t('tenants.addTenant')}
-        </button>
+        {isVelaAdmin ? (
+          <button
+            type="button"
+            onClick={() => setIsCreateFormOpen(true)}
+            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg bg-brand px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:focus-visible:outline-white"
+          >
+            <Plus size={16} aria-hidden="true" />
+            {t('tenants.addTenant')}
+          </button>
+        ) : null}
       </div>
 
       <TenantsTable
@@ -75,7 +80,7 @@ export const TenantsView = () => {
         isLoading={isLoading}
         isError={isError}
         onEdit={setEditingTenant}
-        onDelete={openDeleteDialog}
+        onDelete={isVelaAdmin ? openDeleteDialog : undefined}
       />
 
       <CreateTenantForm isOpen={isCreateFormOpen} onClose={() => setIsCreateFormOpen(false)} />
