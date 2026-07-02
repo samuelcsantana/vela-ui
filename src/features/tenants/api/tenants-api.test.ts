@@ -1,6 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 import { api } from '../../../lib/api';
-import { fetchTenants, registerTenant, type Tenant } from './tenants-api';
+import {
+  createTenant,
+  fetchPublicTenants,
+  fetchTenantBySlug,
+  fetchTenants,
+  joinTenant,
+  type PublicTenant,
+  type Tenant,
+} from './tenants-api';
 
 vi.mock('../../../lib/api', () => ({
   api: { get: vi.fn(), post: vi.fn() },
@@ -17,6 +25,8 @@ const MOCK_TENANTS: Tenant[] = [
   },
 ];
 
+const MOCK_PUBLIC_TENANTS: PublicTenant[] = [{ id: 'tenant-1', name: 'Vela Corp', slug: 'vela' }];
+
 describe('fetchTenants', () => {
   it('gets /tenants and returns the response data', async () => {
     vi.mocked(api.get).mockResolvedValueOnce({ data: MOCK_TENANTS });
@@ -28,13 +38,47 @@ describe('fetchTenants', () => {
   });
 });
 
-describe('registerTenant', () => {
-  it('posts /auth/register with the given input and returns the created ids', async () => {
-    const mockResult = { tenantId: 'tenant-1', userId: 'user-1' };
+describe('createTenant', () => {
+  it('posts /tenants with the given input and returns the created tenant', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ data: MOCK_TENANTS[0] });
+
+    const input = { name: 'Vela Corp', slug: 'vela', primaryColor: '#0052cc' };
+    const result = await createTenant(input);
+
+    expect(api.post).toHaveBeenCalledWith('/tenants', input);
+    expect(result).toEqual(MOCK_TENANTS[0]);
+  });
+});
+
+describe('fetchTenantBySlug', () => {
+  it('gets /tenants/{slug} and returns the response data', async () => {
+    vi.mocked(api.get).mockResolvedValueOnce({ data: MOCK_TENANTS[0] });
+
+    const tenant = await fetchTenantBySlug('vela');
+
+    expect(api.get).toHaveBeenCalledWith('/tenants/vela');
+    expect(tenant).toEqual(MOCK_TENANTS[0]);
+  });
+});
+
+describe('fetchPublicTenants', () => {
+  it('gets /tenants/public and returns the response data', async () => {
+    vi.mocked(api.get).mockResolvedValueOnce({ data: MOCK_PUBLIC_TENANTS });
+
+    const tenants = await fetchPublicTenants();
+
+    expect(api.get).toHaveBeenCalledWith('/tenants/public');
+    expect(tenants).toEqual(MOCK_PUBLIC_TENANTS);
+  });
+});
+
+describe('joinTenant', () => {
+  it('posts /auth/register with the given input and returns the created user', async () => {
+    const mockResult = { id: 'user-1', email: 'new@vela.com', role: 'MEMBER', tenantId: 'tenant-1', createdAt: '2026-01-01T00:00:00.000Z' };
     vi.mocked(api.post).mockResolvedValueOnce({ data: mockResult });
 
-    const input = { companyName: 'Vela Corp', slug: 'vela', email: 'admin@vela.com', password: 'secret123' };
-    const result = await registerTenant(input);
+    const input = { tenantId: 'tenant-1', role: 'MEMBER' as const, email: 'new@vela.com', password: 'secret123' };
+    const result = await joinTenant(input);
 
     expect(api.post).toHaveBeenCalledWith('/auth/register', input);
     expect(result).toEqual(mockResult);

@@ -12,6 +12,7 @@
     "nav": "Main navigation",
     "dashboard": "Dashboard",
     "users": "Users",
+    "tenants": "Tenants",
     "settings": "Settings"
   },
   "header": {
@@ -25,22 +26,24 @@
     "subtitle": "Select an option from the sidebar menu to get started."
   },
   "auth": {
-    "portfolioNotice": "This is a portfolio project. Choose a demo access below — no password required.",
+    "adminPortalNotice": "System Admin Portal. This is a portfolio project — use the demo button below or your own credentials.",
+    "tenantLoginSubtitle": "Sign in to your workspace",
     "loginSubmit": "Log in",
     "loginSubmitting": "Signing in...",
     "loginError": "Unable to sign in. Please try again.",
-    "demoSectionLabel": "Or try a demo account",
     "accessAsAdmin": "Access Demo as Admin",
-    "accessAsUser": "Access Demo as User",
-    "signUpLink": "Don't have an account? Sign up",
+    "createUserForTenantLink": "Create User for an Existing Tenant",
     "register": {
-      "title": "Create your company account",
-      "subtitle": "Set up your company and its first admin user.",
-      "sandboxNotice": "Sandbox Environment: create a fictional company to test the multi-tenant architecture and dynamic (White-label) color injection.",
-      "companyName": "Company Name",
-      "companyNameHelper": "E.g.: Sicredi, Nubank, Acme Corp",
-      "slug": "Slug",
-      "slugHelper": "Defines your workspace URL. E.g.: /sicredi",
+      "title": "Join a company",
+      "subtitle": "Select your company and create your account.",
+      "sandboxNotice": "Sandbox Environment: pick any company below to test the multi-tenant, White-label experience.",
+      "tenantLabel": "Company",
+      "tenantPlaceholder": "Select a company",
+      "tenantLoading": "Loading companies...",
+      "tenantError": "Unable to load companies. Please try again.",
+      "tenantEmpty": "No companies available yet.",
+      "roleLabel": "Role",
+      "roleHelper": "Self-registration always joins as Member — ask an existing admin to promote you afterwards.",
       "passwordHelper": "Minimum of 6 characters",
       "submit": "Create Account",
       "submitting": "Creating...",
@@ -48,16 +51,18 @@
       "success": "Account created successfully. You can now log in.",
       "backToLogin": "Already have an account? Log in",
       "errors": {
-        "slugTaken": "This slug is already taken. Please choose another one.",
         "emailTaken": "An account with this email already exists."
       }
     },
     "validation": {
-      "companyNameTooShort": "Enter at least 2 characters",
-      "slugTooShort": "Enter at least 2 characters",
-      "slugInvalid": "Use only lowercase letters, numbers, and hyphens",
+      "tenantRequired": "Select a company",
       "passwordRequired": "Password is required"
     }
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "We couldn't find the company you're looking for.",
+    "backToLogin": "Back to login"
   },
   "users": {
     "title": "Users",
@@ -86,6 +91,40 @@
       "searchTooLong": "Search is too long",
       "invalidEmail": "Invalid email",
       "passwordTooShort": "Password must be at least 6 characters"
+    }
+  },
+  "tenants": {
+    "title": "Tenants",
+    "addTenant": "New Tenant",
+    "fields": {
+      "name": "Name",
+      "slug": "Slug",
+      "primaryColor": "Primary Color",
+      "logoUrl": "Logo URL",
+      "dateCreated": "Date Created"
+    },
+    "table": {
+      "caption": "List of registered tenants, with name, slug, primary color and date created",
+      "loading": "Loading tenants...",
+      "error": "Unable to load tenants.",
+      "empty": "No tenants found."
+    },
+    "form": {
+      "title": "New tenant",
+      "slugHelper": "Defines the tenant's login URL. E.g.: /sicredi/login",
+      "primaryColorHelper": "Used for White-label branding (optional)",
+      "logoUrlHelper": "Public URL to the tenant's logo (optional)",
+      "submitError": "Unable to create the tenant. Please try again."
+    },
+    "validation": {
+      "nameTooShort": "Enter at least 2 characters",
+      "slugTooShort": "Enter at least 2 characters",
+      "slugInvalid": "Use only lowercase letters, numbers, and hyphens",
+      "primaryColorInvalid": "Use a hex color, e.g. #0052cc",
+      "logoUrlInvalid": "Enter a valid URL"
+    },
+    "errors": {
+      "slugTaken": "This slug is already taken. Please choose another one."
     }
   }
 }

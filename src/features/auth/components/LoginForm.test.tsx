@@ -35,11 +35,11 @@ describe('LoginForm', () => {
     useAuthStore.setState({ user: null, isAuthenticated: false });
   });
 
-  it('renders the app name and portfolio notice', () => {
+  it('renders the app name and admin portal notice', () => {
     render(<LoginForm />);
 
     expect(screen.getByRole('heading', { name: 'common.appName' })).toBeInTheDocument();
-    expect(screen.getByText('auth.portfolioNotice')).toBeInTheDocument();
+    expect(screen.getByText('auth.adminPortalNotice')).toBeInTheDocument();
   });
 
   it('renders the email and password fields with a submit button', () => {
@@ -60,10 +60,17 @@ describe('LoginForm', () => {
     expect(mockChangeLanguage).toHaveBeenCalledWith('pt');
   });
 
-  it('links to the register page', () => {
+  it('links to the register page to create a user for an existing tenant', () => {
     render(<LoginForm />);
 
-    expect(screen.getByRole('link', { name: 'auth.signUpLink' })).toHaveAttribute('href', '/register');
+    expect(screen.getByRole('link', { name: 'auth.createUserForTenantLink' })).toHaveAttribute('href', '/register');
+  });
+
+  it('renders only the Access Demo as Admin shortcut, no other demo buttons', () => {
+    render(<LoginForm />);
+
+    expect(screen.getByRole('button', { name: 'auth.accessAsAdmin' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'auth.accessAsUser' })).not.toBeInTheDocument();
   });
 
   it('shows validation errors when submitting the real form empty', async () => {
@@ -129,24 +136,6 @@ describe('LoginForm', () => {
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
   });
 
-  it('logs in as a regular user and navigates home', async () => {
-    vi.mocked(api.post).mockResolvedValueOnce({
-      data: { id: 'demo-user', email: 'guest@vela.com', role: 'MEMBER', tenantId: 'tenant-demo' },
-    });
-    const user = userEvent.setup();
-    render(<LoginForm />);
-
-    await user.click(screen.getByRole('button', { name: 'auth.accessAsUser' }));
-
-    expect(api.post).toHaveBeenCalledWith('/auth/login', {
-      email: 'guest@vela.com',
-      password: 'guest123',
-    });
-    expect(useAuthStore.getState().user).toMatchObject({ id: 'demo-user', role: 'MEMBER' });
-    expect(useAuthStore.getState().isAuthenticated).toBe(true);
-    expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
-  });
-
   it('shows an error message and logs to the console when the demo login fails', async () => {
     vi.mocked(api.post).mockRejectedValueOnce(new Error('Request failed with status code 401'));
     const user = userEvent.setup();
@@ -177,7 +166,6 @@ describe('LoginForm', () => {
 
     expect(await screen.findByRole('button', { name: 'auth.loginSubmitting' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'auth.accessAsAdmin' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'auth.accessAsUser' })).toBeDisabled();
 
     resolveLogin({ data: { id: 'user-1', email: 'someone@vela.com', role: 'MEMBER', tenantId: 'tenant-demo' } });
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith({ to: '/' }));

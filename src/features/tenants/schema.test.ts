@@ -1,43 +1,84 @@
 import { describe, expect, it } from 'vitest';
-import { registerSchema } from './schema';
+import { createTenantSchema, joinTenantSchema } from './schema';
 
-describe('registerSchema', () => {
-  const validInput = { companyName: 'Vela Corp', slug: 'vela-corp', email: 'admin@vela.com', password: 'secret123' };
+describe('createTenantSchema', () => {
+  const validInput = { name: 'Vela Corp', slug: 'vela-corp' };
 
-  it('accepts a fully valid payload', () => {
-    const result = registerSchema.safeParse(validInput);
+  it('accepts a payload with only the required fields', () => {
+    const result = createTenantSchema.safeParse(validInput);
     expect(result.success).toBe(true);
   });
 
-  it('rejects a company name shorter than 2 characters', () => {
-    const result = registerSchema.safeParse({ ...validInput, companyName: 'A' });
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('auth.validation.companyNameTooShort');
-    }
+  it('accepts a fully valid payload including optional fields', () => {
+    const result = createTenantSchema.safeParse({
+      ...validInput,
+      primaryColor: '#0052cc',
+      logoUrl: 'https://example.com/logo.png',
+    });
+    expect(result.success).toBe(true);
   });
 
-  it('rejects a slug shorter than 2 characters', () => {
-    const result = registerSchema.safeParse({ ...validInput, slug: 'a' });
+  it('rejects a name shorter than 2 characters', () => {
+    const result = createTenantSchema.safeParse({ ...validInput, name: 'A' });
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('auth.validation.slugTooShort');
+      expect(result.error.issues[0].message).toBe('tenants.validation.nameTooShort');
     }
   });
 
   it('rejects a slug with uppercase letters, spaces, or symbols', () => {
-    const result = registerSchema.safeParse({ ...validInput, slug: 'Vela Corp!' });
+    const result = createTenantSchema.safeParse({ ...validInput, slug: 'Vela Corp!' });
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('auth.validation.slugInvalid');
+      expect(result.error.issues[0].message).toBe('tenants.validation.slugInvalid');
     }
   });
 
+  it('rejects a primaryColor that is not a hex color', () => {
+    const result = createTenantSchema.safeParse({ ...validInput, primaryColor: 'blue' });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('tenants.validation.primaryColorInvalid');
+    }
+  });
+
+  it('rejects a logoUrl that is not a valid URL', () => {
+    const result = createTenantSchema.safeParse({ ...validInput, logoUrl: 'not-a-url' });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('tenants.validation.logoUrlInvalid');
+    }
+  });
+});
+
+describe('joinTenantSchema', () => {
+  const validInput = { tenantId: 'tenant-1', role: 'MEMBER' as const, email: 'admin@vela.com', password: 'secret123' };
+
+  it('accepts a fully valid payload', () => {
+    const result = joinTenantSchema.safeParse(validInput);
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects an empty tenantId', () => {
+    const result = joinTenantSchema.safeParse({ ...validInput, tenantId: '' });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('auth.validation.tenantRequired');
+    }
+  });
+
+  it('rejects a role outside the allowed enum', () => {
+    const result = joinTenantSchema.safeParse({ ...validInput, role: 'OWNER' });
+    expect(result.success).toBe(false);
+  });
+
   it('rejects an invalid email', () => {
-    const result = registerSchema.safeParse({ ...validInput, email: 'not-an-email' });
+    const result = joinTenantSchema.safeParse({ ...validInput, email: 'not-an-email' });
 
     expect(result.success).toBe(false);
     if (!result.success) {
@@ -46,7 +87,7 @@ describe('registerSchema', () => {
   });
 
   it('rejects a password shorter than 6 characters', () => {
-    const result = registerSchema.safeParse({ ...validInput, password: '123' });
+    const result = joinTenantSchema.safeParse({ ...validInput, password: '123' });
 
     expect(result.success).toBe(false);
     if (!result.success) {

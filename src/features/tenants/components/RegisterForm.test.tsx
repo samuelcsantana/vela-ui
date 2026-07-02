@@ -4,16 +4,23 @@ import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RegisterForm } from './RegisterForm';
 
-const { mockNavigate, mockMutate, mockUseRegisterTenant, mockShowToast, mockChangeLanguage, mockI18n } = vi.hoisted(
-  () => ({
-    mockNavigate: vi.fn(),
-    mockMutate: vi.fn(),
-    mockUseRegisterTenant: vi.fn(),
-    mockShowToast: vi.fn(),
-    mockChangeLanguage: vi.fn(),
-    mockI18n: { language: 'en' },
-  }),
-);
+const {
+  mockNavigate,
+  mockMutate,
+  mockUseJoinTenant,
+  mockUsePublicTenants,
+  mockShowToast,
+  mockChangeLanguage,
+  mockI18n,
+} = vi.hoisted(() => ({
+  mockNavigate: vi.fn(),
+  mockMutate: vi.fn(),
+  mockUseJoinTenant: vi.fn(),
+  mockUsePublicTenants: vi.fn(),
+  mockShowToast: vi.fn(),
+  mockChangeLanguage: vi.fn(),
+  mockI18n: { language: 'en' },
+}));
 
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
@@ -27,8 +34,12 @@ vi.mock('react-i18next', () => ({
   }),
 }));
 
-vi.mock('../hooks/use-register-tenant', () => ({
-  useRegisterTenant: () => mockUseRegisterTenant(),
+vi.mock('../hooks/use-join-tenant', () => ({
+  useJoinTenant: () => mockUseJoinTenant(),
+}));
+
+vi.mock('../hooks/use-public-tenants', () => ({
+  usePublicTenants: () => mockUsePublicTenants(),
 }));
 
 vi.mock('../../../store/toast-store', () => ({
@@ -36,77 +47,72 @@ vi.mock('../../../store/toast-store', () => ({
     selector({ showToast: mockShowToast }),
 }));
 
+const MOCK_PUBLIC_TENANTS = [
+  { id: 'tenant-1', name: 'Vela Corp', slug: 'vela' },
+  { id: 'tenant-2', name: 'Sicredi', slug: 'sicredi' },
+];
+
 describe('RegisterForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockI18n.language = 'en';
-    mockUseRegisterTenant.mockReturnValue({ mutate: mockMutate, isPending: false, isError: false, error: null });
+    mockUseJoinTenant.mockReturnValue({ mutate: mockMutate, isPending: false, isError: false, error: null });
+    mockUsePublicTenants.mockReturnValue({
+      data: MOCK_PUBLIC_TENANTS,
+      isLoading: false,
+      isError: false,
+      isSuccess: true,
+    });
   });
 
-  it('renders every field', () => {
-    render(<RegisterForm />);
-
-    expect(screen.getByLabelText('auth.register.companyName')).toBeInTheDocument();
-    expect(screen.getByLabelText('auth.register.slug')).toBeInTheDocument();
-    expect(screen.getByLabelText('users.fields.email')).toBeInTheDocument();
-    expect(screen.getByLabelText('users.fields.password')).toBeInTheDocument();
-  });
-
-  it('renders a language toggle', async () => {
+  it('renders the sandbox disclaimer and a language toggle', async () => {
     const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    const langButton = screen.getByRole('button', { name: 'Português' });
-    await user.click(langButton);
-
-    expect(mockChangeLanguage).toHaveBeenCalledWith('pt');
-  });
-
-  it('shows the sandbox portfolio disclaimer', () => {
     render(<RegisterForm />);
 
     expect(screen.getByRole('note')).toHaveTextContent('auth.register.sandboxNotice');
+
+    await user.click(screen.getByRole('button', { name: 'Português' }));
+    expect(mockChangeLanguage).toHaveBeenCalledWith('pt');
   });
 
-  it('shows helper text under the company name, slug, and password fields', () => {
+  it('populates the tenant select from the public tenants list', () => {
     render(<RegisterForm />);
 
-    expect(screen.getByText('auth.register.companyNameHelper')).toBeInTheDocument();
-    expect(screen.getByText('auth.register.slugHelper')).toBeInTheDocument();
-    expect(screen.getByText('auth.register.passwordHelper')).toBeInTheDocument();
+    const select = screen.getByLabelText('auth.register.tenantLabel') as HTMLSelectElement;
+    expect(screen.getByRole('option', { name: 'Vela Corp' })).toBeInTheDocument();
+    expect(screen.getByRole('option', { name: 'Sicredi' })).toBeInTheDocument();
+    expect(select).not.toBeDisabled();
   });
 
-  it('shows no validation errors on initial render, before any interaction', () => {
+  it('disables the tenant select and shows a loading hint while fetching', () => {
+    mockUsePublicTenants.mockReturnValue({ data: undefined, isLoading: true, isError: false, isSuccess: false });
     render(<RegisterForm />);
 
-    expect(screen.queryByText('auth.validation.companyNameTooShort')).not.toBeInTheDocument();
-    expect(screen.queryByText('auth.validation.slugTooShort')).not.toBeInTheDocument();
-    expect(screen.queryByText('users.validation.invalidEmail')).not.toBeInTheDocument();
-    expect(screen.queryByText('users.validation.passwordTooShort')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('auth.register.tenantLabel')).toBeDisabled();
+    expect(screen.getByText('auth.register.tenantLoading')).toBeInTheDocument();
   });
 
-  it('shows the email format error live while typing, without submitting', async () => {
-    const user = userEvent.setup();
+  it('shows an alert when the public tenants request fails', () => {
+    mockUsePublicTenants.mockReturnValue({ data: undefined, isLoading: false, isError: true, isSuccess: false });
     render(<RegisterForm />);
 
-    await user.type(screen.getByLabelText('users.fields.email'), 'not-an-email');
-
-    expect(await screen.findByText('users.validation.invalidEmail')).toBeInTheDocument();
-    expect(mockMutate).not.toHaveBeenCalled();
-
-    await user.type(screen.getByLabelText('users.fields.email'), '@vela.com');
-
-    await waitFor(() => expect(screen.queryByText('users.validation.invalidEmail')).not.toBeInTheDocument());
+    expect(screen.getByRole('alert')).toHaveTextContent('auth.register.tenantError');
   });
 
-  it('does not leak the company name error onto the untouched slug field while typing', async () => {
-    const user = userEvent.setup();
+  it('shows an empty hint when there are no tenants to join', () => {
+    mockUsePublicTenants.mockReturnValue({ data: [], isLoading: false, isError: false, isSuccess: true });
     render(<RegisterForm />);
 
-    await user.type(screen.getByLabelText('auth.register.companyName'), 'A');
+    expect(screen.getByText('auth.register.tenantEmpty')).toBeInTheDocument();
+  });
 
-    expect(await screen.findByText('auth.validation.companyNameTooShort')).toBeInTheDocument();
-    expect(screen.queryByText('auth.validation.slugTooShort')).not.toBeInTheDocument();
+  it('renders the role select defaulting to MEMBER, with an explanatory helper', () => {
+    render(<RegisterForm />);
+
+    const roleSelect = screen.getByLabelText('auth.register.roleLabel') as HTMLSelectElement;
+    expect(roleSelect.value).toBe('MEMBER');
+    expect(screen.getByRole('option', { name: 'ADMIN' })).toBeInTheDocument();
+    expect(screen.getByText('auth.register.roleHelper')).toBeInTheDocument();
   });
 
   it('links back to the login page', () => {
@@ -115,123 +121,57 @@ describe('RegisterForm', () => {
     expect(screen.getByRole('link', { name: 'auth.register.backToLogin' })).toHaveAttribute('href', '/login');
   });
 
-  it('auto-fills the slug from the company name until the user edits it directly', async () => {
-    const user = userEvent.setup();
-    render(<RegisterForm />);
-
-    const companyNameInput = screen.getByLabelText('auth.register.companyName');
-    const slugInput = screen.getByLabelText('auth.register.slug') as HTMLInputElement;
-
-    await user.type(companyNameInput, 'Minha Empresa');
-    await waitFor(() => expect(slugInput.value).toBe('minha-empresa'));
-
-    await user.clear(slugInput);
-    await user.type(slugInput, 'custom-slug');
-    await user.type(companyNameInput, ' Ltda');
-
-    expect(slugInput.value).toBe('custom-slug');
-  });
-
   it('shows validation errors when submitting an empty form', async () => {
     const user = userEvent.setup();
     render(<RegisterForm />);
 
     await user.click(screen.getByRole('button', { name: 'auth.register.submit' }));
 
-    expect(await screen.findByText('auth.validation.companyNameTooShort')).toBeInTheDocument();
-    expect(screen.getByText('auth.validation.slugTooShort')).toBeInTheDocument();
+    expect(await screen.findByText('auth.validation.tenantRequired')).toBeInTheDocument();
     expect(screen.getByText('users.validation.invalidEmail')).toBeInTheDocument();
     expect(screen.getByText('users.validation.passwordTooShort')).toBeInTheDocument();
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it('submits valid values, clears the form, shows a toast, and navigates to /login on success', async () => {
+  it('submits the selected tenant, role, and credentials, then navigates to the tenant login page on success', async () => {
     mockMutate.mockImplementation((_values, { onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
     });
     const user = userEvent.setup();
     render(<RegisterForm />);
 
-    const companyNameInput = screen.getByLabelText('auth.register.companyName') as HTMLInputElement;
-    const slugInput = screen.getByLabelText('auth.register.slug') as HTMLInputElement;
-    const emailInput = screen.getByLabelText('users.fields.email') as HTMLInputElement;
-    const passwordInput = screen.getByLabelText('users.fields.password') as HTMLInputElement;
-
-    await user.type(companyNameInput, 'Vela Corp');
-    await user.type(emailInput, 'admin@vela.com');
-    await user.type(passwordInput, 'secret123');
+    await user.selectOptions(screen.getByLabelText('auth.register.tenantLabel'), 'tenant-2');
+    await user.selectOptions(screen.getByLabelText('auth.register.roleLabel'), 'ADMIN');
+    await user.type(screen.getByLabelText('users.fields.email'), 'new@sicredi.com');
+    await user.type(screen.getByLabelText('users.fields.password'), 'secret123');
     await user.click(screen.getByRole('button', { name: 'auth.register.submit' }));
 
     await waitFor(() =>
       expect(mockMutate).toHaveBeenCalledWith(
-        { companyName: 'Vela Corp', slug: 'vela-corp', email: 'admin@vela.com', password: 'secret123' },
+        { tenantId: 'tenant-2', role: 'ADMIN', email: 'new@sicredi.com', password: 'secret123' },
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       ),
     );
-
-    await waitFor(() => expect(companyNameInput.value).toBe(''));
-    expect(slugInput.value).toBe('');
-    expect(emailInput.value).toBe('');
-    expect(passwordInput.value).toBe('');
     expect(mockShowToast).toHaveBeenCalledWith('auth.register.success');
-    expect(mockNavigate).toHaveBeenCalledWith({ to: '/login' });
+    expect(mockNavigate).toHaveBeenCalledWith({ to: '/$slug/login', params: { slug: 'sicredi' } });
   });
 
-  it('disables the submit button and shows the submitting label while pending', () => {
-    mockUseRegisterTenant.mockReturnValue({ mutate: mockMutate, isPending: true, isError: false, error: null });
-    render(<RegisterForm />);
-
-    const submitButton = screen.getByRole('button', { name: 'auth.register.submitting' });
-    expect(submitButton).toBeDisabled();
-  });
-
-  const buildApiError = (message: string) =>
-    new axios.AxiosError('Request failed', '409', undefined, undefined, {
+  it('shows a translated message when the email is already registered', () => {
+    const apiError = new axios.AxiosError('Request failed', '409', undefined, undefined, {
       status: 409,
       statusText: 'Conflict',
       headers: {},
       config: {} as never,
-      data: { error: message },
+      data: { error: 'A user with this email already exists' },
     });
-
-  it('shows a translated message when the slug is already taken', () => {
-    mockUseRegisterTenant.mockReturnValue({
-      mutate: mockMutate,
-      isPending: false,
-      isError: true,
-      error: buildApiError('A tenant with this slug already exists'),
-    });
-    render(<RegisterForm />);
-
-    expect(screen.getByText('auth.register.errors.slugTaken')).toBeInTheDocument();
-  });
-
-  it('shows a translated message when the email is already registered', () => {
-    mockUseRegisterTenant.mockReturnValue({
-      mutate: mockMutate,
-      isPending: false,
-      isError: true,
-      error: buildApiError('A user with this email already exists'),
-    });
+    mockUseJoinTenant.mockReturnValue({ mutate: mockMutate, isPending: false, isError: true, error: apiError });
     render(<RegisterForm />);
 
     expect(screen.getByText('auth.register.errors.emailTaken')).toBeInTheDocument();
   });
 
-  it('falls back to a generic translated message for an unrecognized API error', () => {
-    mockUseRegisterTenant.mockReturnValue({
-      mutate: mockMutate,
-      isPending: false,
-      isError: true,
-      error: buildApiError('Something unexpected happened'),
-    });
-    render(<RegisterForm />);
-
-    expect(screen.getByText('auth.register.submitError')).toBeInTheDocument();
-  });
-
-  it('falls back to a generic translated message when the failure has no API error body', () => {
-    mockUseRegisterTenant.mockReturnValue({
+  it('falls back to a generic translated message for an unrecognized failure', () => {
+    mockUseJoinTenant.mockReturnValue({
       mutate: mockMutate,
       isPending: false,
       isError: true,
@@ -240,5 +180,13 @@ describe('RegisterForm', () => {
     render(<RegisterForm />);
 
     expect(screen.getByText('auth.register.submitError')).toBeInTheDocument();
+  });
+
+  it('disables the submit button and shows the submitting label while pending', () => {
+    mockUseJoinTenant.mockReturnValue({ mutate: mockMutate, isPending: true, isError: false, error: null });
+    render(<RegisterForm />);
+
+    const submitButton = screen.getByRole('button', { name: 'auth.register.submitting' });
+    expect(submitButton).toBeDisabled();
   });
 });

@@ -56,6 +56,9 @@ describe('Sidebar', () => {
     const usersLink = screen.getByRole('link', { name: 'sidebar.users' });
     expect(usersLink).toHaveAttribute('href', '/users');
 
+    const tenantsLink = screen.getByRole('link', { name: 'sidebar.tenants' });
+    expect(tenantsLink).toHaveAttribute('href', '/tenants');
+
     const settingsButton = screen.getByRole('button', { name: 'sidebar.settings' });
     expect(settingsButton).toBeDisabled();
   });

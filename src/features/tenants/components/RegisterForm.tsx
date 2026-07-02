@@ -1,15 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Info } from 'lucide-react';
-import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LanguageToggle, LIGHT_TOGGLE_CLASSNAME } from '../../../components/LanguageToggle';
 import { getApiErrorMessage } from '../../../lib/api';
-import { slugify } from '../../../lib/format';
 import { useToastStore } from '../../../store/toast-store';
-import { useRegisterTenant } from '../hooks/use-register-tenant';
-import { registerSchema, type RegisterValues } from '../schema';
+import { usePublicTenants } from '../hooks/use-public-tenants';
+import { useJoinTenant } from '../hooks/use-join-tenant';
+import { joinTenantSchema, type JoinTenantValues } from '../schema';
 
 const FIELD_CLASSNAME =
   'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
@@ -20,7 +19,6 @@ const HELPER_TEXT_CLASSNAME = 'text-xs text-slate-500';
 // rendered as-is in a localized UI. Known conflicts are mapped to translated
 // copy; anything unrecognized falls back to a generic translated message.
 const KNOWN_ERROR_KEYS: Record<string, string> = {
-  'A tenant with this slug already exists': 'auth.register.errors.slugTaken',
   'A user with this email already exists': 'auth.register.errors.emailTaken',
 };
 
@@ -31,53 +29,42 @@ export const RegisterForm = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const showToast = useToastStore((state) => state.showToast);
-  const registerTenantMutation = useRegisterTenant();
-  const isSlugEdited = useRef(false);
+  const publicTenantsQuery = usePublicTenants();
+  const joinTenantMutation = useJoinTenant();
 
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     reset,
     formState: { errors, dirtyFields, isSubmitted },
-  } = useForm<RegisterValues>({
-    resolver: zodResolver(registerSchema),
+  } = useForm<JoinTenantValues>({
+    resolver: zodResolver(joinTenantSchema),
     mode: 'onChange',
-    defaultValues: { companyName: '', slug: '', email: '', password: '' },
+    defaultValues: { tenantId: '', role: 'MEMBER', email: '', password: '' },
   });
 
-  const companyName = watch('companyName');
-
-  // Only auto-populates the value — never forces validation, otherwise the slug
-  // field would show a "too short" error before the user has typed anything.
-  useEffect(() => {
-    if (isSlugEdited.current) {
-      return;
-    }
-
-    setValue('slug', slugify(companyName));
-  }, [companyName, setValue]);
-
   const onSubmit = handleSubmit((values) => {
-    registerTenantMutation.mutate(values, {
+    // tenantId always comes from an <option> rendered off this same query's cached
+    // data, so the matching tenant is always found here.
+    const tenant = publicTenantsQuery.data?.find((item) => item.id === values.tenantId);
+
+    joinTenantMutation.mutate(values, {
       onSuccess: () => {
         reset();
-        isSlugEdited.current = false;
         showToast(t('auth.register.success'));
-        navigate({ to: '/login' });
+        navigate({ to: '/$slug/login', params: { slug: tenant!.slug } });
       },
     });
   });
 
-  const errorMessage = registerTenantMutation.isError
-    ? t(getRegisterErrorKey(getApiErrorMessage(registerTenantMutation.error)))
+  const errorMessage = joinTenantMutation.isError
+    ? t(getRegisterErrorKey(getApiErrorMessage(joinTenantMutation.error)))
     : '';
 
   // A field only shows its error once the user has actually edited it, or after a
   // submit attempt (which must surface every remaining problem regardless of what
   // was touched) — never merely because the resolver validated the whole schema.
-  const shouldShowFieldError = (field: keyof RegisterValues) => Boolean(dirtyFields[field]) || isSubmitted;
+  const shouldShowFieldError = (field: keyof JoinTenantValues) => Boolean(dirtyFields[field]) || isSubmitted;
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
@@ -98,55 +85,49 @@ export const RegisterForm = () => {
 
         <form onSubmit={onSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1">
-            <label htmlFor="companyName" className="text-sm font-medium text-slate-700">
-              {t('auth.register.companyName')}
+            <label htmlFor="tenantId" className="text-sm font-medium text-slate-700">
+              {t('auth.register.tenantLabel')}
             </label>
-            <input
-              id="companyName"
-              type="text"
-              aria-invalid={shouldShowFieldError('companyName') && Boolean(errors.companyName)}
-              aria-describedby={
-                shouldShowFieldError('companyName') && errors.companyName
-                  ? 'companyName-helper companyName-error'
-                  : 'companyName-helper'
-              }
+            <select
+              id="tenantId"
+              aria-invalid={shouldShowFieldError('tenantId') && Boolean(errors.tenantId)}
+              aria-describedby={shouldShowFieldError('tenantId') && errors.tenantId ? 'tenantId-error' : undefined}
               className={FIELD_CLASSNAME}
-              {...register('companyName')}
-            />
-            <p id="companyName-helper" className={HELPER_TEXT_CLASSNAME}>
-              {t('auth.register.companyNameHelper')}
-            </p>
-            <p id="companyName-error" aria-live="polite" className="text-sm text-red-600">
-              {shouldShowFieldError('companyName') && errors.companyName?.message
-                ? t(errors.companyName.message)
-                : ''}
+              disabled={publicTenantsQuery.isLoading}
+              {...register('tenantId')}
+            >
+              <option value="">{t('auth.register.tenantPlaceholder')}</option>
+              {publicTenantsQuery.data?.map((tenant) => (
+                <option key={tenant.id} value={tenant.id}>
+                  {tenant.name}
+                </option>
+              ))}
+            </select>
+            {publicTenantsQuery.isLoading ? (
+              <p className={HELPER_TEXT_CLASSNAME}>{t('auth.register.tenantLoading')}</p>
+            ) : null}
+            {publicTenantsQuery.isError ? (
+              <p role="alert" className="text-sm text-red-600">
+                {t('auth.register.tenantError')}
+              </p>
+            ) : null}
+            {publicTenantsQuery.isSuccess && publicTenantsQuery.data.length === 0 ? (
+              <p className={HELPER_TEXT_CLASSNAME}>{t('auth.register.tenantEmpty')}</p>
+            ) : null}
+            <p id="tenantId-error" aria-live="polite" className="text-sm text-red-600">
+              {shouldShowFieldError('tenantId') && errors.tenantId?.message ? t(errors.tenantId.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="slug" className="text-sm font-medium text-slate-700">
-              {t('auth.register.slug')}
+            <label htmlFor="role" className="text-sm font-medium text-slate-700">
+              {t('auth.register.roleLabel')}
             </label>
-            <input
-              id="slug"
-              type="text"
-              aria-invalid={shouldShowFieldError('slug') && Boolean(errors.slug)}
-              aria-describedby={
-                shouldShowFieldError('slug') && errors.slug ? 'slug-helper slug-error' : 'slug-helper'
-              }
-              className={FIELD_CLASSNAME}
-              {...register('slug', {
-                onChange: () => {
-                  isSlugEdited.current = true;
-                },
-              })}
-            />
-            <p id="slug-helper" className={HELPER_TEXT_CLASSNAME}>
-              {t('auth.register.slugHelper')}
-            </p>
-            <p id="slug-error" aria-live="polite" className="text-sm text-red-600">
-              {shouldShowFieldError('slug') && errors.slug?.message ? t(errors.slug.message) : ''}
-            </p>
+            <select id="role" className={FIELD_CLASSNAME} {...register('role')}>
+              <option value="MEMBER">MEMBER</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+            <p className={HELPER_TEXT_CLASSNAME}>{t('auth.register.roleHelper')}</p>
           </div>
 
           <div className="flex flex-col gap-1">
@@ -175,9 +156,7 @@ export const RegisterForm = () => {
               type="password"
               aria-invalid={shouldShowFieldError('password') && Boolean(errors.password)}
               aria-describedby={
-                shouldShowFieldError('password') && errors.password
-                  ? 'password-helper password-error'
-                  : 'password-helper'
+                shouldShowFieldError('password') && errors.password ? 'password-helper password-error' : 'password-helper'
               }
               className={FIELD_CLASSNAME}
               {...register('password')}
@@ -196,10 +175,10 @@ export const RegisterForm = () => {
 
           <button
             type="submit"
-            disabled={registerTenantMutation.isPending}
+            disabled={joinTenantMutation.isPending}
             className="flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-brand px-4 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {registerTenantMutation.isPending ? t('auth.register.submitting') : t('auth.register.submit')}
+            {joinTenantMutation.isPending ? t('auth.register.submitting') : t('auth.register.submit')}
           </button>
         </form>
 

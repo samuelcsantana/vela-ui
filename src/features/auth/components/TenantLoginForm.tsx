@@ -1,27 +1,34 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Link, useNavigate } from '@tanstack/react-router';
-import { LogIn, ShieldCheck, UserPlus } from 'lucide-react';
-import { useState } from 'react';
+import { getRouteApi, useNavigate } from '@tanstack/react-router';
+import { LogIn } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LanguageToggle, LIGHT_TOGGLE_CLASSNAME } from '../../../components/LanguageToggle';
+import { TENANT_BRAND_CSS_VAR } from '../../tenants/hooks/use-tenant-branding';
+import { DEFAULT_BRAND_COLOR, TENANT_THEME_FALLBACK } from '../../tenants/theme';
 import { loginSchema, type LoginValues } from '../schema';
-import { useAuthStore, type LoginCredentials } from '../store/auth-store';
+import { useAuthStore } from '../store/auth-store';
 
-const DEMO_ADMIN: LoginCredentials = {
-  email: 'admin@vela.com',
-  password: 'admin123',
-};
+const routeApi = getRouteApi('/$slug/login');
 
 const FIELD_CLASSNAME =
   'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
 
-export const LoginForm = () => {
+export const TenantLoginForm = () => {
+  const { tenant } = routeApi.useLoaderData();
   const { t } = useTranslation();
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
+
+  // Injects the tenant's brand color before the user ever interacts with the form,
+  // so this specific login screen renders white-labeled from first paint.
+  useEffect(() => {
+    const color = tenant.primaryColor ?? TENANT_THEME_FALLBACK[tenant.slug] ?? DEFAULT_BRAND_COLOR;
+    document.documentElement.style.setProperty(TENANT_BRAND_CSS_VAR, color);
+  }, [tenant.primaryColor, tenant.slug]);
 
   const {
     register,
@@ -32,12 +39,12 @@ export const LoginForm = () => {
     defaultValues: { email: '', password: '' },
   });
 
-  const attemptLogin = async (credentials: LoginCredentials) => {
+  const onSubmit = handleSubmit(async (values) => {
     setError(null);
     setIsPending(true);
 
     try {
-      await login(credentials);
+      await login(values);
       navigate({ to: '/' });
     } catch (err) {
       console.error('Login failed', err);
@@ -45,9 +52,7 @@ export const LoginForm = () => {
     } finally {
       setIsPending(false);
     }
-  };
-
-  const onSubmit = handleSubmit((values) => attemptLogin(values));
+  });
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
@@ -57,8 +62,12 @@ export const LoginForm = () => {
 
       <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-semibold text-slate-900">{t('common.appName')}</h1>
-          <p className="mt-2 text-sm text-slate-500">{t('auth.adminPortalNotice')}</p>
+          {tenant.logoUrl ? (
+            <img src={tenant.logoUrl} alt={tenant.name} className="mx-auto mb-3 h-10 max-w-full object-contain" />
+          ) : (
+            <h1 className="text-2xl font-semibold text-slate-900">{tenant.name}</h1>
+          )}
+          <p className="mt-2 text-sm text-slate-500">{t('auth.tenantLoginSubtitle')}</p>
         </div>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
@@ -104,16 +113,6 @@ export const LoginForm = () => {
             <LogIn size={18} aria-hidden="true" />
             {isPending ? t('auth.loginSubmitting') : t('auth.loginSubmit')}
           </button>
-
-          <button
-            type="button"
-            disabled={isPending}
-            onClick={() => attemptLogin(DEMO_ADMIN)}
-            className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <ShieldCheck size={18} aria-hidden="true" />
-            {t('auth.accessAsAdmin')}
-          </button>
         </form>
 
         {error ? (
@@ -121,14 +120,6 @@ export const LoginForm = () => {
             {error}
           </p>
         ) : null}
-
-        <Link
-          to="/register"
-          className="mt-4 flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-dashed border-slate-300 px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100"
-        >
-          <UserPlus size={18} aria-hidden="true" />
-          {t('auth.createUserForTenantLink')}
-        </Link>
       </div>
     </main>
   );

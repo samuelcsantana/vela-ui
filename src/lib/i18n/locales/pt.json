@@ -12,6 +12,7 @@
     "nav": "Navegação principal",
     "dashboard": "Dashboard",
     "users": "Usuários",
+    "tenants": "Empresas",
     "settings": "Configurações"
   },
   "header": {
@@ -25,22 +26,24 @@
     "subtitle": "Selecione uma opção no menu lateral para começar."
   },
   "auth": {
-    "portfolioNotice": "Este é um projeto de portfólio. Escolha um acesso de demonstração abaixo — não é necessária senha.",
+    "adminPortalNotice": "Portal de Administração do Sistema. Este é um projeto de portfólio — use o botão demo abaixo ou suas próprias credenciais.",
+    "tenantLoginSubtitle": "Entre no seu workspace",
     "loginSubmit": "Entrar",
     "loginSubmitting": "Entrando...",
     "loginError": "Não foi possível entrar. Tente novamente.",
-    "demoSectionLabel": "Ou experimente uma conta demo",
     "accessAsAdmin": "Acessar Demo como Admin",
-    "accessAsUser": "Acessar Demo como Usuário",
-    "signUpLink": "Não tem uma conta? Cadastre-se",
+    "createUserForTenantLink": "Criar Usuário para uma Empresa Existente",
     "register": {
-      "title": "Crie a conta da sua empresa",
-      "subtitle": "Configure sua empresa e seu primeiro usuário admin.",
-      "sandboxNotice": "Ambiente Sandbox: crie uma empresa fictícia para testar a arquitetura multi-tenant e a injeção de cores dinâmicas (White-label).",
-      "companyName": "Nome da Empresa",
-      "companyNameHelper": "Ex: Sicredi, Nubank, Acme Corp",
-      "slug": "Slug",
-      "slugHelper": "Define a URL do seu workspace. Ex: /sicredi",
+      "title": "Junte-se a uma empresa",
+      "subtitle": "Selecione sua empresa e crie sua conta.",
+      "sandboxNotice": "Ambiente Sandbox: escolha qualquer empresa abaixo para testar a experiência multi-tenant e White-label.",
+      "tenantLabel": "Empresa",
+      "tenantPlaceholder": "Selecione uma empresa",
+      "tenantLoading": "Carregando empresas...",
+      "tenantError": "Não foi possível carregar as empresas. Tente novamente.",
+      "tenantEmpty": "Nenhuma empresa disponível ainda.",
+      "roleLabel": "Papel",
+      "roleHelper": "O autocadastro sempre entra como Member — peça a um admin existente para promovê-lo depois.",
       "passwordHelper": "Mínimo de 6 caracteres",
       "submit": "Criar Conta",
       "submitting": "Criando...",
@@ -48,16 +51,18 @@
       "success": "Conta criada com sucesso. Você já pode entrar.",
       "backToLogin": "Já tem uma conta? Entrar",
       "errors": {
-        "slugTaken": "Este slug já está em uso. Escolha outro.",
         "emailTaken": "Já existe uma conta com este email."
       }
     },
     "validation": {
-      "companyNameTooShort": "Informe ao menos 2 caracteres",
-      "slugTooShort": "Informe ao menos 2 caracteres",
-      "slugInvalid": "Use apenas letras minúsculas, números e hífens",
+      "tenantRequired": "Selecione uma empresa",
       "passwordRequired": "Senha é obrigatória"
     }
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "message": "Não encontramos a empresa que você está procurando.",
+    "backToLogin": "Voltar para o login"
   },
   "users": {
     "title": "Usuários",
@@ -86,6 +91,40 @@
       "searchTooLong": "Busca muito longa",
       "invalidEmail": "Email inválido",
       "passwordTooShort": "A senha deve ter pelo menos 6 caracteres"
+    }
+  },
+  "tenants": {
+    "title": "Empresas",
+    "addTenant": "Nova Empresa",
+    "fields": {
+      "name": "Nome",
+      "slug": "Slug",
+      "primaryColor": "Cor Primária",
+      "logoUrl": "URL do Logo",
+      "dateCreated": "Data de Criação"
+    },
+    "table": {
+      "caption": "Lista de empresas cadastradas, com nome, slug, cor primária e data de criação",
+      "loading": "Carregando empresas...",
+      "error": "Não foi possível carregar as empresas.",
+      "empty": "Nenhuma empresa encontrada."
+    },
+    "form": {
+      "title": "Nova empresa",
+      "slugHelper": "Define a URL de login da empresa. Ex: /sicredi/login",
+      "primaryColorHelper": "Usado para a marca White-label (opcional)",
+      "logoUrlHelper": "URL pública do logo da empresa (opcional)",
+      "submitError": "Não foi possível criar a empresa. Tente novamente."
+    },
+    "validation": {
+      "nameTooShort": "Informe ao menos 2 caracteres",
+      "slugTooShort": "Informe ao menos 2 caracteres",
+      "slugInvalid": "Use apenas letras minúsculas, números e hífens",
+      "primaryColorInvalid": "Use uma cor hexadecimal, ex: #0052cc",
+      "logoUrlInvalid": "Informe uma URL válida"
+    },
+    "errors": {
+      "slugTaken": "Este slug já está em uso. Escolha outro."
     }
   }
 }

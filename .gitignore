@@ -1,7 +1,8 @@
 # Local
 .DS_Store
 *.local
-*.log*
+*.log
+*.log.*
 .env
 
 # Dist
