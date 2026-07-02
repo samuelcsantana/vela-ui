@@ -80,16 +80,21 @@ describe('RegisterForm', () => {
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it('submits valid values, shows a toast, and navigates to /login on success', async () => {
+  it('submits valid values, clears the form, shows a toast, and navigates to /login on success', async () => {
     mockMutate.mockImplementation((_values, { onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
     });
     const user = userEvent.setup();
     render(<RegisterForm />);
 
-    await user.type(screen.getByLabelText('auth.register.companyName'), 'Vela Corp');
-    await user.type(screen.getByLabelText('users.fields.email'), 'admin@vela.com');
-    await user.type(screen.getByLabelText('users.fields.password'), 'secret123');
+    const companyNameInput = screen.getByLabelText('auth.register.companyName') as HTMLInputElement;
+    const slugInput = screen.getByLabelText('auth.register.slug') as HTMLInputElement;
+    const emailInput = screen.getByLabelText('users.fields.email') as HTMLInputElement;
+    const passwordInput = screen.getByLabelText('users.fields.password') as HTMLInputElement;
+
+    await user.type(companyNameInput, 'Vela Corp');
+    await user.type(emailInput, 'admin@vela.com');
+    await user.type(passwordInput, 'secret123');
     await user.click(screen.getByRole('button', { name: 'auth.register.submit' }));
 
     await waitFor(() =>
@@ -98,6 +103,11 @@ describe('RegisterForm', () => {
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       ),
     );
+
+    await waitFor(() => expect(companyNameInput.value).toBe(''));
+    expect(slugInput.value).toBe('');
+    expect(emailInput.value).toBe('');
+    expect(passwordInput.value).toBe('');
     expect(mockShowToast).toHaveBeenCalledWith('auth.register.success');
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/login' });
   });

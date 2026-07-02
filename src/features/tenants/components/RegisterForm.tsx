@@ -24,6 +24,7 @@ export const RegisterForm = () => {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<RegisterValues>({
     resolver: zodResolver(registerSchema),
@@ -43,6 +44,8 @@ export const RegisterForm = () => {
   const onSubmit = handleSubmit((values) => {
     registerTenantMutation.mutate(values, {
       onSuccess: () => {
+        reset();
+        isSlugEdited.current = false;
         showToast(t('auth.register.success'));
         navigate({ to: '/login' });
       },
