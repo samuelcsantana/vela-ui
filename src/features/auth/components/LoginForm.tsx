@@ -2,7 +2,7 @@ import { Link, useNavigate } from '@tanstack/react-router';
 import { ShieldCheck, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LanguageToggle } from '../../../components/LanguageToggle';
+import { LanguageToggle, LIGHT_TOGGLE_CLASSNAME } from '../../../components/LanguageToggle';
 import { useAuthStore, type LoginCredentials } from '../store/auth-store';
 
 const DEMO_ADMIN: LoginCredentials = {
@@ -39,7 +39,7 @@ export const LoginForm = () => {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
       <div className="fixed right-4 top-4 rounded-md border border-slate-200 bg-white shadow-sm">
-        <LanguageToggle />
+        <LanguageToggle className={LIGHT_TOGGLE_CLASSNAME} />
       </div>
 
       <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
