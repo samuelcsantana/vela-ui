@@ -31,7 +31,8 @@
   "auth": {
     "portfolioNotice": "Este é um projeto de portfólio. Escolha um acesso de demonstração abaixo — não é necessária senha.",
     "accessAsAdmin": "Acessar Demo como Admin",
-    "accessAsUser": "Acessar Demo como Usuário"
+    "accessAsUser": "Acessar Demo como Usuário",
+    "demoLoginError": "Não foi possível entrar. Tente novamente."
   },
   "users": {
     "title": "Usuários",

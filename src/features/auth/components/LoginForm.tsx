@@ -1,16 +1,17 @@
 import { useNavigate } from '@tanstack/react-router';
 import { ShieldCheck, UserRound } from 'lucide-react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore, type LoginCredentials } from '../store/auth-store';
 
 const DEMO_ADMIN: LoginCredentials = {
-  email: 'admin@velaui.demo',
-  password: 'demo-admin',
+  email: 'admin@vela.com',
+  password: 'admin123',
 };
 
 const DEMO_USER: LoginCredentials = {
-  email: 'user@velaui.demo',
-  password: 'demo-user',
+  email: 'guest@vela.com',
+  password: 'guest123',
 };
 
 const DEMO_BUTTON_CLASSNAME =
@@ -20,10 +21,18 @@ export const LoginForm = () => {
   const { t } = useTranslation();
   const login = useAuthStore((state) => state.login);
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   const handleDemoLogin = async (credentials: LoginCredentials) => {
-    await login(credentials);
-    navigate({ to: '/' });
+    setError(null);
+
+    try {
+      await login(credentials);
+      navigate({ to: '/' });
+    } catch (err) {
+      console.error('Demo login failed', err);
+      setError(t('auth.demoLoginError'));
+    }
   };
 
   return (
@@ -53,6 +62,12 @@ export const LoginForm = () => {
             {t('auth.accessAsUser')}
           </button>
         </div>
+
+        {error ? (
+          <p role="alert" className="mt-4 text-center text-sm text-red-600">
+            {error}
+          </p>
+        ) : null}
       </div>
     </main>
   );

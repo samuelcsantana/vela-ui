@@ -24,6 +24,7 @@ vi.mock('../../../lib/api', () => ({
 describe('LoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.spyOn(console, 'error').mockImplementation(() => undefined);
     useAuthStore.setState({ user: null, isAuthenticated: false });
   });
 
@@ -37,7 +38,7 @@ describe('LoginForm', () => {
   it('logs in as admin and navigates home', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
       data: {
-        user: { id: 'demo-admin', name: 'Ana Souza', email: 'admin@velaui.demo', role: 'admin', tenantId: 'tenant-demo' },
+        user: { id: 'demo-admin', name: 'Ana Souza', email: 'admin@vela.com', role: 'admin', tenantId: 'tenant-demo' },
       },
     });
     const user = userEvent.setup();
@@ -46,8 +47,8 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: 'auth.accessAsAdmin' }));
 
     expect(api.post).toHaveBeenCalledWith('/auth/login', {
-      email: 'admin@velaui.demo',
-      password: 'demo-admin',
+      email: 'admin@vela.com',
+      password: 'admin123',
     });
     expect(useAuthStore.getState().user).toMatchObject({ id: 'demo-admin', role: 'admin' });
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
@@ -57,7 +58,7 @@ describe('LoginForm', () => {
   it('logs in as a regular user and navigates home', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
       data: {
-        user: { id: 'demo-user', name: 'Carlos Lima', email: 'user@velaui.demo', role: 'user', tenantId: 'tenant-demo' },
+        user: { id: 'demo-user', name: 'Carlos Lima', email: 'guest@vela.com', role: 'user', tenantId: 'tenant-demo' },
       },
     });
     const user = userEvent.setup();
@@ -66,11 +67,24 @@ describe('LoginForm', () => {
     await user.click(screen.getByRole('button', { name: 'auth.accessAsUser' }));
 
     expect(api.post).toHaveBeenCalledWith('/auth/login', {
-      email: 'user@velaui.demo',
-      password: 'demo-user',
+      email: 'guest@vela.com',
+      password: 'guest123',
     });
     expect(useAuthStore.getState().user).toMatchObject({ id: 'demo-user', role: 'user' });
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
+  });
+
+  it('shows an error message and logs to the console when the API call fails', async () => {
+    vi.mocked(api.post).mockRejectedValueOnce(new Error('Request failed with status code 401'));
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    await user.click(screen.getByRole('button', { name: 'auth.accessAsAdmin' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('auth.demoLoginError');
+    expect(console.error).toHaveBeenCalledWith('Demo login failed', expect.any(Error));
+    expect(useAuthStore.getState().isAuthenticated).toBe(false);
+    expect(mockNavigate).not.toHaveBeenCalled();
   });
 });

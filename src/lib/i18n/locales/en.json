@@ -31,7 +31,8 @@
   "auth": {
     "portfolioNotice": "This is a portfolio project. Choose a demo access below — no password required.",
     "accessAsAdmin": "Access Demo as Admin",
-    "accessAsUser": "Access Demo as User"
+    "accessAsUser": "Access Demo as User",
+    "demoLoginError": "Unable to sign in. Please try again."
   },
   "users": {
     "title": "Users",
