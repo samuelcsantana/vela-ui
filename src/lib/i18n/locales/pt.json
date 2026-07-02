@@ -33,8 +33,11 @@
     "register": {
       "title": "Crie a conta da sua empresa",
       "subtitle": "Configure sua empresa e seu primeiro usuário admin.",
+      "sandboxNotice": "Ambiente Sandbox: crie uma empresa fictícia para testar a arquitetura multi-tenant e a injeção de cores dinâmicas (White-label).",
       "companyName": "Nome da Empresa",
+      "companyNameHelper": "Ex: Sicredi, Nubank, Acme Corp",
       "slug": "Slug",
+      "slugHelper": "Define a URL do seu workspace. Ex: /sicredi",
       "submit": "Criar Conta",
       "submitting": "Criando...",
       "submitError": "Não foi possível criar a conta. Tente novamente.",

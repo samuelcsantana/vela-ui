@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { Info } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,8 @@ import { registerSchema, type RegisterValues } from '../schema';
 
 const FIELD_CLASSNAME =
   'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
+
+const HELPER_TEXT_CLASSNAME = 'text-xs text-slate-500';
 
 // The API returns plain-English error strings (see swagger.json), which can't be
 // rendered as-is in a localized UI. Known conflicts are mapped to translated
@@ -75,7 +78,12 @@ export const RegisterForm = () => {
           <p className="mt-2 text-sm text-slate-500">{t('auth.register.subtitle')}</p>
         </div>
 
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <div role="note" className="mb-6 flex gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+          <Info size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
+          <p>{t('auth.register.sandboxNotice')}</p>
+        </div>
+
+        <form onSubmit={onSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1">
             <label htmlFor="companyName" className="text-sm font-medium text-slate-700">
               {t('auth.register.companyName')}
@@ -84,10 +92,15 @@ export const RegisterForm = () => {
               id="companyName"
               type="text"
               aria-invalid={Boolean(errors.companyName)}
-              aria-describedby={errors.companyName ? 'companyName-error' : undefined}
+              aria-describedby={
+                errors.companyName ? 'companyName-helper companyName-error' : 'companyName-helper'
+              }
               className={FIELD_CLASSNAME}
               {...register('companyName')}
             />
+            <p id="companyName-helper" className={HELPER_TEXT_CLASSNAME}>
+              {t('auth.register.companyNameHelper')}
+            </p>
             <p id="companyName-error" aria-live="polite" className="text-sm text-red-600">
               {errors.companyName?.message ? t(errors.companyName.message) : ''}
             </p>
@@ -101,7 +114,7 @@ export const RegisterForm = () => {
               id="slug"
               type="text"
               aria-invalid={Boolean(errors.slug)}
-              aria-describedby={errors.slug ? 'slug-error' : undefined}
+              aria-describedby={errors.slug ? 'slug-helper slug-error' : 'slug-helper'}
               className={FIELD_CLASSNAME}
               {...register('slug', {
                 onChange: () => {
@@ -109,6 +122,9 @@ export const RegisterForm = () => {
                 },
               })}
             />
+            <p id="slug-helper" className={HELPER_TEXT_CLASSNAME}>
+              {t('auth.register.slugHelper')}
+            </p>
             <p id="slug-error" aria-live="polite" className="text-sm text-red-600">
               {errors.slug?.message ? t(errors.slug.message) : ''}
             </p>

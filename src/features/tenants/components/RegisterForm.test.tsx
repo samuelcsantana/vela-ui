@@ -44,6 +44,19 @@ describe('RegisterForm', () => {
     expect(screen.getByLabelText('users.fields.password')).toBeInTheDocument();
   });
 
+  it('shows the sandbox portfolio disclaimer', () => {
+    render(<RegisterForm />);
+
+    expect(screen.getByRole('note')).toHaveTextContent('auth.register.sandboxNotice');
+  });
+
+  it('shows helper text under the company name and slug fields', () => {
+    render(<RegisterForm />);
+
+    expect(screen.getByText('auth.register.companyNameHelper')).toBeInTheDocument();
+    expect(screen.getByText('auth.register.slugHelper')).toBeInTheDocument();
+  });
+
   it('links back to the login page', () => {
     render(<RegisterForm />);
 
