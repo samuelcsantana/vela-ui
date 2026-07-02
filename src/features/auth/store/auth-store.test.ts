@@ -16,9 +16,8 @@ vi.mock('../../../router', () => ({
 
 const MOCK_USER: AuthUser = {
   id: 'user-1',
-  name: 'Test User',
   email: 'test@velaui.demo',
-  role: 'admin',
+  role: 'ADMIN',
   tenantId: 'tenant-demo',
 };
 
@@ -37,8 +36,8 @@ describe('useAuthStore', () => {
     expect(useAuthStore.getState().isAuthenticated).toBe(false);
   });
 
-  it('logs a user in by posting credentials and storing only the returned user', async () => {
-    vi.mocked(api.post).mockResolvedValueOnce({ data: { user: MOCK_USER } });
+  it('logs a user in by posting credentials and storing the API response as-is', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ data: MOCK_USER });
 
     await useAuthStore.getState().login(MOCK_CREDENTIALS);
 
@@ -48,7 +47,7 @@ describe('useAuthStore', () => {
   });
 
   it('logs a user out by posting to /auth/logout, clearing state, and redirecting to /login', async () => {
-    vi.mocked(api.post).mockResolvedValueOnce({ data: { user: MOCK_USER } });
+    vi.mocked(api.post).mockResolvedValueOnce({ data: MOCK_USER });
     await useAuthStore.getState().login(MOCK_CREDENTIALS);
     vi.mocked(api.post).mockResolvedValueOnce({ data: {} });
 
@@ -61,7 +60,7 @@ describe('useAuthStore', () => {
   });
 
   it('still clears state and redirects when the logout request fails', async () => {
-    vi.mocked(api.post).mockResolvedValueOnce({ data: { user: MOCK_USER } });
+    vi.mocked(api.post).mockResolvedValueOnce({ data: MOCK_USER });
     await useAuthStore.getState().login(MOCK_CREDENTIALS);
     vi.mocked(api.post).mockRejectedValueOnce(new Error('Network error'));
 
@@ -74,7 +73,7 @@ describe('useAuthStore', () => {
   });
 
   it('persists only user and isAuthenticated to localStorage', async () => {
-    vi.mocked(api.post).mockResolvedValueOnce({ data: { user: MOCK_USER } });
+    vi.mocked(api.post).mockResolvedValueOnce({ data: MOCK_USER });
     await useAuthStore.getState().login(MOCK_CREDENTIALS);
 
     const stored = JSON.parse(localStorage.getItem('vela-ui-auth') as string);

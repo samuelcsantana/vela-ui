@@ -2,6 +2,7 @@ import { LogOut, Menu, Moon, Sun } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../features/auth/store/auth-store';
 import { useMediaQuery } from '../../hooks/use-media-query';
+import { getDisplayNameFromEmail } from '../../lib/format';
 import { useLayoutStore } from '../../store/layout-store';
 import { useThemeStore } from '../../store/theme-store';
 import { SIDEBAR_ID } from './Sidebar';
@@ -71,8 +72,10 @@ export const Header = () => {
         {user ? (
           <>
             <div className="text-right leading-tight">
-              <p className="text-sm font-medium text-slate-900 dark:text-white">{user.name}</p>
-              <p className="text-xs text-slate-500 dark:text-gray-400">{t(`header.role.${user.role}`)}</p>
+              <p className="text-sm font-medium text-slate-900 dark:text-white">
+                {getDisplayNameFromEmail(user.email)}
+              </p>
+              <p className="text-xs text-slate-500 dark:text-gray-400">{user.role}</p>
             </div>
             <button
               type="button"

@@ -18,11 +18,7 @@
     "toggleSidebar": "Alternar menu lateral",
     "toggleThemeToLight": "Ativar tema claro",
     "toggleThemeToDark": "Ativar tema escuro",
-    "logout": "Sair",
-    "role": {
-      "admin": "Admin",
-      "user": "Usuário"
-    }
+    "logout": "Sair"
   },
   "dashboard": {
     "welcome": "Bem-vindo à {{appName}}",
@@ -38,22 +34,17 @@
     "title": "Usuários",
     "addUser": "Adicionar Usuário",
     "fields": {
-      "name": "Nome",
       "email": "Email",
+      "password": "Senha",
       "role": "Papel",
-      "tenant": "Tenant"
-    },
-    "roles": {
-      "admin": "Admin",
-      "editor": "Editor",
-      "viewer": "Visualizador"
+      "dateJoined": "Data de entrada"
     },
     "search": {
-      "label": "Buscar usuário por nome",
-      "placeholder": "Buscar por nome..."
+      "label": "Buscar usuário por email",
+      "placeholder": "Buscar por email..."
     },
     "table": {
-      "caption": "Lista de usuários cadastrados, com nome, email, papel e tenant",
+      "caption": "Lista de usuários cadastrados, com email, papel e data de entrada",
       "loading": "Carregando usuários...",
       "error": "Não foi possível carregar os usuários.",
       "empty": "Nenhum usuário encontrado."
@@ -64,9 +55,8 @@
     },
     "validation": {
       "searchTooLong": "Busca muito longa",
-      "nameTooShort": "Informe ao menos 2 caracteres",
       "invalidEmail": "Email inválido",
-      "roleRequired": "Selecione um papel"
+      "passwordTooShort": "A senha deve ter pelo menos 6 caracteres"
     }
   }
 }

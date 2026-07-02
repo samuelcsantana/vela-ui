@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useAuthStore } from '../../auth/store/auth-store';
 import { useCreateUser } from '../hooks/use-users';
 import { createUserSchema, type CreateUserValues } from '../schema';
 
@@ -10,8 +11,6 @@ interface CreateUserFormProps {
   isOpen: boolean;
   onClose: () => void;
 }
-
-const ROLE_VALUES: Array<CreateUserValues['role']> = ['admin', 'editor', 'viewer'];
 
 const DIALOG_TITLE_ID = 'create-user-title';
 const FOCUSABLE_SELECTOR =
@@ -22,6 +21,7 @@ const FIELD_CLASSNAME =
 
 export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
   const { t } = useTranslation();
+  const tenantId = useAuthStore((state) => state.user?.tenantId);
   const createUserMutation = useCreateUser();
   const dialogRef = useRef<HTMLDivElement>(null);
 
@@ -32,7 +32,7 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
     formState: { errors },
   } = useForm<CreateUserValues>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: { name: '', email: '', role: 'viewer' },
+    defaultValues: { email: '', password: '' },
   });
 
   const handleClose = () => {
@@ -65,9 +65,9 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
     const getFocusableElements = () =>
       Array.from(dialogRef.current!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
 
-    // Falls back to the first focusable element if the form structure ever changes and #name is removed.
+    // Falls back to the first focusable element if the form structure ever changes and #email is removed.
     /* v8 ignore next */
-    const initialFocusTarget = dialogRef.current?.querySelector<HTMLElement>('#name') ?? getFocusableElements()[0];
+    const initialFocusTarget = dialogRef.current?.querySelector<HTMLElement>('#email') ?? getFocusableElements()[0];
     initialFocusTarget?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -109,12 +109,19 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
   }
 
   const onSubmit = handleSubmit((values) => {
-    createUserMutation.mutate(values, {
-      onSuccess: () => {
-        reset();
-        onClose();
+    if (!tenantId) {
+      return;
+    }
+
+    createUserMutation.mutate(
+      { ...values, tenantId },
+      {
+        onSuccess: () => {
+          reset();
+          onClose();
+        },
       },
-    });
+    );
   });
 
   return (
@@ -143,23 +150,6 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-gray-300">
-              {t('users.fields.name')}
-            </label>
-            <input
-              id="name"
-              type="text"
-              aria-invalid={Boolean(errors.name)}
-              aria-describedby={errors.name ? 'name-error' : undefined}
-              className={FIELD_CLASSNAME}
-              {...register('name')}
-            />
-            <p id="name-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
-              {errors.name?.message ? t(errors.name.message) : ''}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-1">
             <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-gray-300">
               {t('users.fields.email')}
             </label>
@@ -177,24 +167,19 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="role" className="text-sm font-medium text-slate-700 dark:text-gray-300">
-              {t('users.fields.role')}
+            <label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+              {t('users.fields.password')}
             </label>
-            <select
-              id="role"
-              aria-invalid={Boolean(errors.role)}
-              aria-describedby={errors.role ? 'role-error' : undefined}
+            <input
+              id="password"
+              type="password"
+              aria-invalid={Boolean(errors.password)}
+              aria-describedby={errors.password ? 'password-error' : undefined}
               className={FIELD_CLASSNAME}
-              {...register('role')}
-            >
-              {ROLE_VALUES.map((value) => (
-                <option key={value} value={value}>
-                  {t(`users.roles.${value}`)}
-                </option>
-              ))}
-            </select>
-            <p id="role-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
-              {errors.role?.message ? t(errors.role.message) : ''}
+              {...register('password')}
+            />
+            <p id="password-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+              {errors.password?.message ? t(errors.password.message) : ''}
             </p>
           </div>
 

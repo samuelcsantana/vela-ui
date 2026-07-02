@@ -18,20 +18,11 @@ describe('userFiltersSchema', () => {
 });
 
 describe('createUserSchema', () => {
-  const validInput = { name: 'Ana Silva', email: 'ana@velaui.demo', role: 'admin' as const };
+  const validInput = { email: 'ana@velaui.demo', password: 'secret123' };
 
   it('accepts a fully valid payload', () => {
     const result = createUserSchema.safeParse(validInput);
     expect(result.success).toBe(true);
-  });
-
-  it('rejects a name shorter than 2 characters', () => {
-    const result = createUserSchema.safeParse({ ...validInput, name: 'A' });
-
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toBe('users.validation.nameTooShort');
-    }
   });
 
   it('rejects an invalid email', () => {
@@ -43,12 +34,12 @@ describe('createUserSchema', () => {
     }
   });
 
-  it('rejects a role outside the allowed enum', () => {
-    const result = createUserSchema.safeParse({ ...validInput, role: 'superadmin' });
+  it('rejects a password shorter than 6 characters', () => {
+    const result = createUserSchema.safeParse({ ...validInput, password: '123' });
 
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(result.error.issues[0].message).toBe('users.validation.roleRequired');
+      expect(result.error.issues[0].message).toBe('users.validation.passwordTooShort');
     }
   });
 });

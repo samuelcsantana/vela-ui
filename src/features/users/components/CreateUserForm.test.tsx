@@ -1,15 +1,21 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateUserForm } from './CreateUserForm';
 
-const { mockMutate, mockUseCreateUser } = vi.hoisted(() => ({
+const { mockMutate, mockUseCreateUser, mockUseAuthStore } = vi.hoisted(() => ({
   mockMutate: vi.fn(),
   mockUseCreateUser: vi.fn(),
+  mockUseAuthStore: vi.fn(),
 }));
 
 vi.mock('../hooks/use-users', () => ({
   useCreateUser: () => mockUseCreateUser(),
+}));
+
+vi.mock('../../auth/store/auth-store', () => ({
+  useAuthStore: (selector: (state: { user: { tenantId: string } }) => unknown) =>
+    mockUseAuthStore(selector),
 }));
 
 vi.mock('react-i18next', () => ({
@@ -21,6 +27,7 @@ describe('CreateUserForm', () => {
     vi.clearAllMocks();
     document.body.style.overflow = '';
     mockUseCreateUser.mockReturnValue({ mutate: mockMutate, isPending: false, isError: false });
+    mockUseAuthStore.mockImplementation((selector) => selector({ user: { tenantId: 'tenant-alpha' } }));
   });
 
   it('renders nothing when closed', () => {
@@ -28,11 +35,11 @@ describe('CreateUserForm', () => {
     expect(container).toBeEmptyDOMElement();
   });
 
-  it('renders the dialog and focuses the name field when opened', async () => {
+  it('renders the dialog and focuses the email field when opened', async () => {
     render(<CreateUserForm isOpen onClose={vi.fn()} />);
 
     expect(screen.getByRole('dialog', { name: 'users.form.title' })).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByLabelText('users.fields.name')).toHaveFocus());
+    await waitFor(() => expect(screen.getByLabelText('users.fields.email')).toHaveFocus());
   });
 
   it('locks body scroll while open and restores it on close', () => {
@@ -50,7 +57,7 @@ describe('CreateUserForm', () => {
     trigger.focus();
 
     const { rerender } = render(<CreateUserForm isOpen onClose={vi.fn()} />);
-    await waitFor(() => expect(screen.getByLabelText('users.fields.name')).toHaveFocus());
+    await waitFor(() => expect(screen.getByLabelText('users.fields.email')).toHaveFocus());
 
     rerender(<CreateUserForm isOpen={false} onClose={vi.fn()} />);
     expect(trigger).toHaveFocus();
@@ -124,30 +131,13 @@ describe('CreateUserForm', () => {
 
     await user.click(screen.getByRole('button', { name: 'common.save' }));
 
-    expect(await screen.findByText('users.validation.nameTooShort')).toBeInTheDocument();
-    expect(screen.getByText('users.validation.invalidEmail')).toBeInTheDocument();
-    expect(screen.getByLabelText('users.fields.name')).toHaveAttribute('aria-invalid', 'true');
+    expect(await screen.findByText('users.validation.invalidEmail')).toBeInTheDocument();
+    expect(screen.getByText('users.validation.passwordTooShort')).toBeInTheDocument();
+    expect(screen.getByLabelText('users.fields.email')).toHaveAttribute('aria-invalid', 'true');
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it('shows a validation error when the role is not one of the allowed values', async () => {
-    const user = userEvent.setup();
-    render(<CreateUserForm isOpen onClose={vi.fn()} />);
-
-    await user.type(screen.getByLabelText('users.fields.name'), 'Ana Silva');
-    await user.type(screen.getByLabelText('users.fields.email'), 'ana@velaui.demo');
-    fireEvent.change(screen.getByLabelText('users.fields.role'), { target: { value: 'not-a-role' } });
-
-    await user.click(screen.getByRole('button', { name: 'common.save' }));
-
-    const roleSelect = screen.getByLabelText('users.fields.role');
-    await waitFor(() => expect(roleSelect).toHaveAttribute('aria-invalid', 'true'));
-    expect(roleSelect).toHaveAttribute('aria-describedby', 'role-error');
-    expect(screen.getByText('users.validation.roleRequired')).toBeInTheDocument();
-    expect(mockMutate).not.toHaveBeenCalled();
-  });
-
-  it('submits valid values and resets the form on success', async () => {
+  it('submits valid values with the current tenantId and resets the form on success', async () => {
     mockMutate.mockImplementation((_values, { onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
     });
@@ -155,18 +145,29 @@ describe('CreateUserForm', () => {
     const user = userEvent.setup();
     render(<CreateUserForm isOpen onClose={onClose} />);
 
-    await user.type(screen.getByLabelText('users.fields.name'), 'Ana Silva');
     await user.type(screen.getByLabelText('users.fields.email'), 'ana@velaui.demo');
-    await user.selectOptions(screen.getByLabelText('users.fields.role'), 'admin');
+    await user.type(screen.getByLabelText('users.fields.password'), 'secret123');
     await user.click(screen.getByRole('button', { name: 'common.save' }));
 
     await waitFor(() =>
       expect(mockMutate).toHaveBeenCalledWith(
-        { name: 'Ana Silva', email: 'ana@velaui.demo', role: 'admin' },
+        { email: 'ana@velaui.demo', password: 'secret123', tenantId: 'tenant-alpha' },
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       ),
     );
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not submit when there is no authenticated tenantId', async () => {
+    mockUseAuthStore.mockImplementation((selector) => selector({ user: undefined as never }));
+    const user = userEvent.setup();
+    render(<CreateUserForm isOpen onClose={vi.fn()} />);
+
+    await user.type(screen.getByLabelText('users.fields.email'), 'ana@velaui.demo');
+    await user.type(screen.getByLabelText('users.fields.password'), 'secret123');
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+    expect(mockMutate).not.toHaveBeenCalled();
   });
 
   it('shows the submit error message when the mutation fails', () => {

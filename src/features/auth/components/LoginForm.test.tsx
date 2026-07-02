@@ -37,9 +37,7 @@ describe('LoginForm', () => {
 
   it('logs in as admin and navigates home', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
-      data: {
-        user: { id: 'demo-admin', name: 'Ana Souza', email: 'admin@vela.com', role: 'admin', tenantId: 'tenant-demo' },
-      },
+      data: { id: 'demo-admin', email: 'admin@vela.com', role: 'ADMIN', tenantId: 'tenant-demo' },
     });
     const user = userEvent.setup();
     render(<LoginForm />);
@@ -50,16 +48,14 @@ describe('LoginForm', () => {
       email: 'admin@vela.com',
       password: 'admin123',
     });
-    expect(useAuthStore.getState().user).toMatchObject({ id: 'demo-admin', role: 'admin' });
+    expect(useAuthStore.getState().user).toMatchObject({ id: 'demo-admin', role: 'ADMIN' });
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
   });
 
   it('logs in as a regular user and navigates home', async () => {
     vi.mocked(api.post).mockResolvedValueOnce({
-      data: {
-        user: { id: 'demo-user', name: 'Carlos Lima', email: 'guest@vela.com', role: 'user', tenantId: 'tenant-demo' },
-      },
+      data: { id: 'demo-user', email: 'guest@vela.com', role: 'MEMBER', tenantId: 'tenant-demo' },
     });
     const user = userEvent.setup();
     render(<LoginForm />);
@@ -70,7 +66,7 @@ describe('LoginForm', () => {
       email: 'guest@vela.com',
       password: 'guest123',
     });
-    expect(useAuthStore.getState().user).toMatchObject({ id: 'demo-user', role: 'user' });
+    expect(useAuthStore.getState().user).toMatchObject({ id: 'demo-user', role: 'MEMBER' });
     expect(useAuthStore.getState().isAuthenticated).toBe(true);
     expect(mockNavigate).toHaveBeenCalledWith({ to: '/' });
   });

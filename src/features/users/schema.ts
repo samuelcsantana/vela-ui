@@ -7,9 +7,8 @@ export const userFiltersSchema = z.object({
 export type UserFiltersValues = z.infer<typeof userFiltersSchema>;
 
 export const createUserSchema = z.object({
-  name: z.string().min(2, 'users.validation.nameTooShort'),
   email: z.string().email('users.validation.invalidEmail'),
-  role: z.enum(['admin', 'editor', 'viewer'], { message: 'users.validation.roleRequired' }),
+  password: z.string().min(6, 'users.validation.passwordTooShort'),
 });
 
 export type CreateUserValues = z.infer<typeof createUserSchema>;

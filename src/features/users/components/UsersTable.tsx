@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import type { User } from '../api/mock-api';
+import { formatDate } from '../../../lib/format';
+import type { User } from '../api/users-api';
 
 interface UsersTableProps {
   users: User[] | undefined;
@@ -7,13 +8,12 @@ interface UsersTableProps {
   isError: boolean;
 }
 
-const ROLE_BADGE_STYLES: Record<User['role'], string> = {
-  admin: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300',
-  editor: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
-  viewer: 'bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-300',
+const ROLE_BADGE_STYLES: Record<string, string> = {
+  ADMIN: 'bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300',
+  MEMBER: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300',
 };
 
-const TENANT_BADGE_STYLES = 'bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-300';
+const DEFAULT_ROLE_BADGE_STYLE = 'bg-gray-100 text-gray-600 dark:bg-gray-500/20 dark:text-gray-300';
 
 const BADGE_CLASSNAME = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
 
@@ -59,13 +59,6 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
               role="columnheader"
               className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-slate-700 dark:text-gray-400"
             >
-              {t('users.fields.name')}
-            </th>
-            <th
-              scope="col"
-              role="columnheader"
-              className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-slate-700 dark:text-gray-400"
-            >
               {t('users.fields.email')}
             </th>
             <th
@@ -80,7 +73,7 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
               role="columnheader"
               className="border-b border-gray-200 px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 dark:border-slate-700 dark:text-gray-400"
             >
-              {t('users.fields.tenant')}
+              {t('users.fields.dateJoined')}
             </th>
           </tr>
         </thead>
@@ -96,22 +89,18 @@ export const UsersTable = ({ users, isLoading, isError }: UsersTableProps) => {
                 role="rowheader"
                 className={`${CELL_CLASSNAME} text-left font-medium text-gray-900 dark:text-white`}
               >
-                <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.name')}</span>
-                {user.name}
-              </th>
-              <td role="cell" className={`${CELL_CLASSNAME} text-gray-500 dark:text-gray-400`}>
                 <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.email')}</span>
                 {user.email}
-              </td>
+              </th>
               <td role="cell" className={CELL_CLASSNAME}>
                 <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.role')}</span>
-                <span className={`${BADGE_CLASSNAME} ${ROLE_BADGE_STYLES[user.role]}`}>
-                  {t(`users.roles.${user.role}`)}
+                <span className={`${BADGE_CLASSNAME} ${ROLE_BADGE_STYLES[user.role] ?? DEFAULT_ROLE_BADGE_STYLE}`}>
+                  {user.role}
                 </span>
               </td>
-              <td role="cell" className={CELL_CLASSNAME}>
-                <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.tenant')}</span>
-                <span className={`${BADGE_CLASSNAME} ${TENANT_BADGE_STYLES}`}>{user.tenantId}</span>
+              <td role="cell" className={`${CELL_CLASSNAME} text-gray-500 dark:text-gray-400`}>
+                <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.dateJoined')}</span>
+                {formatDate(user.createdAt)}
               </td>
             </tr>
           ))}

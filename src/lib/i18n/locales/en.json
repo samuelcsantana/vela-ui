@@ -18,11 +18,7 @@
     "toggleSidebar": "Toggle sidebar menu",
     "toggleThemeToLight": "Switch to light theme",
     "toggleThemeToDark": "Switch to dark theme",
-    "logout": "Log out",
-    "role": {
-      "admin": "Admin",
-      "user": "User"
-    }
+    "logout": "Log out"
   },
   "dashboard": {
     "welcome": "Welcome to {{appName}}",
@@ -38,22 +34,17 @@
     "title": "Users",
     "addUser": "Add User",
     "fields": {
-      "name": "Name",
       "email": "Email",
+      "password": "Password",
       "role": "Role",
-      "tenant": "Tenant"
-    },
-    "roles": {
-      "admin": "Admin",
-      "editor": "Editor",
-      "viewer": "Viewer"
+      "dateJoined": "Date Joined"
     },
     "search": {
-      "label": "Search user by name",
-      "placeholder": "Search by name..."
+      "label": "Search user by email",
+      "placeholder": "Search by email..."
     },
     "table": {
-      "caption": "List of registered users, with name, email, role and tenant",
+      "caption": "List of registered users, with email, role and date joined",
       "loading": "Loading users...",
       "error": "Unable to load users.",
       "empty": "No users found."
@@ -64,9 +55,8 @@
     },
     "validation": {
       "searchTooLong": "Search is too long",
-      "nameTooShort": "Enter at least 2 characters",
       "invalidEmail": "Invalid email",
-      "roleRequired": "Select a role"
+      "passwordTooShort": "Password must be at least 6 characters"
     }
   }
 }

@@ -37,9 +37,8 @@ vi.mock('./Sidebar', () => ({ SIDEBAR_ID: 'app-sidebar' }));
 
 const MOCK_ADMIN: AuthUser = {
   id: 'user-1',
-  name: 'Ana Souza',
   email: 'ana@velaui.demo',
-  role: 'admin',
+  role: 'ADMIN',
   tenantId: 'tenant-demo',
 };
 
@@ -121,8 +120,8 @@ describe('Header', () => {
     const user = userEvent.setup();
     render(<Header />);
 
-    expect(screen.getByText('Ana Souza')).toBeInTheDocument();
-    expect(screen.getByText('header.role.admin')).toBeInTheDocument();
+    expect(screen.getByText('ana')).toBeInTheDocument();
+    expect(screen.getByText('ADMIN')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'header.logout' }));
 

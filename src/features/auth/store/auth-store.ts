@@ -2,13 +2,11 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { api } from '../../../lib/api';
 
-export type AuthRole = 'admin' | 'user';
-
+// Mirrors the response of POST /api/auth/login in swagger.json exactly.
 export interface AuthUser {
   id: string;
-  name: string;
   email: string;
-  role: AuthRole;
+  role: string;
   tenantId: string;
 }
 
@@ -30,8 +28,8 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       login: async (credentials) => {
-        const { data } = await api.post<{ user: AuthUser }>('/auth/login', credentials);
-        set({ user: data.user, isAuthenticated: true });
+        const { data } = await api.post<AuthUser>('/auth/login', credentials);
+        set({ user: data, isAuthenticated: true });
       },
       logout: async () => {
         try {
