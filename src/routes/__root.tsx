@@ -1,5 +1,6 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { Suspense, lazy } from 'react';
+import { Toast } from '../components/Toast';
 import { useThemeEffect } from '../hooks/use-theme-effect';
 
 const TanStackRouterDevtools =
@@ -21,6 +22,7 @@ function RootComponent() {
   return (
     <>
       <Outlet />
+      <Toast />
       <Suspense>
         <TanStackRouterDevtools />
       </Suspense>

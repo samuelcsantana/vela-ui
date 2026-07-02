@@ -12,6 +12,7 @@
     "nav": "Navegação principal",
     "dashboard": "Dashboard",
     "users": "Usuários",
+    "registerTenant": "Cadastrar Empresa",
     "settings": "Configurações"
   },
   "header": {
@@ -28,7 +29,22 @@
     "portfolioNotice": "Este é um projeto de portfólio. Escolha um acesso de demonstração abaixo — não é necessária senha.",
     "accessAsAdmin": "Acessar Demo como Admin",
     "accessAsUser": "Acessar Demo como Usuário",
-    "demoLoginError": "Não foi possível entrar. Tente novamente."
+    "demoLoginError": "Não foi possível entrar. Tente novamente.",
+    "register": {
+      "title": "Cadastrar uma nova empresa",
+      "subtitle": "Crie a empresa e seu primeiro usuário admin.",
+      "companyName": "Nome da Empresa",
+      "slug": "Slug",
+      "submit": "Criar Conta",
+      "submitting": "Criando...",
+      "submitError": "Não foi possível criar a conta. Tente novamente.",
+      "success": "Conta criada com sucesso. Você já pode entrar."
+    },
+    "validation": {
+      "companyNameTooShort": "Informe ao menos 2 caracteres",
+      "slugTooShort": "Informe ao menos 2 caracteres",
+      "slugInvalid": "Use apenas letras minúsculas, números e hífens"
+    }
   },
   "users": {
     "title": "Usuários",

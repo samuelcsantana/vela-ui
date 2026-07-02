@@ -12,6 +12,7 @@
     "nav": "Main navigation",
     "dashboard": "Dashboard",
     "users": "Users",
+    "registerTenant": "Register Tenant",
     "settings": "Settings"
   },
   "header": {
@@ -28,7 +29,22 @@
     "portfolioNotice": "This is a portfolio project. Choose a demo access below — no password required.",
     "accessAsAdmin": "Access Demo as Admin",
     "accessAsUser": "Access Demo as User",
-    "demoLoginError": "Unable to sign in. Please try again."
+    "demoLoginError": "Unable to sign in. Please try again.",
+    "register": {
+      "title": "Register a new tenant",
+      "subtitle": "Create the company and its first admin user.",
+      "companyName": "Company Name",
+      "slug": "Slug",
+      "submit": "Create Account",
+      "submitting": "Creating...",
+      "submitError": "Unable to create the account. Please try again.",
+      "success": "Account created successfully. You can now log in."
+    },
+    "validation": {
+      "companyNameTooShort": "Enter at least 2 characters",
+      "slugTooShort": "Enter at least 2 characters",
+      "slugInvalid": "Use only lowercase letters, numbers, and hyphens"
+    }
   },
   "users": {
     "title": "Users",

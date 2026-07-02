@@ -14,3 +14,13 @@ export async function fetchTenants(): Promise<Tenant[]> {
   const { data } = await api.get<Tenant[]>('/tenants');
   return data;
 }
+
+export interface CreateTenantInput {
+  name: string;
+  slug: string;
+}
+
+export async function createTenant(input: CreateTenantInput): Promise<Tenant> {
+  const { data } = await api.post<Tenant>('/tenants', input);
+  return data;
+}
