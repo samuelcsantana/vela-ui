@@ -4,12 +4,16 @@ import axios from 'axios';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RegisterForm } from './RegisterForm';
 
-const { mockNavigate, mockMutate, mockUseRegisterTenant, mockShowToast } = vi.hoisted(() => ({
-  mockNavigate: vi.fn(),
-  mockMutate: vi.fn(),
-  mockUseRegisterTenant: vi.fn(),
-  mockShowToast: vi.fn(),
-}));
+const { mockNavigate, mockMutate, mockUseRegisterTenant, mockShowToast, mockChangeLanguage, mockI18n } = vi.hoisted(
+  () => ({
+    mockNavigate: vi.fn(),
+    mockMutate: vi.fn(),
+    mockUseRegisterTenant: vi.fn(),
+    mockShowToast: vi.fn(),
+    mockChangeLanguage: vi.fn(),
+    mockI18n: { language: 'en' },
+  }),
+);
 
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
@@ -17,7 +21,10 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { ...mockI18n, changeLanguage: mockChangeLanguage },
+  }),
 }));
 
 vi.mock('../hooks/use-register-tenant', () => ({
@@ -32,6 +39,7 @@ vi.mock('../../../store/toast-store', () => ({
 describe('RegisterForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockI18n.language = 'en';
     mockUseRegisterTenant.mockReturnValue({ mutate: mockMutate, isPending: false, isError: false, error: null });
   });
 
@@ -42,6 +50,16 @@ describe('RegisterForm', () => {
     expect(screen.getByLabelText('auth.register.slug')).toBeInTheDocument();
     expect(screen.getByLabelText('users.fields.email')).toBeInTheDocument();
     expect(screen.getByLabelText('users.fields.password')).toBeInTheDocument();
+  });
+
+  it('renders a language toggle', async () => {
+    const user = userEvent.setup();
+    render(<RegisterForm />);
+
+    const langButton = screen.getByRole('button', { name: 'Português' });
+    await user.click(langButton);
+
+    expect(mockChangeLanguage).toHaveBeenCalledWith('pt');
   });
 
   it('shows the sandbox portfolio disclaimer', () => {

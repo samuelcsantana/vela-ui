@@ -5,8 +5,10 @@ import { api } from '../../../lib/api';
 import { useAuthStore } from '../store/auth-store';
 import { LoginForm } from './LoginForm';
 
-const { mockNavigate } = vi.hoisted(() => ({
+const { mockNavigate, mockChangeLanguage, mockI18n } = vi.hoisted(() => ({
   mockNavigate: vi.fn(),
+  mockChangeLanguage: vi.fn(),
+  mockI18n: { language: 'en' },
 }));
 
 vi.mock('@tanstack/react-router', () => ({
@@ -15,7 +17,10 @@ vi.mock('@tanstack/react-router', () => ({
 }));
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({
+    t: (key: string) => key,
+    i18n: { ...mockI18n, changeLanguage: mockChangeLanguage },
+  }),
 }));
 
 vi.mock('../../../lib/api', () => ({
@@ -26,6 +31,7 @@ describe('LoginForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    mockI18n.language = 'en';
     useAuthStore.setState({ user: null, isAuthenticated: false });
   });
 
@@ -34,6 +40,16 @@ describe('LoginForm', () => {
 
     expect(screen.getByRole('heading', { name: 'common.appName' })).toBeInTheDocument();
     expect(screen.getByText('auth.portfolioNotice')).toBeInTheDocument();
+  });
+
+  it('renders a language toggle', async () => {
+    const user = userEvent.setup();
+    render(<LoginForm />);
+
+    const langButton = screen.getByRole('button', { name: 'Português' });
+    await user.click(langButton);
+
+    expect(mockChangeLanguage).toHaveBeenCalledWith('pt');
   });
 
   it('links to the register page', () => {

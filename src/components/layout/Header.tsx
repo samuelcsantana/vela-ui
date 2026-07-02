@@ -5,6 +5,7 @@ import { useMediaQuery } from '../../hooks/use-media-query';
 import { getDisplayNameFromEmail } from '../../lib/format';
 import { useLayoutStore } from '../../store/layout-store';
 import { useThemeStore } from '../../store/theme-store';
+import { LanguageToggle } from '../LanguageToggle';
 import { SIDEBAR_ID } from './Sidebar';
 
 const DARK_MEDIA_QUERY = '(prefers-color-scheme: dark)';
@@ -13,7 +14,7 @@ const ICON_BUTTON_CLASSNAME =
   'flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-300 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white';
 
 export const Header = () => {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const isSidebarOpen = useLayoutStore((state) => state.isSidebarOpen);
   const toggleSidebar = useLayoutStore((state) => state.toggleSidebar);
   const user = useAuthStore((state) => state.user);
@@ -23,7 +24,6 @@ export const Header = () => {
   const prefersDark = useMediaQuery(DARK_MEDIA_QUERY);
 
   const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
-  const isPortuguese = i18n.language === 'pt';
 
   const handleLogout = () => {
     void logout();
@@ -31,10 +31,6 @@ export const Header = () => {
 
   const handleToggleTheme = () => {
     setTheme(isDark ? 'light' : 'dark');
-  };
-
-  const handleToggleLanguage = () => {
-    i18n.changeLanguage(isPortuguese ? 'en' : 'pt');
   };
 
   return (
@@ -51,14 +47,7 @@ export const Header = () => {
       </button>
 
       <div className="flex items-center gap-3">
-        <button
-          type="button"
-          onClick={handleToggleLanguage}
-          aria-label={isPortuguese ? 'English' : 'Português'}
-          className={`${ICON_BUTTON_CLASSNAME} text-xs font-semibold`}
-        >
-          {isPortuguese ? 'PT' : 'EN'}
-        </button>
+        <LanguageToggle />
 
         <button
           type="button"

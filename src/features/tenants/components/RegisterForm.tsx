@@ -4,6 +4,7 @@ import { Info } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { LanguageToggle } from '../../../components/LanguageToggle';
 import { getApiErrorMessage } from '../../../lib/api';
 import { slugify } from '../../../lib/format';
 import { useToastStore } from '../../../store/toast-store';
@@ -72,6 +73,10 @@ export const RegisterForm = () => {
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
+      <div className="fixed right-4 top-4">
+        <LanguageToggle />
+      </div>
+
       <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
         <div className="mb-6 text-center">
           <h1 className="text-2xl font-semibold text-slate-900">{t('auth.register.title')}</h1>
