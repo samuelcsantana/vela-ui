@@ -11,6 +11,7 @@ const { mockNavigate } = vi.hoisted(() => ({
 
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 
 vi.mock('react-i18next', () => ({
@@ -33,6 +34,12 @@ describe('LoginForm', () => {
 
     expect(screen.getByRole('heading', { name: 'common.appName' })).toBeInTheDocument();
     expect(screen.getByText('auth.portfolioNotice')).toBeInTheDocument();
+  });
+
+  it('links to the register page', () => {
+    render(<LoginForm />);
+
+    expect(screen.getByRole('link', { name: 'auth.signUpLink' })).toHaveAttribute('href', '/register');
   });
 
   it('logs in as admin and navigates home', async () => {

@@ -15,12 +15,21 @@ export async function fetchTenants(): Promise<Tenant[]> {
   return data;
 }
 
-export interface CreateTenantInput {
-  name: string;
+export interface RegisterTenantInput {
+  companyName: string;
   slug: string;
+  email: string;
+  password: string;
 }
 
-export async function createTenant(input: CreateTenantInput): Promise<Tenant> {
-  const { data } = await api.post<Tenant>('/tenants', input);
+export interface RegisterTenantResult {
+  tenantId: string;
+  userId: string;
+}
+
+// Public. Creates the Tenant and its first ADMIN user in a single backend transaction.
+// Does not log the user in — callers must POST /auth/login afterwards.
+export async function registerTenant(input: RegisterTenantInput): Promise<RegisterTenantResult> {
+  const { data } = await api.post<RegisterTenantResult>('/auth/register', input);
   return data;
 }

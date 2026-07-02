@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { api } from '../../../lib/api';
-import { createTenant, fetchTenants, type Tenant } from './tenants-api';
+import { fetchTenants, registerTenant, type Tenant } from './tenants-api';
 
 vi.mock('../../../lib/api', () => ({
   api: { get: vi.fn(), post: vi.fn() },
@@ -28,14 +28,15 @@ describe('fetchTenants', () => {
   });
 });
 
-describe('createTenant', () => {
-  it('posts /tenants with the given input and returns the created tenant', async () => {
-    vi.mocked(api.post).mockResolvedValueOnce({ data: MOCK_TENANTS[0] });
+describe('registerTenant', () => {
+  it('posts /auth/register with the given input and returns the created ids', async () => {
+    const mockResult = { tenantId: 'tenant-1', userId: 'user-1' };
+    vi.mocked(api.post).mockResolvedValueOnce({ data: mockResult });
 
-    const input = { name: 'Vela Corp', slug: 'vela' };
-    const result = await createTenant(input);
+    const input = { companyName: 'Vela Corp', slug: 'vela', email: 'admin@vela.com', password: 'secret123' };
+    const result = await registerTenant(input);
 
-    expect(api.post).toHaveBeenCalledWith('/tenants', input);
-    expect(result).toEqual(MOCK_TENANTS[0]);
+    expect(api.post).toHaveBeenCalledWith('/auth/register', input);
+    expect(result).toEqual(mockResult);
   });
 });

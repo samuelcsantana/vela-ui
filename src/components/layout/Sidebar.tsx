@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import type { LinkProps } from '@tanstack/react-router';
-import { Building2, LayoutDashboard, Settings, Users } from 'lucide-react';
+import { LayoutDashboard, Settings, Users } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +16,6 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { labelKey: 'sidebar.dashboard', icon: LayoutDashboard, to: '/' },
   { labelKey: 'sidebar.users', icon: Users, to: '/users' },
-  { labelKey: 'sidebar.registerTenant', icon: Building2, to: '/register' },
   { labelKey: 'sidebar.settings', icon: Settings },
 ];
 

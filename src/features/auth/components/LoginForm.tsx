@@ -1,4 +1,4 @@
-import { useNavigate } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
 import { ShieldCheck, UserRound } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -68,6 +68,12 @@ export const LoginForm = () => {
             {error}
           </p>
         ) : null}
+
+        <p className="mt-4 text-center text-sm text-slate-500">
+          <Link to="/register" className="font-medium text-brand hover:underline">
+            {t('auth.signUpLink')}
+          </Link>
+        </p>
       </div>
     </main>
   );

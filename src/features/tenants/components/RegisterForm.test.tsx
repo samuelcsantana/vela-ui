@@ -13,6 +13,7 @@ const { mockNavigate, mockMutate, mockUseRegisterTenant, mockShowToast } = vi.ho
 
 vi.mock('@tanstack/react-router', () => ({
   useNavigate: () => mockNavigate,
+  Link: ({ children, to }: { children: React.ReactNode; to: string }) => <a href={to}>{children}</a>,
 }));
 
 vi.mock('react-i18next', () => ({
@@ -41,6 +42,12 @@ describe('RegisterForm', () => {
     expect(screen.getByLabelText('auth.register.slug')).toBeInTheDocument();
     expect(screen.getByLabelText('users.fields.email')).toBeInTheDocument();
     expect(screen.getByLabelText('users.fields.password')).toBeInTheDocument();
+  });
+
+  it('links back to the login page', () => {
+    render(<RegisterForm />);
+
+    expect(screen.getByRole('link', { name: 'auth.register.backToLogin' })).toHaveAttribute('href', '/login');
   });
 
   it('auto-fills the slug from the company name until the user edits it directly', async () => {

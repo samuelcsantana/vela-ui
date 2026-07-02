@@ -12,7 +12,6 @@
     "nav": "Navegação principal",
     "dashboard": "Dashboard",
     "users": "Usuários",
-    "registerTenant": "Cadastrar Empresa",
     "settings": "Configurações"
   },
   "header": {
@@ -30,15 +29,17 @@
     "accessAsAdmin": "Acessar Demo como Admin",
     "accessAsUser": "Acessar Demo como Usuário",
     "demoLoginError": "Não foi possível entrar. Tente novamente.",
+    "signUpLink": "Não tem uma conta? Cadastre-se",
     "register": {
-      "title": "Cadastrar uma nova empresa",
-      "subtitle": "Crie a empresa e seu primeiro usuário admin.",
+      "title": "Crie a conta da sua empresa",
+      "subtitle": "Configure sua empresa e seu primeiro usuário admin.",
       "companyName": "Nome da Empresa",
       "slug": "Slug",
       "submit": "Criar Conta",
       "submitting": "Criando...",
       "submitError": "Não foi possível criar a conta. Tente novamente.",
-      "success": "Conta criada com sucesso. Você já pode entrar."
+      "success": "Conta criada com sucesso. Você já pode entrar.",
+      "backToLogin": "Já tem uma conta? Entrar"
     },
     "validation": {
       "companyNameTooShort": "Informe ao menos 2 caracteres",
