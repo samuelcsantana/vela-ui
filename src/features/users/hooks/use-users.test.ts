@@ -96,7 +96,7 @@ describe('useCreateUser', () => {
     const { result } = renderHook(() => useCreateUser(), { wrapper: createQueryWrapper(queryClient) });
 
     act(() => {
-      result.current.mutate({ email: 'new@velaui.demo', password: 'secret123', tenantId: 'tenant-alpha' });
+      result.current.mutate({ email: 'new@velaui.demo', password: 'secret123', tenantId: 'tenant-alpha', role: 'MEMBER' });
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -104,6 +104,7 @@ describe('useCreateUser', () => {
       email: 'new@velaui.demo',
       password: 'secret123',
       tenantId: 'tenant-alpha',
+      role: 'MEMBER',
     });
     expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['users'] });
   });
@@ -116,7 +117,7 @@ describe('useCreateUser', () => {
     const { result } = renderHook(() => useCreateUser(), { wrapper: createQueryWrapper(queryClient) });
 
     act(() => {
-      result.current.mutate({ email: 'new@velaui.demo', password: 'secret123', tenantId: 'tenant-alpha' });
+      result.current.mutate({ email: 'new@velaui.demo', password: 'secret123', tenantId: 'tenant-alpha', role: 'MEMBER' });
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));

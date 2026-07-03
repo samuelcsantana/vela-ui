@@ -43,6 +43,15 @@ describe('useTenants', () => {
 
     await waitFor(() => expect(result.current.isError).toBe(true));
   });
+
+  it('does not fetch when explicitly disabled', () => {
+    const queryClient = createTestQueryClient();
+
+    const { result } = renderHook(() => useTenants({ enabled: false }), { wrapper: createQueryWrapper(queryClient) });
+
+    expect(result.current.fetchStatus).toBe('idle');
+    expect(mockFetchTenants).not.toHaveBeenCalled();
+  });
 });
 
 describe('useCreateTenant', () => {

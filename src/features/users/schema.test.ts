@@ -18,7 +18,7 @@ describe('userFiltersSchema', () => {
 });
 
 describe('createUserSchema', () => {
-  const validInput = { email: 'ana@velaui.demo', password: 'secret123' };
+  const validInput = { email: 'ana@velaui.demo', password: 'secret123', role: 'MEMBER' as const, tenantId: 'tenant-1' };
 
   it('accepts a fully valid payload', () => {
     const result = createUserSchema.safeParse(validInput);
@@ -40,6 +40,20 @@ describe('createUserSchema', () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(result.error.issues[0].message).toBe('users.validation.passwordTooShort');
+    }
+  });
+
+  it('rejects a role outside the allowed enum', () => {
+    const result = createUserSchema.safeParse({ ...validInput, role: 'VELA_ADMIN' });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects an empty tenantId', () => {
+    const result = createUserSchema.safeParse({ ...validInput, tenantId: '' });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('users.validation.tenantRequired');
     }
   });
 });

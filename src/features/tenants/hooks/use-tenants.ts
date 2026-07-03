@@ -11,10 +11,11 @@ import {
 
 const TENANTS_QUERY_KEY = ['tenants'] as const;
 
-export function useTenants(): UseQueryResult<Tenant[], Error> {
+export function useTenants(options?: { enabled?: boolean }): UseQueryResult<Tenant[], Error> {
   return useQuery({
     queryKey: TENANTS_QUERY_KEY,
     queryFn: fetchTenants,
+    enabled: options?.enabled ?? true,
   });
 }
 

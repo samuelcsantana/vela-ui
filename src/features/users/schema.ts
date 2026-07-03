@@ -9,6 +9,10 @@ export type UserFiltersValues = z.infer<typeof userFiltersSchema>;
 export const createUserSchema = z.object({
   email: z.string().email('users.validation.invalidEmail'),
   password: z.string().min(6, 'users.validation.passwordTooShort'),
+  role: z.enum(['ADMIN', 'MEMBER']),
+  // Always present in the form (pre-filled with the caller's own tenant for a plain
+  // ADMIN, or picked from a <select> for VELA_ADMIN), so it's simply required here.
+  tenantId: z.string().min(1, 'users.validation.tenantRequired'),
 });
 
 export type CreateUserValues = z.infer<typeof createUserSchema>;

@@ -28,6 +28,7 @@ export interface CreateUserInput {
   email: string;
   password: string;
   tenantId: string;
+  role: 'ADMIN' | 'MEMBER';
 }
 
 export async function createUser(input: CreateUserInput): Promise<CreatedUser> {

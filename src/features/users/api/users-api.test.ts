@@ -39,7 +39,7 @@ describe('createUser', () => {
     };
     vi.mocked(api.post).mockResolvedValueOnce({ data: createdUser });
 
-    const input = { email: 'new@velaui.demo', password: 'secret123', tenantId: 'tenant-alpha' };
+    const input = { email: 'new@velaui.demo', password: 'secret123', tenantId: 'tenant-alpha', role: 'MEMBER' as const };
     const result = await createUser(input);
 
     expect(api.post).toHaveBeenCalledWith('/users', input);

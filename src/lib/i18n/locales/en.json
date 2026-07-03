@@ -86,12 +86,17 @@
     },
     "form": {
       "title": "Add user",
-      "submitError": "Unable to create user. Please try again."
+      "submitError": "Unable to create user. Please try again.",
+      "createSuccess": "User created successfully.",
+      "tenantPlaceholder": "Select a company",
+      "tenantLoading": "Loading companies...",
+      "tenantError": "Unable to load companies. Please try again."
     },
     "validation": {
       "searchTooLong": "Search is too long",
       "invalidEmail": "Invalid email",
-      "passwordTooShort": "Password must be at least 6 characters"
+      "passwordTooShort": "Password must be at least 6 characters",
+      "tenantRequired": "Select a company"
     }
   },
   "tenants": {

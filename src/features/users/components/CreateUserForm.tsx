@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../auth/store/auth-store';
+import { useTenants } from '../../tenants/hooks/use-tenants';
+import { useToastStore } from '../../../store/toast-store';
 import { useCreateUser } from '../hooks/use-users';
 import { createUserSchema, type CreateUserValues } from '../schema';
 
@@ -19,10 +21,15 @@ const FOCUSABLE_SELECTOR =
 const FIELD_CLASSNAME =
   'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus-visible:outline-white';
 
+const HELPER_TEXT_CLASSNAME = 'text-xs text-slate-500 dark:text-gray-400';
+
 export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
   const { t } = useTranslation();
-  const tenantId = useAuthStore((state) => state.user?.tenantId);
+  const showToast = useToastStore((state) => state.showToast);
+  const authTenantId = useAuthStore((state) => state.user?.tenantId);
+  const isVelaAdmin = useAuthStore((state) => state.user?.role) === 'VELA_ADMIN';
   const createUserMutation = useCreateUser();
+  const tenantsQuery = useTenants({ enabled: isVelaAdmin });
   const dialogRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -32,7 +39,9 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
     formState: { errors },
   } = useForm<CreateUserValues>({
     resolver: zodResolver(createUserSchema),
-    defaultValues: { email: '', password: '' },
+    // A plain ADMIN never sees the tenant <select>, so its tenantId is silently
+    // pre-filled with their own; VELA_ADMIN must actively pick one.
+    defaultValues: { email: '', password: '', role: 'MEMBER', tenantId: isVelaAdmin ? '' : (authTenantId ?? '') },
   });
 
   const handleClose = () => {
@@ -109,19 +118,13 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
   }
 
   const onSubmit = handleSubmit((values) => {
-    if (!tenantId) {
-      return;
-    }
-
-    createUserMutation.mutate(
-      { ...values, tenantId },
-      {
-        onSuccess: () => {
-          reset();
-          onClose();
-        },
+    createUserMutation.mutate(values, {
+      onSuccess: () => {
+        showToast(t('users.form.createSuccess'));
+        reset();
+        onClose();
       },
-    );
+    });
   });
 
   return (
@@ -182,6 +185,48 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               {errors.password?.message ? t(errors.password.message) : ''}
             </p>
           </div>
+
+          <div className="flex flex-col gap-1">
+            <label htmlFor="role" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+              {t('users.fields.role')}
+            </label>
+            <select id="role" className={FIELD_CLASSNAME} {...register('role')}>
+              <option value="MEMBER">MEMBER</option>
+              <option value="ADMIN">ADMIN</option>
+            </select>
+          </div>
+
+          {isVelaAdmin ? (
+            <div className="flex flex-col gap-1">
+              <label htmlFor="tenantId" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+                {t('users.fields.tenant')}
+              </label>
+              <select
+                id="tenantId"
+                aria-invalid={Boolean(errors.tenantId)}
+                aria-describedby={errors.tenantId ? 'tenantId-error' : undefined}
+                className={FIELD_CLASSNAME}
+                disabled={tenantsQuery.isLoading}
+                {...register('tenantId')}
+              >
+                <option value="">{t('users.form.tenantPlaceholder')}</option>
+                {tenantsQuery.data?.map((tenant) => (
+                  <option key={tenant.id} value={tenant.id}>
+                    {tenant.name}
+                  </option>
+                ))}
+              </select>
+              {tenantsQuery.isLoading ? <p className={HELPER_TEXT_CLASSNAME}>{t('users.form.tenantLoading')}</p> : null}
+              {tenantsQuery.isError ? (
+                <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+                  {t('users.form.tenantError')}
+                </p>
+              ) : null}
+              <p id="tenantId-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+                {errors.tenantId?.message ? t(errors.tenantId.message) : ''}
+              </p>
+            </div>
+          ) : null}
 
           <p aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
             {createUserMutation.isError ? t('users.form.submitError') : ''}

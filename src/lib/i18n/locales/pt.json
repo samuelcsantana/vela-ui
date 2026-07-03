@@ -86,12 +86,17 @@
     },
     "form": {
       "title": "Adicionar usuário",
-      "submitError": "Não foi possível criar o usuário. Tente novamente."
+      "submitError": "Não foi possível criar o usuário. Tente novamente.",
+      "createSuccess": "Usuário criado com sucesso.",
+      "tenantPlaceholder": "Selecione uma empresa",
+      "tenantLoading": "Carregando empresas...",
+      "tenantError": "Não foi possível carregar as empresas. Tente novamente."
     },
     "validation": {
       "searchTooLong": "Busca muito longa",
       "invalidEmail": "Email inválido",
-      "passwordTooShort": "A senha deve ter pelo menos 6 caracteres"
+      "passwordTooShort": "A senha deve ter pelo menos 6 caracteres",
+      "tenantRequired": "Selecione uma empresa"
     }
   },
   "tenants": {

@@ -3,10 +3,12 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateUserForm } from './CreateUserForm';
 
-const { mockMutate, mockUseCreateUser, mockUseAuthStore } = vi.hoisted(() => ({
+const { mockMutate, mockUseCreateUser, mockUseAuthStore, mockUseTenants, mockShowToast } = vi.hoisted(() => ({
   mockMutate: vi.fn(),
   mockUseCreateUser: vi.fn(),
   mockUseAuthStore: vi.fn(),
+  mockUseTenants: vi.fn(),
+  mockShowToast: vi.fn(),
 }));
 
 vi.mock('../hooks/use-users', () => ({
@@ -14,20 +16,35 @@ vi.mock('../hooks/use-users', () => ({
 }));
 
 vi.mock('../../auth/store/auth-store', () => ({
-  useAuthStore: (selector: (state: { user: { tenantId: string } }) => unknown) =>
+  useAuthStore: (selector: (state: { user: { tenantId: string; role: string } | undefined }) => unknown) =>
     mockUseAuthStore(selector),
+}));
+
+vi.mock('../../tenants/hooks/use-tenants', () => ({
+  useTenants: (options: unknown) => mockUseTenants(options),
+}));
+
+vi.mock('../../../store/toast-store', () => ({
+  useToastStore: (selector: (state: { showToast: typeof mockShowToast }) => unknown) =>
+    selector({ showToast: mockShowToast }),
 }));
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
 
+const MOCK_TENANTS = [
+  { id: 'tenant-alpha', name: 'Vela Corp' },
+  { id: 'tenant-beta', name: 'Sicredi' },
+];
+
 describe('CreateUserForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     document.body.style.overflow = '';
     mockUseCreateUser.mockReturnValue({ mutate: mockMutate, isPending: false, isError: false });
-    mockUseAuthStore.mockImplementation((selector) => selector({ user: { tenantId: 'tenant-alpha' } }));
+    mockUseAuthStore.mockImplementation((selector) => selector({ user: { tenantId: 'tenant-alpha', role: 'ADMIN' } }));
+    mockUseTenants.mockReturnValue({ data: MOCK_TENANTS, isLoading: false, isError: false });
   });
 
   it('renders nothing when closed', () => {
@@ -137,7 +154,14 @@ describe('CreateUserForm', () => {
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
-  it('submits valid values with the current tenantId and resets the form on success', async () => {
+  it('does not fetch tenants for a plain ADMIN and hides the tenant select', () => {
+    render(<CreateUserForm isOpen onClose={vi.fn()} />);
+
+    expect(mockUseTenants).toHaveBeenCalledWith({ enabled: false });
+    expect(screen.queryByLabelText('users.fields.tenant')).not.toBeInTheDocument();
+  });
+
+  it('submits valid values with the role and the caller own tenantId for a plain ADMIN, and shows a success toast', async () => {
     mockMutate.mockImplementation((_values, { onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
     });
@@ -147,19 +171,24 @@ describe('CreateUserForm', () => {
 
     await user.type(screen.getByLabelText('users.fields.email'), 'ana@velaui.demo');
     await user.type(screen.getByLabelText('users.fields.password'), 'secret123');
+    await user.selectOptions(screen.getByLabelText('users.fields.role'), 'ADMIN');
     await user.click(screen.getByRole('button', { name: 'common.save' }));
 
     await waitFor(() =>
       expect(mockMutate).toHaveBeenCalledWith(
-        { email: 'ana@velaui.demo', password: 'secret123', tenantId: 'tenant-alpha' },
+        { email: 'ana@velaui.demo', password: 'secret123', role: 'ADMIN', tenantId: 'tenant-alpha' },
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       ),
     );
+    expect(mockShowToast).toHaveBeenCalledWith('users.form.createSuccess');
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  it('does not submit when there is no authenticated tenantId', async () => {
-    mockUseAuthStore.mockImplementation((selector) => selector({ user: undefined as never }));
+  it('does not submit when the caller has no authenticated tenantId', async () => {
+    // Defensive: there is no visible tenant field for a plain ADMIN (its tenantId is
+    // always silently filled in), so an unauthenticated edge case simply blocks
+    // submission via schema validation with no dedicated error UI to assert on.
+    mockUseAuthStore.mockImplementation((selector) => selector({ user: undefined }));
     const user = userEvent.setup();
     render(<CreateUserForm isOpen onClose={vi.fn()} />);
 
@@ -168,6 +197,70 @@ describe('CreateUserForm', () => {
     await user.click(screen.getByRole('button', { name: 'common.save' }));
 
     expect(mockMutate).not.toHaveBeenCalled();
+  });
+
+  describe('as a VELA_ADMIN', () => {
+    beforeEach(() => {
+      mockUseAuthStore.mockImplementation((selector) => selector({ user: { tenantId: 'tenant-alpha', role: 'VELA_ADMIN' } }));
+    });
+
+    it('fetches the tenant list and shows the tenant select', () => {
+      render(<CreateUserForm isOpen onClose={vi.fn()} />);
+
+      expect(mockUseTenants).toHaveBeenCalledWith({ enabled: true });
+      expect(screen.getByLabelText('users.fields.tenant')).toBeInTheDocument();
+      expect(screen.getByText('Vela Corp')).toBeInTheDocument();
+      expect(screen.getByText('Sicredi')).toBeInTheDocument();
+    });
+
+    it('shows a loading message and disables the select while tenants are loading', () => {
+      mockUseTenants.mockReturnValue({ data: undefined, isLoading: true, isError: false });
+      render(<CreateUserForm isOpen onClose={vi.fn()} />);
+
+      expect(screen.getByText('users.form.tenantLoading')).toBeInTheDocument();
+      expect(screen.getByLabelText('users.fields.tenant')).toBeDisabled();
+    });
+
+    it('shows an error message when the tenant list fails to load', () => {
+      mockUseTenants.mockReturnValue({ data: undefined, isLoading: false, isError: true });
+      render(<CreateUserForm isOpen onClose={vi.fn()} />);
+
+      expect(screen.getByRole('alert')).toHaveTextContent('users.form.tenantError');
+    });
+
+    it('requires a tenant to be selected before submitting', async () => {
+      const user = userEvent.setup();
+      render(<CreateUserForm isOpen onClose={vi.fn()} />);
+
+      await user.type(screen.getByLabelText('users.fields.email'), 'ana@velaui.demo');
+      await user.type(screen.getByLabelText('users.fields.password'), 'secret123');
+      await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+      expect(await screen.findByText('users.validation.tenantRequired')).toBeInTheDocument();
+      expect(screen.getByLabelText('users.fields.tenant')).toHaveAttribute('aria-invalid', 'true');
+      expect(mockMutate).not.toHaveBeenCalled();
+    });
+
+    it('submits the selected tenantId and role', async () => {
+      mockMutate.mockImplementation((_values, { onSuccess }: { onSuccess: () => void }) => {
+        onSuccess();
+      });
+      const user = userEvent.setup();
+      render(<CreateUserForm isOpen onClose={vi.fn()} />);
+
+      await user.type(screen.getByLabelText('users.fields.email'), 'bruno@velaui.demo');
+      await user.type(screen.getByLabelText('users.fields.password'), 'secret123');
+      await user.selectOptions(screen.getByLabelText('users.fields.role'), 'ADMIN');
+      await user.selectOptions(screen.getByLabelText('users.fields.tenant'), 'tenant-beta');
+      await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+      await waitFor(() =>
+        expect(mockMutate).toHaveBeenCalledWith(
+          { email: 'bruno@velaui.demo', password: 'secret123', role: 'ADMIN', tenantId: 'tenant-beta' },
+          expect.objectContaining({ onSuccess: expect.any(Function) }),
+        ),
+      );
+    });
   });
 
   it('shows the submit error message when the mutation fails', () => {
