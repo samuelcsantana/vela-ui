@@ -26,7 +26,15 @@ describe('slugify', () => {
 });
 
 describe('formatDate', () => {
-  it('formats an ISO date string as a short human-readable date', () => {
-    expect(formatDate('2026-07-02T00:41:12.113Z')).toBe('Jul 2, 2026');
+  it('formats an ISO date string in English for the en language', () => {
+    expect(formatDate('2026-07-02T00:41:12.113Z', 'en')).toBe('Jul 2, 2026');
+  });
+
+  it('formats an ISO date string in Portuguese for the pt language', () => {
+    expect(formatDate('2026-07-02T00:41:12.113Z', 'pt')).toBe('2 de jul. de 2026');
+  });
+
+  it('falls back to English for an unrecognized language', () => {
+    expect(formatDate('2026-07-02T00:41:12.113Z', 'fr')).toBe('Jul 2, 2026');
   });
 });

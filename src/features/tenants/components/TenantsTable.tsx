@@ -16,7 +16,7 @@ const CELL_CLASSNAME =
 const CELL_LABEL_CLASSNAME = 'md:hidden font-bold text-gray-600 dark:text-gray-400';
 
 export const TenantsTable = ({ tenants, isLoading, isError, onEdit, onDelete }: TenantsTableProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   if (isLoading) {
     return (
@@ -121,7 +121,7 @@ export const TenantsTable = ({ tenants, isLoading, isError, onEdit, onDelete }: 
               </td>
               <td role="cell" className={`${CELL_CLASSNAME} text-gray-500 dark:text-gray-400`}>
                 <span className={CELL_LABEL_CLASSNAME}>{t('tenants.fields.dateCreated')}</span>
-                {formatDate(tenant.createdAt)}
+                {formatDate(tenant.createdAt, i18n.language)}
               </td>
               <td role="cell" className={CELL_CLASSNAME}>
                 <span className={CELL_LABEL_CLASSNAME}>{t('tenants.fields.actions')}</span>

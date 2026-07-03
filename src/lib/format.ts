@@ -19,8 +19,14 @@ export function slugify(value: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-export function formatDate(isoDate: string): string {
-  return new Date(isoDate).toLocaleDateString('en-US', {
+// Maps an i18next language code to the BCP 47 locale used for date formatting.
+const DATE_LOCALES: Record<string, string> = {
+  en: 'en-US',
+  pt: 'pt-BR',
+};
+
+export function formatDate(isoDate: string, language: string): string {
+  return new Date(isoDate).toLocaleDateString(DATE_LOCALES[language] ?? 'en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

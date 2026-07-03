@@ -24,7 +24,7 @@ const CELL_CLASSNAME =
 const CELL_LABEL_CLASSNAME = 'md:hidden font-bold text-gray-600 dark:text-gray-400';
 
 export const UsersTable = ({ users, isLoading, isError, showTenantColumn }: UsersTableProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   if (isLoading) {
     return (
@@ -117,7 +117,7 @@ export const UsersTable = ({ users, isLoading, isError, showTenantColumn }: User
               ) : null}
               <td role="cell" className={`${CELL_CLASSNAME} text-gray-500 dark:text-gray-400`}>
                 <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.dateJoined')}</span>
-                {formatDate(user.createdAt)}
+                {formatDate(user.createdAt, i18n.language)}
               </td>
             </tr>
           ))}

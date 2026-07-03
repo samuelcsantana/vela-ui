@@ -1,10 +1,14 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { RecentSignup } from '../api/dashboard-api';
 import { RecentSignupsList } from './RecentSignupsList';
 
+const { mockUseTranslation } = vi.hoisted(() => ({
+  mockUseTranslation: vi.fn(),
+}));
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => mockUseTranslation(),
 }));
 
 const MOCK_SIGNUPS: RecentSignup[] = [
@@ -13,6 +17,10 @@ const MOCK_SIGNUPS: RecentSignup[] = [
 ];
 
 describe('RecentSignupsList', () => {
+  beforeEach(() => {
+    mockUseTranslation.mockReturnValue({ t: (key: string) => key, i18n: { language: 'en' } });
+  });
+
   it('shows an empty state message when there are no signups', () => {
     render(<RecentSignupsList signups={[]} />);
     expect(screen.getByText('dashboard.recentSignups.empty')).toBeInTheDocument();
@@ -25,5 +33,12 @@ describe('RecentSignupsList', () => {
     expect(screen.getByText('bruno@velaui.demo')).toBeInTheDocument();
     expect(screen.getByText('Jan 15, 2026')).toBeInTheDocument();
     expect(screen.getByText('Feb 20, 2026')).toBeInTheDocument();
+  });
+
+  it('formats the signup date using the active i18n language', () => {
+    mockUseTranslation.mockReturnValue({ t: (key: string) => key, i18n: { language: 'pt' } });
+    render(<RecentSignupsList signups={MOCK_SIGNUPS} />);
+
+    expect(screen.getByText('15 de jan. de 2026')).toBeInTheDocument();
   });
 });

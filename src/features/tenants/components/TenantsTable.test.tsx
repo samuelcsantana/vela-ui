@@ -1,11 +1,15 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Tenant } from '../api/tenants-api';
 import { TenantsTable } from './TenantsTable';
 
+const { mockUseTranslation } = vi.hoisted(() => ({
+  mockUseTranslation: vi.fn(),
+}));
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => mockUseTranslation(),
 }));
 
 const MOCK_TENANTS: Tenant[] = [
@@ -14,6 +18,10 @@ const MOCK_TENANTS: Tenant[] = [
 ];
 
 describe('TenantsTable', () => {
+  beforeEach(() => {
+    mockUseTranslation.mockReturnValue({ t: (key: string) => key, i18n: { language: 'en' } });
+  });
+
   it('shows a loading status while fetching', () => {
     render(<TenantsTable tenants={undefined} isLoading isError={false} onEdit={vi.fn()} onDelete={vi.fn()} />);
     expect(screen.getByRole('status')).toHaveTextContent('tenants.table.loading');
@@ -47,6 +55,13 @@ describe('TenantsTable', () => {
     expect(screen.getByText('Feb 20, 2026')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'tenants.editTenant' })).toHaveLength(2);
     expect(screen.getAllByRole('button', { name: 'tenants.deleteTenant' })).toHaveLength(2);
+  });
+
+  it('formats the creation date using the active i18n language', () => {
+    mockUseTranslation.mockReturnValue({ t: (key: string) => key, i18n: { language: 'pt' } });
+    render(<TenantsTable tenants={MOCK_TENANTS} isLoading={false} isError={false} onEdit={vi.fn()} onDelete={vi.fn()} />);
+
+    expect(screen.getByText('15 de jan. de 2026')).toBeInTheDocument();
   });
 
   it('shows a placeholder dash when the tenant has no primaryColor', () => {

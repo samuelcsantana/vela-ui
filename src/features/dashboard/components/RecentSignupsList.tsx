@@ -7,7 +7,7 @@ interface RecentSignupsListProps {
 }
 
 export const RecentSignupsList = ({ signups }: RecentSignupsListProps) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   if (signups.length === 0) {
     return <p className="text-sm text-slate-500 dark:text-gray-400">{t('dashboard.recentSignups.empty')}</p>;
@@ -18,7 +18,7 @@ export const RecentSignupsList = ({ signups }: RecentSignupsListProps) => {
       {signups.map((signup) => (
         <li key={signup.id} className="flex items-center justify-between gap-2 py-2 text-sm">
           <span className="truncate font-medium text-slate-900 dark:text-white">{signup.email}</span>
-          <span className="shrink-0 text-slate-500 dark:text-gray-400">{formatDate(signup.createdAt)}</span>
+          <span className="shrink-0 text-slate-500 dark:text-gray-400">{formatDate(signup.createdAt, i18n.language)}</span>
         </li>
       ))}
     </ul>

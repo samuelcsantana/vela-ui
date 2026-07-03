@@ -1,10 +1,14 @@
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { User } from '../api/users-api';
 import { UsersTable } from './UsersTable';
 
+const { mockUseTranslation } = vi.hoisted(() => ({
+  mockUseTranslation: vi.fn(),
+}));
+
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => mockUseTranslation(),
 }));
 
 const MOCK_USERS: User[] = [
@@ -27,6 +31,10 @@ const MOCK_USERS: User[] = [
 ];
 
 describe('UsersTable', () => {
+  beforeEach(() => {
+    mockUseTranslation.mockReturnValue({ t: (key: string) => key, i18n: { language: 'en' } });
+  });
+
   it('shows a loading status while fetching', () => {
     render(<UsersTable users={undefined} isLoading isError={false} showTenantColumn={false} />);
     expect(screen.getByRole('status')).toHaveTextContent('users.table.loading');
@@ -59,6 +67,13 @@ describe('UsersTable', () => {
     expect(screen.getByText('MEMBER')).toBeInTheDocument();
     expect(screen.getByText('Jan 15, 2026')).toBeInTheDocument();
     expect(screen.getByText('Feb 20, 2026')).toBeInTheDocument();
+  });
+
+  it('formats the join date using the active i18n language', () => {
+    mockUseTranslation.mockReturnValue({ t: (key: string) => key, i18n: { language: 'pt' } });
+    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} />);
+
+    expect(screen.getByText('15 de jan. de 2026')).toBeInTheDocument();
   });
 
   it('hides the Tenant column and cells when showTenantColumn is false', () => {
