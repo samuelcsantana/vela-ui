@@ -212,6 +212,39 @@ describe('CreateTenantForm', () => {
     expect(screen.queryByAltText('tenants.form.logoPreviewAlt')).not.toBeInTheDocument();
   });
 
+  it('updates the primary color text field when a color is picked from the swatch', async () => {
+    mockMutate.mockImplementation((_values, { onSuccess }: { onSuccess: () => void }) => {
+      onSuccess();
+    });
+    const user = userEvent.setup();
+    render(<CreateTenantForm isOpen onClose={vi.fn()} />);
+
+    await user.type(screen.getByLabelText('tenants.fields.name'), 'Sicredi');
+    fireEvent.change(screen.getByLabelText('tenants.form.primaryColorPickerLabel'), { target: { value: '#ff0000' } });
+
+    expect(screen.getByLabelText('tenants.fields.primaryColor')).toHaveValue('#ff0000');
+
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+    await waitFor(() =>
+      expect(mockMutate).toHaveBeenCalledWith(
+        { name: 'Sicredi', slug: 'sicredi', primaryColor: '#ff0000', logo: undefined },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      ),
+    );
+  });
+
+  it('falls back to the default brand color for the swatch preview until a valid hex is entered', async () => {
+    const user = userEvent.setup();
+    render(<CreateTenantForm isOpen onClose={vi.fn()} />);
+
+    expect(screen.getByLabelText('tenants.form.primaryColorPickerLabel')).toHaveValue('#0052cc');
+
+    await user.type(screen.getByLabelText('tenants.fields.primaryColor'), 'not-a-hex');
+
+    expect(screen.getByLabelText('tenants.form.primaryColorPickerLabel')).toHaveValue('#0052cc');
+  });
+
   it('shows a translated message when the slug is already taken', () => {
     const apiError = new axios.AxiosError('Request failed', '409', undefined, undefined, {
       status: 409,

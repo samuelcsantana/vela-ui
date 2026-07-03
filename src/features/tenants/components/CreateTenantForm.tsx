@@ -6,7 +6,8 @@ import { useTranslation } from 'react-i18next';
 import { getApiErrorMessage } from '../../../lib/api';
 import { slugify } from '../../../lib/format';
 import { useCreateTenant } from '../hooks/use-tenants';
-import { createTenantSchema, type CreateTenantValues } from '../schema';
+import { createTenantSchema, HEX_COLOR_REGEX, type CreateTenantValues } from '../schema';
+import { DEFAULT_BRAND_COLOR } from '../theme';
 
 interface CreateTenantFormProps {
   isOpen: boolean;
@@ -53,6 +54,8 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
   });
 
   const name = watch('name');
+  const primaryColor = watch('primaryColor');
+  const primaryColorSwatchValue = primaryColor && HEX_COLOR_REGEX.test(primaryColor) ? primaryColor : DEFAULT_BRAND_COLOR;
 
   useEffect(() => {
     if (isSlugEdited.current) {
@@ -254,17 +257,28 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
             <label htmlFor="primaryColor" className="text-sm font-medium text-slate-700 dark:text-gray-300">
               {t('tenants.fields.primaryColor')}
             </label>
-            <input
-              id="primaryColor"
-              type="text"
-              placeholder="#0052cc"
-              aria-invalid={Boolean(errors.primaryColor)}
-              aria-describedby={
-                errors.primaryColor ? 'primaryColor-helper primaryColor-error' : 'primaryColor-helper'
-              }
-              className={FIELD_CLASSNAME}
-              {...register('primaryColor')}
-            />
+            <div className="flex gap-2">
+              <input
+                type="color"
+                aria-label={t('tenants.form.primaryColorPickerLabel')}
+                value={primaryColorSwatchValue}
+                onChange={(event) =>
+                  setValue('primaryColor', event.target.value, { shouldValidate: true, shouldDirty: true })
+                }
+                className="h-11 w-11 shrink-0 cursor-pointer rounded-md border border-slate-300 bg-white p-1 dark:border-slate-700 dark:bg-slate-800"
+              />
+              <input
+                id="primaryColor"
+                type="text"
+                placeholder="#0052cc"
+                aria-invalid={Boolean(errors.primaryColor)}
+                aria-describedby={
+                  errors.primaryColor ? 'primaryColor-helper primaryColor-error' : 'primaryColor-helper'
+                }
+                className={`${FIELD_CLASSNAME} flex-1`}
+                {...register('primaryColor')}
+              />
+            </div>
             <p id="primaryColor-helper" className={HELPER_TEXT_CLASSNAME}>
               {t('tenants.form.primaryColorHelper')}
             </p>

@@ -118,6 +118,7 @@
       "editTitle": "Edit tenant",
       "slugHelper": "Defines the tenant's login URL. E.g.: /sicredi/login",
       "primaryColorHelper": "Used for White-label branding (optional)",
+      "primaryColorPickerLabel": "Pick a color",
       "logoHelper": "Upload an image file (optional)",
       "logoPreviewAlt": "Logo preview",
       "submitError": "Unable to create the tenant. Please try again.",

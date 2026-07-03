@@ -243,6 +243,70 @@ describe('EditTenantForm', () => {
     );
   });
 
+  it('updates the primary color text field when a color is picked from the swatch', async () => {
+    mockMutate.mockImplementation((_variables, { onSuccess }: { onSuccess: () => void }) => {
+      onSuccess();
+    });
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    fireEvent.change(screen.getByLabelText('tenants.form.primaryColorPickerLabel'), { target: { value: '#123456' } });
+
+    expect(screen.getByLabelText('tenants.fields.primaryColor')).toHaveValue('#123456');
+
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+    await waitFor(() =>
+      expect(mockMutate).toHaveBeenCalledWith(
+        { id: 'tenant-1', input: { primaryColor: '#123456' } },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      ),
+    );
+  });
+
+  it('falls back to the default brand color for the swatch preview when the text field holds an invalid hex', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    const primaryColorInput = screen.getByLabelText('tenants.fields.primaryColor');
+    await user.clear(primaryColorInput);
+    await user.type(primaryColorInput, 'not-a-hex');
+
+    expect(screen.getByLabelText('tenants.form.primaryColorPickerLabel')).toHaveValue('#0052cc');
+  });
+
+  it('shows a validation error when primaryColor is typed as an invalid hex', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    const primaryColorInput = screen.getByLabelText('tenants.fields.primaryColor');
+    await user.clear(primaryColorInput);
+    await user.type(primaryColorInput, 'not-a-hex');
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+    expect(await screen.findByText('tenants.validation.primaryColorInvalid')).toBeInTheDocument();
+    expect(primaryColorInput).toHaveAttribute('aria-invalid', 'true');
+    expect(mockMutate).not.toHaveBeenCalled();
+  });
+
+  it('sends undefined for primaryColor when it is dirtied and cleared to empty', async () => {
+    mockMutate.mockImplementation((_variables, { onSuccess }: { onSuccess: () => void }) => {
+      onSuccess();
+    });
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    await user.clear(screen.getByLabelText('tenants.fields.primaryColor'));
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+    await waitFor(() =>
+      expect(mockMutate).toHaveBeenCalledWith(
+        { id: 'tenant-1', input: { primaryColor: undefined } },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      ),
+    );
+  });
+
   it('does not revoke a remote logo URL on unmount', () => {
     const revokeObjectURLSpy = vi.spyOn(URL, 'revokeObjectURL');
     const { unmount } = render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);

@@ -7,7 +7,7 @@ import { getApiErrorMessage } from '../../../lib/api';
 import { useToastStore } from '../../../store/toast-store';
 import type { Tenant } from '../api/tenants-api';
 import { useUpdateTenant } from '../hooks/use-tenants';
-import { createTenantSchema, type CreateTenantValues } from '../schema';
+import { createTenantSchema, HEX_COLOR_REGEX, type CreateTenantValues } from '../schema';
 import { DEFAULT_BRAND_COLOR } from '../theme';
 
 interface EditTenantFormProps {
@@ -46,6 +46,8 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     reset,
     formState: { errors, dirtyFields },
   } = useForm<CreateTenantValues>({
@@ -56,6 +58,9 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
       ? { name: tenant.name, slug: tenant.slug, primaryColor: tenant.primaryColor ?? DEFAULT_BRAND_COLOR }
       : undefined,
   });
+
+  const primaryColor = watch('primaryColor');
+  const primaryColorSwatchValue = primaryColor && HEX_COLOR_REGEX.test(primaryColor) ? primaryColor : DEFAULT_BRAND_COLOR;
 
   // Resets the locally-selected file and preview whenever a different tenant is opened.
   useEffect(() => {
@@ -161,8 +166,7 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
     const changedFields: { name?: string; slug?: string; primaryColor?: string; logo?: File } = {};
     if (dirtyFields.name) changedFields.name = values.name;
     if (dirtyFields.slug) changedFields.slug = values.slug;
-    // A native color input can never be cleared to a falsy value, unlike the plain-text logoUrl field before it.
-    if (dirtyFields.primaryColor) changedFields.primaryColor = values.primaryColor;
+    if (dirtyFields.primaryColor) changedFields.primaryColor = values.primaryColor || undefined;
     if (logoFile) changedFields.logo = logoFile;
 
     if (Object.keys(changedFields).length === 0) {
@@ -253,16 +257,33 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
             <label htmlFor="primaryColor" className="text-sm font-medium text-slate-700 dark:text-gray-300">
               {t('tenants.fields.primaryColor')}
             </label>
-            {/* A native color input always yields a valid #rrggbb value, so this field can never fail validation. */}
-            <input
-              id="primaryColor"
-              type="color"
-              aria-describedby="primaryColor-helper"
-              className="h-11 w-full cursor-pointer rounded-md border border-slate-300 bg-white p-1 dark:border-slate-700 dark:bg-slate-800"
-              {...register('primaryColor')}
-            />
+            <div className="flex gap-2">
+              <input
+                type="color"
+                aria-label={t('tenants.form.primaryColorPickerLabel')}
+                value={primaryColorSwatchValue}
+                onChange={(event) =>
+                  setValue('primaryColor', event.target.value, { shouldValidate: true, shouldDirty: true })
+                }
+                className="h-11 w-11 shrink-0 cursor-pointer rounded-md border border-slate-300 bg-white p-1 dark:border-slate-700 dark:bg-slate-800"
+              />
+              <input
+                id="primaryColor"
+                type="text"
+                placeholder="#0052cc"
+                aria-invalid={Boolean(errors.primaryColor)}
+                aria-describedby={
+                  errors.primaryColor ? 'primaryColor-helper primaryColor-error' : 'primaryColor-helper'
+                }
+                className={`${FIELD_CLASSNAME} flex-1`}
+                {...register('primaryColor')}
+              />
+            </div>
             <p id="primaryColor-helper" className={HELPER_TEXT_CLASSNAME}>
               {t('tenants.form.primaryColorHelper')}
+            </p>
+            <p id="primaryColor-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+              {errors.primaryColor?.message ? t(errors.primaryColor.message) : ''}
             </p>
           </div>
 
