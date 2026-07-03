@@ -1,0 +1,24 @@
+# Local
+.DS_Store
+*.local
+*.log
+*.log.*
+.env
+
+# Dist
+node_modules
+dist/
+
+# Test coverage
+coverage/
+
+# TanStack Router (generated)
+src/routeTree.gen.ts
+
+# Profile
+.rspack-profile-*/
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea
