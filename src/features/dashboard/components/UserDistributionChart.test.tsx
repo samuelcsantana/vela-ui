@@ -1,11 +1,10 @@
 import { render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
-import type { DistributionSlice } from '../mock-data';
-import { UserDistributionChart } from './UserDistributionChart';
+import { UserDistributionChart, type DistributionSlice } from './UserDistributionChart';
 
-// See UserGrowthChart.test.tsx: recharts primitives are stubbed because jsdom never
-// gives ResponsiveContainer real dimensions, so the real SVG output can't be asserted on.
+// recharts primitives are stubbed because jsdom never gives ResponsiveContainer real
+// dimensions (no ResizeObserver), so the real SVG output can't be asserted on.
 vi.mock('recharts', () => ({
   ResponsiveContainer: ({ children }: { children: ReactNode }) => (
     <div data-testid="responsive-container">{children}</div>

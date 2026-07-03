@@ -24,18 +24,21 @@
   "dashboard": {
     "welcome": "Bem-vindo à {{appName}}",
     "subtitle": "Selecione uma opção no menu lateral para começar.",
+    "loading": "Carregando métricas do dashboard...",
+    "error": "Não foi possível carregar as métricas do dashboard. Tente novamente.",
     "kpis": {
       "totalCompanies": "Total de Empresas",
       "totalUsers": "Total de Usuários",
-      "activeUsers": "Usuários Ativos",
-      "mrr": "Receita Mensal",
-      "newSignups": "Novos Cadastros",
-      "teamAdmins": "Admins da Equipe"
+      "admins": "Admins",
+      "members": "Membros"
     },
     "charts": {
-      "userGrowth": "Crescimento de Usuários",
       "usersByCompany": "Usuários por Empresa",
       "usersByRole": "Usuários por Papel"
+    },
+    "recentSignups": {
+      "title": "Cadastros Recentes",
+      "empty": "Nenhum cadastro recente ainda."
     }
   },
   "auth": {

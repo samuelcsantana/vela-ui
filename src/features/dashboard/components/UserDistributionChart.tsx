@@ -1,5 +1,9 @@
 import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
-import type { DistributionSlice } from '../mock-data';
+
+export interface DistributionSlice {
+  name: string;
+  value: number;
+}
 
 const SLICE_COLORS = ['var(--color-brand)', '#32a852', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4'];
 

@@ -24,18 +24,21 @@
   "dashboard": {
     "welcome": "Welcome to {{appName}}",
     "subtitle": "Select an option from the sidebar menu to get started.",
+    "loading": "Loading dashboard metrics...",
+    "error": "Unable to load dashboard metrics. Please try again.",
     "kpis": {
       "totalCompanies": "Total Companies",
       "totalUsers": "Total Users",
-      "activeUsers": "Active Users",
-      "mrr": "Monthly Revenue",
-      "newSignups": "New Signups",
-      "teamAdmins": "Team Admins"
+      "admins": "Admins",
+      "members": "Members"
     },
     "charts": {
-      "userGrowth": "User Growth",
       "usersByCompany": "Users by Company",
       "usersByRole": "Users by Role"
+    },
+    "recentSignups": {
+      "title": "Recent Signups",
+      "empty": "No recent signups yet."
     }
   },
   "auth": {
