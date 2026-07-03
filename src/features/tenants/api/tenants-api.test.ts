@@ -140,12 +140,28 @@ describe('updateTenant', () => {
 });
 
 describe('deleteTenant', () => {
-  it('deletes /tenants/{id}', async () => {
+  it('deletes /tenants/{id} with no query string by default', async () => {
     vi.mocked(api.delete).mockResolvedValueOnce({ data: { message: 'Tenant deleted' } });
 
     await deleteTenant('tenant-1');
 
-    expect(api.delete).toHaveBeenCalledWith('/tenants/tenant-1');
+    expect(api.delete).toHaveBeenCalledWith('/tenants/tenant-1', { params: undefined });
+  });
+
+  it('deletes /tenants/{id}?force=true when force is requested', async () => {
+    vi.mocked(api.delete).mockResolvedValueOnce({ data: { message: 'Tenant deleted' } });
+
+    await deleteTenant('tenant-1', { force: true });
+
+    expect(api.delete).toHaveBeenCalledWith('/tenants/tenant-1', { params: { force: true } });
+  });
+
+  it('omits the force param when explicitly false', async () => {
+    vi.mocked(api.delete).mockResolvedValueOnce({ data: { message: 'Tenant deleted' } });
+
+    await deleteTenant('tenant-1', { force: false });
+
+    expect(api.delete).toHaveBeenCalledWith('/tenants/tenant-1', { params: undefined });
   });
 });
 

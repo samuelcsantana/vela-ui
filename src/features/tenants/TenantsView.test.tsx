@@ -207,7 +207,7 @@ describe('TenantsView', () => {
   });
 
   it('deletes the tenant, shows a success toast, and closes the dialog on confirm', async () => {
-    mockDeleteMutate.mockImplementation((_id, { onSuccess }: { onSuccess: () => void }) => {
+    mockDeleteMutate.mockImplementation((_variables, { onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
     });
     const user = userEvent.setup();
@@ -216,7 +216,7 @@ describe('TenantsView', () => {
     await user.click(screen.getByRole('button', { name: 'delete-first' }));
     await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
 
-    expect(mockDeleteMutate).toHaveBeenCalledWith('1', expect.objectContaining({ onSuccess: expect.any(Function) }));
+    expect(mockDeleteMutate).toHaveBeenCalledWith({ id: '1' }, expect.objectContaining({ onSuccess: expect.any(Function) }));
     expect(mockShowToast).toHaveBeenCalledWith('tenants.form.deleteSuccess');
     expect(screen.queryByTestId('confirm-dialog-stub')).not.toBeInTheDocument();
   });
@@ -239,27 +239,141 @@ describe('TenantsView', () => {
     expect(dialog).toHaveAttribute('data-confirm-label', 'tenants.deleteDialog.confirmPending');
   });
 
-  it('shows a translated error message when the tenant still has users', async () => {
-    const apiError = new axios.AxiosError('Request failed', '409', undefined, undefined, {
+  it('escalates to the cascade force-delete dialog when the tenant still has users, without a generic error toast', async () => {
+    const tenantHasUsersError = new axios.AxiosError('Request failed', '409', undefined, undefined, {
       status: 409,
       statusText: 'Conflict',
       headers: {},
       config: {} as never,
-      data: { error: 'Tenant still has users and cannot be deleted' },
+      data: { error: 'TENANT_HAS_USERS', userCount: 3 },
     });
-    mockUseDeleteTenant.mockReturnValue({
-      mutate: mockDeleteMutate,
-      reset: mockDeleteReset,
-      isPending: false,
-      isError: true,
-      error: apiError,
+    mockDeleteMutate.mockImplementation((_variables, { onError }: { onError: (error: unknown) => void }) => {
+      onError(tenantHasUsersError);
     });
     const user = userEvent.setup();
     render(<TenantsView />);
 
     await user.click(screen.getByRole('button', { name: 'delete-first' }));
+    mockDeleteReset.mockClear();
+    await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
 
-    expect(screen.getByTestId('confirm-dialog-stub')).toHaveAttribute('data-error', 'tenants.errors.hasUsers');
+    expect(mockDeleteReset).toHaveBeenCalledTimes(1);
+    expect(mockShowToast).not.toHaveBeenCalled();
+    const dialog = screen.getByTestId('confirm-dialog-stub');
+    expect(dialog).toHaveAttribute('data-title', 'tenants.forceDeleteDialog.title');
+    expect(dialog).toHaveAttribute(
+      'data-description',
+      `tenants.forceDeleteDialog.description:${JSON.stringify({ count: 3 })}`,
+    );
+  });
+
+  it('ignores any other mutation error instead of escalating to the cascade dialog', async () => {
+    mockDeleteMutate.mockImplementation((_variables, { onError }: { onError: (error: unknown) => void }) => {
+      onError(new Error('network down'));
+    });
+    const user = userEvent.setup();
+    render(<TenantsView />);
+
+    await user.click(screen.getByRole('button', { name: 'delete-first' }));
+    await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
+
+    const dialog = screen.getByTestId('confirm-dialog-stub');
+    expect(dialog).toHaveAttribute('data-title', 'tenants.deleteDialog.title');
+  });
+
+  it('ignores a 409 that is not the TENANT_HAS_USERS conflict', async () => {
+    const otherConflictError = new axios.AxiosError('Request failed', '409', undefined, undefined, {
+      status: 409,
+      statusText: 'Conflict',
+      headers: {},
+      config: {} as never,
+      data: { error: 'SOME_OTHER_CONFLICT' },
+    });
+    mockDeleteMutate.mockImplementation((_variables, { onError }: { onError: (error: unknown) => void }) => {
+      onError(otherConflictError);
+    });
+    const user = userEvent.setup();
+    render(<TenantsView />);
+
+    await user.click(screen.getByRole('button', { name: 'delete-first' }));
+    await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
+
+    const dialog = screen.getByTestId('confirm-dialog-stub');
+    expect(dialog).toHaveAttribute('data-title', 'tenants.deleteDialog.title');
+  });
+
+  it('defaults the cascade user count to 0 when the API omits it', async () => {
+    const tenantHasUsersError = new axios.AxiosError('Request failed', '409', undefined, undefined, {
+      status: 409,
+      statusText: 'Conflict',
+      headers: {},
+      config: {} as never,
+      data: { error: 'TENANT_HAS_USERS' },
+    });
+    mockDeleteMutate.mockImplementation((_variables, { onError }: { onError: (error: unknown) => void }) => {
+      onError(tenantHasUsersError);
+    });
+    const user = userEvent.setup();
+    render(<TenantsView />);
+
+    await user.click(screen.getByRole('button', { name: 'delete-first' }));
+    await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
+
+    expect(screen.getByTestId('confirm-dialog-stub')).toHaveAttribute(
+      'data-description',
+      `tenants.forceDeleteDialog.description:${JSON.stringify({ count: 0 })}`,
+    );
+  });
+
+  it('sends force: true and shows a success toast when confirming the cascade delete', async () => {
+    const tenantHasUsersError = new axios.AxiosError('Request failed', '409', undefined, undefined, {
+      status: 409,
+      statusText: 'Conflict',
+      headers: {},
+      config: {} as never,
+      data: { error: 'TENANT_HAS_USERS', userCount: 2 },
+    });
+    mockDeleteMutate.mockImplementationOnce((_variables, { onError }: { onError: (error: unknown) => void }) => {
+      onError(tenantHasUsersError);
+    });
+    const user = userEvent.setup();
+    render(<TenantsView />);
+
+    await user.click(screen.getByRole('button', { name: 'delete-first' }));
+    await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
+
+    mockDeleteMutate.mockImplementationOnce((_variables, { onSuccess }: { onSuccess: () => void }) => {
+      onSuccess();
+    });
+    await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
+
+    expect(mockDeleteMutate).toHaveBeenLastCalledWith(
+      { id: '1', force: true },
+      expect.objectContaining({ onSuccess: expect.any(Function) }),
+    );
+    expect(mockShowToast).toHaveBeenCalledWith('tenants.form.deleteSuccess');
+    expect(screen.queryByTestId('confirm-dialog-stub')).not.toBeInTheDocument();
+  });
+
+  it('closes both dialogs when cancelling out of the cascade force-delete dialog', async () => {
+    const tenantHasUsersError = new axios.AxiosError('Request failed', '409', undefined, undefined, {
+      status: 409,
+      statusText: 'Conflict',
+      headers: {},
+      config: {} as never,
+      data: { error: 'TENANT_HAS_USERS', userCount: 1 },
+    });
+    mockDeleteMutate.mockImplementation((_variables, { onError }: { onError: (error: unknown) => void }) => {
+      onError(tenantHasUsersError);
+    });
+    const user = userEvent.setup();
+    render(<TenantsView />);
+
+    await user.click(screen.getByRole('button', { name: 'delete-first' }));
+    await user.click(screen.getByRole('button', { name: 'confirm-delete' }));
+    await user.click(screen.getByRole('button', { name: 'cancel-delete' }));
+
+    expect(screen.queryByTestId('confirm-dialog-stub')).not.toBeInTheDocument();
   });
 
   it('falls back to a generic error message for an unrecognized delete failure', async () => {

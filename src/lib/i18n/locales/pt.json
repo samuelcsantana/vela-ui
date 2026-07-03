@@ -132,6 +132,11 @@
       "confirm": "Excluir",
       "confirmPending": "Excluindo..."
     },
+    "forceDeleteDialog": {
+      "title": "Atenção: Exclusão em Cascata",
+      "description": "Esta empresa possui {{count}} usuário(s). Deseja excluir permanentemente a empresa E todos os seus usuários? Essa ação não pode ser desfeita.",
+      "confirm": "Excluir Empresa e Usuários"
+    },
     "validation": {
       "nameTooShort": "Informe ao menos 2 caracteres",
       "slugTooShort": "Informe ao menos 2 caracteres",
@@ -139,8 +144,7 @@
       "primaryColorInvalid": "Use uma cor hexadecimal, ex: #0052cc"
     },
     "errors": {
-      "slugTaken": "Este slug já está em uso. Escolha outro.",
-      "hasUsers": "Esta empresa ainda possui usuários. Remova ou reatribua-os primeiro."
+      "slugTaken": "Este slug já está em uso. Escolha outro."
     }
   }
 }

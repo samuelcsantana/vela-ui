@@ -132,6 +132,11 @@
       "confirm": "Delete",
       "confirmPending": "Deleting..."
     },
+    "forceDeleteDialog": {
+      "title": "Attention: Cascade Deletion",
+      "description": "This company has {{count}} user(s). Do you want to permanently delete the company AND all of its users? This cannot be undone.",
+      "confirm": "Delete Company and Users"
+    },
     "validation": {
       "nameTooShort": "Enter at least 2 characters",
       "slugTooShort": "Enter at least 2 characters",
@@ -139,8 +144,7 @@
       "primaryColorInvalid": "Use a hex color, e.g. #0052cc"
     },
     "errors": {
-      "slugTaken": "This slug is already taken. Please choose another one.",
-      "hasUsers": "This tenant still has users. Remove or reassign them first."
+      "slugTaken": "This slug is already taken. Please choose another one."
     }
   }
 }

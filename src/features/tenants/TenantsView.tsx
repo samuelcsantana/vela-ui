@@ -1,8 +1,8 @@
+import axios from 'axios';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ConfirmDialog } from '../../components/ConfirmDialog';
-import { getApiErrorMessage } from '../../lib/api';
 import { useToastStore } from '../../store/toast-store';
 import { useAuthStore } from '../auth/store/auth-store';
 import { CreateTenantForm } from './components/CreateTenantForm';
@@ -11,12 +11,16 @@ import { TenantsTable } from './components/TenantsTable';
 import { useDeleteTenant, useTenants } from './hooks/use-tenants';
 import type { Tenant } from './api/tenants-api';
 
-const KNOWN_DELETE_ERROR_KEYS: Record<string, string> = {
-  'Tenant still has users and cannot be deleted': 'tenants.errors.hasUsers',
-};
+// Returns the reported user count when the API refuses to delete a tenant that still
+// has users (409 { error: 'TENANT_HAS_USERS', userCount }), or null for any other error.
+function getTenantHasUsersCount(error: unknown): number | null {
+  if (!axios.isAxiosError(error) || error.response?.status !== 409) {
+    return null;
+  }
 
-const getDeleteTenantErrorKey = (apiMessage: string | undefined): string =>
-  (apiMessage && KNOWN_DELETE_ERROR_KEYS[apiMessage]) || 'tenants.form.deleteSubmitError';
+  const data = error.response.data as { error?: string; userCount?: number };
+  return data.error === 'TENANT_HAS_USERS' ? (data.userCount ?? 0) : null;
+}
 
 export const TenantsView = () => {
   const { t } = useTranslation();
@@ -26,17 +30,21 @@ export const TenantsView = () => {
   const [isCreateFormOpen, setIsCreateFormOpen] = useState(false);
   const [editingTenant, setEditingTenant] = useState<Tenant | null>(null);
   const [deletingTenant, setDeletingTenant] = useState<Tenant | null>(null);
+  const [isForceDeleteModalOpen, setIsForceDeleteModalOpen] = useState(false);
+  const [usersToDeleteCount, setUsersToDeleteCount] = useState(0);
   const { data: tenants, isLoading, isError } = useTenants();
   const deleteTenantMutation = useDeleteTenant();
 
   const openDeleteDialog = (tenant: Tenant) => {
     deleteTenantMutation.reset();
     setDeletingTenant(tenant);
+    setIsForceDeleteModalOpen(false);
   };
 
-  const closeDeleteDialog = () => {
+  const closeDeleteDialogs = () => {
     deleteTenantMutation.reset();
     setDeletingTenant(null);
+    setIsForceDeleteModalOpen(false);
   };
 
   const handleConfirmDelete = () => {
@@ -47,17 +55,47 @@ export const TenantsView = () => {
       return;
     }
 
-    deleteTenantMutation.mutate(deletingTenant.id, {
-      onSuccess: () => {
-        showToast(t('tenants.form.deleteSuccess'));
-        setDeletingTenant(null);
+    deleteTenantMutation.mutate(
+      { id: deletingTenant.id },
+      {
+        onSuccess: () => {
+          showToast(t('tenants.form.deleteSuccess'));
+          closeDeleteDialogs();
+        },
+        onError: (error) => {
+          const userCount = getTenantHasUsersCount(error);
+          if (userCount === null) {
+            return;
+          }
+
+          // The tenant still has users: skip the generic error toast and escalate to the
+          // cascade-delete confirmation instead.
+          deleteTenantMutation.reset();
+          setUsersToDeleteCount(userCount);
+          setIsForceDeleteModalOpen(true);
+        },
       },
-    });
+    );
   };
 
-  const deleteErrorMessage = deleteTenantMutation.isError
-    ? t(getDeleteTenantErrorKey(getApiErrorMessage(deleteTenantMutation.error)))
-    : '';
+  const handleConfirmForceDelete = () => {
+    /* v8 ignore next 3 */
+    if (!deletingTenant) {
+      return;
+    }
+
+    deleteTenantMutation.mutate(
+      { id: deletingTenant.id, force: true },
+      {
+        onSuccess: () => {
+          showToast(t('tenants.form.deleteSuccess'));
+          closeDeleteDialogs();
+        },
+      },
+    );
+  };
+
+  const deleteErrorMessage = deleteTenantMutation.isError ? t('tenants.form.deleteSubmitError') : '';
 
   return (
     <div className="flex w-full max-w-4xl flex-col gap-4 p-4 md:p-6">
@@ -86,7 +124,7 @@ export const TenantsView = () => {
       <CreateTenantForm isOpen={isCreateFormOpen} onClose={() => setIsCreateFormOpen(false)} />
       <EditTenantForm tenant={editingTenant} onClose={() => setEditingTenant(null)} />
       <ConfirmDialog
-        isOpen={deletingTenant !== null}
+        isOpen={deletingTenant !== null && !isForceDeleteModalOpen}
         title={t('tenants.deleteDialog.title')}
         description={t('tenants.deleteDialog.description', { name: deletingTenant?.name ?? '' })}
         confirmLabel={deleteTenantMutation.isPending ? t('tenants.deleteDialog.confirmPending') : t('tenants.deleteDialog.confirm')}
@@ -95,7 +133,21 @@ export const TenantsView = () => {
         isDestructive
         errorMessage={deleteErrorMessage}
         onConfirm={handleConfirmDelete}
-        onCancel={closeDeleteDialog}
+        onCancel={closeDeleteDialogs}
+      />
+      <ConfirmDialog
+        isOpen={deletingTenant !== null && isForceDeleteModalOpen}
+        title={t('tenants.forceDeleteDialog.title')}
+        description={t('tenants.forceDeleteDialog.description', { count: usersToDeleteCount })}
+        confirmLabel={
+          deleteTenantMutation.isPending ? t('tenants.deleteDialog.confirmPending') : t('tenants.forceDeleteDialog.confirm')
+        }
+        cancelLabel={t('common.cancel')}
+        isLoading={deleteTenantMutation.isPending}
+        isDestructive
+        errorMessage={deleteErrorMessage}
+        onConfirm={handleConfirmForceDelete}
+        onCancel={closeDeleteDialogs}
       />
     </div>
   );

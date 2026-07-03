@@ -147,12 +147,27 @@ describe('useDeleteTenant', () => {
     const { result } = renderHook(() => useDeleteTenant(), { wrapper: createQueryWrapper(queryClient) });
 
     act(() => {
-      result.current.mutate('1');
+      result.current.mutate({ id: '1' });
     });
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
-    expect(mockDeleteTenant).toHaveBeenCalledWith('1');
+    expect(mockDeleteTenant).toHaveBeenCalledWith('1', { force: undefined });
     expect(queryClient.getQueryData(['tenants'])).toEqual([]);
+  });
+
+  it('passes force through to the API when cascade-deleting', async () => {
+    mockDeleteTenant.mockResolvedValue(undefined);
+    const queryClient = createTestQueryClient();
+    queryClient.setQueryData(['tenants'], MOCK_TENANTS);
+
+    const { result } = renderHook(() => useDeleteTenant(), { wrapper: createQueryWrapper(queryClient) });
+
+    act(() => {
+      result.current.mutate({ id: '1', force: true });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockDeleteTenant).toHaveBeenCalledWith('1', { force: true });
   });
 
   it('leaves the cache untouched when the mutation fails', async () => {
@@ -163,7 +178,7 @@ describe('useDeleteTenant', () => {
     const { result } = renderHook(() => useDeleteTenant(), { wrapper: createQueryWrapper(queryClient) });
 
     act(() => {
-      result.current.mutate('1');
+      result.current.mutate({ id: '1' });
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));

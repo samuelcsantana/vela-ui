@@ -45,13 +45,18 @@ export function useUpdateTenant(): UseMutationResult<Tenant, unknown, UpdateTena
   });
 }
 
-export function useDeleteTenant(): UseMutationResult<void, unknown, string> {
+interface DeleteTenantVariables {
+  id: string;
+  force?: boolean;
+}
+
+export function useDeleteTenant(): UseMutationResult<void, unknown, DeleteTenantVariables> {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => deleteTenant(id),
+    mutationFn: ({ id, force }: DeleteTenantVariables) => deleteTenant(id, { force }),
     // Removes the row from the cache directly instead of refetching, so the table updates instantly.
-    onSuccess: (_data, id) => {
+    onSuccess: (_data, { id }) => {
       queryClient.setQueryData<Tenant[]>(TENANTS_QUERY_KEY, (previous) => previous?.filter((tenant) => tenant.id !== id));
     },
   });

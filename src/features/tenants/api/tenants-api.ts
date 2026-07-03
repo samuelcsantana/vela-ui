@@ -74,9 +74,10 @@ export async function updateTenant(id: string, input: UpdateTenantInput): Promis
   return data;
 }
 
-// DELETE /api/tenants/{id} — admin only. Fails with 409 if the tenant still has users.
-export async function deleteTenant(id: string): Promise<void> {
-  await api.delete(`/tenants/${id}`);
+// DELETE /api/tenants/{id} — admin only. Fails with 409 ({ error: 'TENANT_HAS_USERS', userCount })
+// if the tenant still has users; pass force: true to cascade-delete the tenant and its users.
+export async function deleteTenant(id: string, options?: { force?: boolean }): Promise<void> {
+  await api.delete(`/tenants/${id}`, { params: options?.force ? { force: true } : undefined });
 }
 
 // Only the non-sensitive fields exposed by GET /api/tenants/public.
