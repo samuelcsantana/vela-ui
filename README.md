@@ -1,7 +1,7 @@
 # Vela UI
 
 [![CI](https://github.com/samuelcsantana/vela-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelcsantana/vela-ui/actions/workflows/ci.yml)
-[![Test Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](./vitest.config.ts)
+[![codecov](https://codecov.io/gh/samuelcsantana/vela-ui/branch/main/graph/badge.svg)](https://codecov.io/gh/samuelcsantana/vela-ui)
 [![Vulnerabilities](https://img.shields.io/badge/vulnerabilities-0-brightgreen)](https://github.com/samuelcsantana/vela-ui/actions/workflows/ci.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6)](./tsconfig.json)
 
@@ -98,3 +98,4 @@ Every push and pull request to `main` or `develop` runs [`.github/workflows/ci.y
 3. `npm ci`
 4. `npm audit --audit-level=high` — fails the build on any high/critical severity vulnerability
 5. `npm run test:coverage` — fails the build if coverage drops below 100% on any metric
+6. Upload `coverage/lcov.info` to [Codecov](https://codecov.io/gh/samuelcsantana/vela-ui) via `codecov/codecov-action@v4`, authenticated with a `CODECOV_TOKEN` repository secret
