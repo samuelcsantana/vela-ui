@@ -23,7 +23,20 @@
   },
   "dashboard": {
     "welcome": "Bem-vindo à {{appName}}",
-    "subtitle": "Selecione uma opção no menu lateral para começar."
+    "subtitle": "Selecione uma opção no menu lateral para começar.",
+    "kpis": {
+      "totalCompanies": "Total de Empresas",
+      "totalUsers": "Total de Usuários",
+      "activeUsers": "Usuários Ativos",
+      "mrr": "Receita Mensal",
+      "newSignups": "Novos Cadastros",
+      "teamAdmins": "Admins da Equipe"
+    },
+    "charts": {
+      "userGrowth": "Crescimento de Usuários",
+      "usersByCompany": "Usuários por Empresa",
+      "usersByRole": "Usuários por Papel"
+    }
   },
   "auth": {
     "adminPortalNotice": "Portal de Administração do Sistema. Este é um projeto de portfólio — use o botão demo abaixo ou suas próprias credenciais.",
