@@ -38,6 +38,14 @@ const MOCK_TENANTS = [
   { id: 'tenant-beta', name: 'Sicredi' },
 ];
 
+// The shadcn/Radix Select renders a combobox <button> trigger and a listbox of
+// <option>-role items, not a native <select> — so it can't be driven with
+// userEvent.selectOptions. Open it, then click the option by its visible name.
+async function selectOption(user: ReturnType<typeof userEvent.setup>, trigger: HTMLElement, optionName: string) {
+  await user.click(trigger);
+  await user.click(await screen.findByRole('option', { name: optionName }));
+}
+
 describe('CreateUserForm', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -171,7 +179,7 @@ describe('CreateUserForm', () => {
 
     await user.type(screen.getByLabelText('users.fields.email'), 'ana@velaui.demo');
     await user.type(screen.getByLabelText('users.fields.password'), 'secret123');
-    await user.selectOptions(screen.getByLabelText('users.fields.role'), 'ADMIN');
+    await selectOption(user, screen.getByLabelText('users.fields.role'), 'ADMIN');
     await user.click(screen.getByRole('button', { name: 'common.save' }));
 
     await waitFor(() =>
@@ -250,8 +258,8 @@ describe('CreateUserForm', () => {
 
       await user.type(screen.getByLabelText('users.fields.email'), 'bruno@velaui.demo');
       await user.type(screen.getByLabelText('users.fields.password'), 'secret123');
-      await user.selectOptions(screen.getByLabelText('users.fields.role'), 'ADMIN');
-      await user.selectOptions(screen.getByLabelText('users.fields.tenant'), 'tenant-beta');
+      await selectOption(user, screen.getByLabelText('users.fields.role'), 'ADMIN');
+      await selectOption(user, screen.getByLabelText('users.fields.tenant'), 'Sicredi');
       await user.click(screen.getByRole('button', { name: 'common.save' }));
 
       await waitFor(() =>

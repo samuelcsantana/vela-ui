@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../components/ui/select';
 import { useAuthStore } from '../../auth/store/auth-store';
 import { useTenants } from '../../tenants/hooks/use-tenants';
 import { useToastStore } from '../../../store/toast-store';
@@ -35,14 +36,19 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     reset,
     formState: { errors },
   } = useForm<CreateUserValues>({
     resolver: zodResolver(createUserSchema),
-    // A plain ADMIN never sees the tenant <select>, so its tenantId is silently
+    // A plain ADMIN never sees the tenant select, so its tenantId is silently
     // pre-filled with their own; VELA_ADMIN must actively pick one.
     defaultValues: { email: '', password: '', role: 'MEMBER', tenantId: isVelaAdmin ? '' : (authTenantId ?? '') },
   });
+
+  const roleValue = watch('role');
+  const tenantIdValue = watch('tenantId');
 
   const handleClose = () => {
     reset();
@@ -190,10 +196,20 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
             <label htmlFor="role" className="text-sm font-medium text-slate-700 dark:text-gray-300">
               {t('users.fields.role')}
             </label>
-            <select id="role" className={FIELD_CLASSNAME} {...register('role')}>
-              <option value="MEMBER">MEMBER</option>
-              <option value="ADMIN">ADMIN</option>
-            </select>
+            <Select
+              value={roleValue}
+              onValueChange={(value) =>
+                setValue('role', value as CreateUserValues['role'], { shouldValidate: true, shouldDirty: true })
+              }
+            >
+              <SelectTrigger id="role" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="MEMBER">MEMBER</SelectItem>
+                <SelectItem value="ADMIN">ADMIN</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {isVelaAdmin ? (
@@ -201,21 +217,27 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               <label htmlFor="tenantId" className="text-sm font-medium text-slate-700 dark:text-gray-300">
                 {t('users.fields.tenant')}
               </label>
-              <select
-                id="tenantId"
-                aria-invalid={Boolean(errors.tenantId)}
-                aria-describedby={errors.tenantId ? 'tenantId-error' : undefined}
-                className={FIELD_CLASSNAME}
+              <Select
+                value={tenantIdValue}
+                onValueChange={(value) => setValue('tenantId', value, { shouldValidate: true, shouldDirty: true })}
                 disabled={tenantsQuery.isLoading}
-                {...register('tenantId')}
               >
-                <option value="">{t('users.form.tenantPlaceholder')}</option>
-                {tenantsQuery.data?.map((tenant) => (
-                  <option key={tenant.id} value={tenant.id}>
-                    {tenant.name}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger
+                  id="tenantId"
+                  aria-invalid={Boolean(errors.tenantId)}
+                  aria-describedby={errors.tenantId ? 'tenantId-error' : undefined}
+                  className="w-full"
+                >
+                  <SelectValue placeholder={t('users.form.tenantPlaceholder')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {tenantsQuery.data?.map((tenant) => (
+                    <SelectItem key={tenant.id} value={tenant.id}>
+                      {tenant.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
               {tenantsQuery.isLoading ? <p className={HELPER_TEXT_CLASSNAME}>{t('users.form.tenantLoading')}</p> : null}
               {tenantsQuery.isError ? (
                 <p role="alert" className="text-sm text-red-600 dark:text-red-400">
