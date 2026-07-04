@@ -31,6 +31,9 @@
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
+  "overrides": {
+    "glob": "^13.0.0"
+  },
   "devDependencies": {
     "@axe-core/react": "^4.12.1",
     "@rsbuild/core": "^2.1.1",
