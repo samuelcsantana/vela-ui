@@ -4,6 +4,8 @@
 *.log
 *.log.*
 .env
+.env.*
+!.env.example
 
 # Dist
 node_modules
