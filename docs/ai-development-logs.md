@@ -1,4 +1,4 @@
-# AGENTS.md
+# AI Development Logs
 
 You are an expert in JavaScript, Rsbuild, and web application development. You write maintainable, performant, and accessible code.
 
