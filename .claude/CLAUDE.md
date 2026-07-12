@@ -1,7 +1,7 @@
 # Vela UI - System Context & AI Agent Rules
 
 ## 🎯 Project Objective
-Vela is a **multi-tenant SaaS platform** built as a portfolio piece whose explicit audience is recruiters and technical evaluators. This repo is the front-end: its job is to make the multi-tenancy story *visible* — RBAC-driven dashboards (a `VELA_ADMIN` sees the whole platform, a tenant `ADMIN`/`MEMBER` only their company), white-label theming per tenant, and defensive UX around destructive operations. The backend is the sibling repo **vela-core** (Fastify + Prisma, deployed on Render); this app deploys on Vercel at https://vela-ui-scapps.vercel.app.
+Vela is a **multi-tenant SaaS platform** built as a portfolio piece whose explicit audience is recruiters and technical evaluators. This repo is the front-end: its job is to make the multi-tenancy story *visible* — RBAC-driven dashboards (a `VELA_ADMIN` sees the whole platform, a tenant `ADMIN`/`MEMBER` only their company), white-label theming per tenant, and defensive UX around destructive operations. The backend is the sibling repo **vela-core** (Fastify + Prisma, deployed on Render); this app deploys on Vercel at https://vela-ui-drab.vercel.app.
 
 ## 🌍 Language & Localization
 - **STRICT RULE:** The entire codebase MUST be written in English - components, variables, comments, documentation, commit messages.
