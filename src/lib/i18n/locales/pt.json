@@ -99,7 +99,8 @@
       "password": "Senha",
       "role": "Papel",
       "tenant": "Empresa",
-      "dateJoined": "Data de entrada"
+      "dateJoined": "Data de entrada",
+      "actions": "Ações"
     },
     "search": {
       "label": "Buscar usuário por email",
@@ -111,13 +112,28 @@
       "error": "Não foi possível carregar os usuários.",
       "empty": "Nenhum usuário encontrado."
     },
+    "editUser": "Editar usuário",
+    "deleteUser": "Excluir usuário",
     "form": {
       "title": "Adicionar usuário",
+      "editTitle": "Editar usuário",
       "submitError": "Não foi possível criar o usuário. Tente novamente.",
+      "editSubmitError": "Não foi possível atualizar o usuário. Tente novamente.",
+      "deleteSubmitError": "Não foi possível excluir o usuário. Tente novamente.",
       "createSuccess": "Usuário criado com sucesso.",
+      "editSuccess": "Usuário atualizado com sucesso.",
+      "deleteSuccess": "Usuário excluído com sucesso.",
+      "passwordPlaceholder": "Deixe em branco para manter a atual",
+      "passwordHelper": "Deixe em branco para manter a senha atual",
       "tenantPlaceholder": "Selecione uma empresa",
       "tenantLoading": "Carregando empresas...",
       "tenantError": "Não foi possível carregar as empresas. Tente novamente."
+    },
+    "deleteDialog": {
+      "title": "Excluir usuário?",
+      "description": "Isso excluirá permanentemente \"{{email}}\". Esta ação não pode ser desfeita.",
+      "confirm": "Excluir",
+      "confirmPending": "Excluindo..."
     },
     "validation": {
       "searchTooLong": "Busca muito longa",
@@ -136,6 +152,9 @@
       "slug": "Slug",
       "primaryColor": "Cor Primária",
       "logo": "Logo",
+      "backgroundColor": "Cor de Fundo",
+      "backgroundImage": "Imagem de Fundo",
+      "logoWidth": "Largura do Logo",
       "dateCreated": "Data de Criação",
       "actions": "Ações"
     },
@@ -153,6 +172,14 @@
       "primaryColorPickerLabel": "Escolher uma cor",
       "logoHelper": "Envie um arquivo de imagem (opcional)",
       "logoPreviewAlt": "Pré-visualização do logo",
+      "backgroundColorHelper": "Usado para o fundo da página de login (opcional)",
+      "backgroundColorPickerLabel": "Escolher cor de fundo",
+      "backgroundImageHelper": "Imagem de fundo para a página de login (opcional)",
+      "backgroundImagePreviewAlt": "Pré-visualização do fundo",
+      "logoWidthHelper": "Define uma largura fixa para o logo, ou deixe vazio para automático",
+      "logoWidthAuto": "Automático",
+      "logoWidthCustom": "Personalizado (px)",
+      "preview": "Pré-visualização",
       "submitError": "Não foi possível criar a empresa. Tente novamente.",
       "editSubmitError": "Não foi possível atualizar a empresa. Tente novamente.",
       "editSuccess": "Empresa atualizada com sucesso.",

@@ -23,6 +23,9 @@ const MOCK_TENANTS: Tenant[] = [
     name: 'Vela Corp',
     primaryColor: '#0052cc',
     logoUrl: null,
+    backgroundColor: null,
+    backgroundImageUrl: null,
+    logoWidth: null,
     createdAt: '2026-01-01T00:00:00.000Z',
   },
 ];
@@ -84,6 +87,30 @@ describe('createTenant', () => {
     expect(sentFormData.has('primaryColor')).toBe(false);
     expect(sentFormData.has('logo')).toBe(false);
   });
+
+  it('appends backgroundColor and logoWidth when provided', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ data: MOCK_TENANTS[0] });
+
+    await createTenant({ name: 'Vela Corp', slug: 'vela', backgroundColor: '#0f172a', logoWidth: 200 });
+
+    const sentFormData = vi.mocked(api.post).mock.calls[0][1] as FormData;
+    expect(formDataToObject(sentFormData)).toEqual({
+      name: 'Vela Corp',
+      slug: 'vela',
+      backgroundColor: '#0f172a',
+      logoWidth: '200',
+    });
+  });
+
+  it('appends the backgroundImage file when provided', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ data: MOCK_TENANTS[0] });
+    const bgFile = new File(['fake-bg'], 'bg.png', { type: 'image/png' });
+
+    await createTenant({ name: 'Vela Corp', slug: 'vela', backgroundImage: bgFile });
+
+    const sentFormData = vi.mocked(api.post).mock.calls[0][1] as FormData;
+    expect(sentFormData.get('backgroundImage')).toBe(bgFile);
+  });
 });
 
 describe('fetchTenantBySlug', () => {
@@ -136,6 +163,25 @@ describe('updateTenant', () => {
 
     const sentFormData = vi.mocked(api.patch).mock.calls[0][1] as FormData;
     expect(formDataToObject(sentFormData)).toEqual({ primaryColor: '#ff0000' });
+  });
+
+  it('appends backgroundColor and logoWidth when provided', async () => {
+    vi.mocked(api.patch).mockResolvedValueOnce({ data: MOCK_TENANTS[0] });
+
+    await updateTenant('tenant-1', { backgroundColor: '#0f172a', logoWidth: 200 });
+
+    const sentFormData = vi.mocked(api.patch).mock.calls[0][1] as FormData;
+    expect(formDataToObject(sentFormData)).toEqual({ backgroundColor: '#0f172a', logoWidth: '200' });
+  });
+
+  it('appends backgroundImage when provided', async () => {
+    vi.mocked(api.patch).mockResolvedValueOnce({ data: MOCK_TENANTS[0] });
+    const bgFile = new File(['fake-bg'], 'bg.png', { type: 'image/png' });
+
+    await updateTenant('tenant-1', { backgroundImage: bgFile });
+
+    const sentFormData = vi.mocked(api.patch).mock.calls[0][1] as FormData;
+    expect(sentFormData.get('backgroundImage')).toBe(bgFile);
   });
 });
 

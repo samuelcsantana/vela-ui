@@ -35,3 +35,19 @@ export async function createUser(input: CreateUserInput): Promise<CreatedUser> {
   const { data } = await api.post<CreatedUser>('/users', input);
   return data;
 }
+
+export interface UpdateUserInput {
+  email?: string;
+  password?: string;
+  role?: 'ADMIN' | 'MEMBER';
+  tenantId?: string;
+}
+
+export async function updateUser(id: string, input: UpdateUserInput): Promise<CreatedUser> {
+  const { data } = await api.patch<CreatedUser>(`/users/${id}`, input);
+  return data;
+}
+
+export async function deleteUser(id: string): Promise<void> {
+  await api.delete(`/users/${id}`);
+}

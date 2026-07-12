@@ -7,6 +7,9 @@ export interface Tenant {
   name: string;
   primaryColor: string | null;
   logoUrl: string | null;
+  backgroundColor: string | null;
+  backgroundImageUrl: string | null;
+  logoWidth: number | null;
   createdAt: string;
 }
 
@@ -21,10 +24,14 @@ export interface CreateTenantInput {
   slug: string;
   primaryColor?: string;
   logo?: File;
+  backgroundColor?: string;
+  backgroundImage?: File;
+  logoWidth?: number;
 }
 
-// POST /api/tenants — admin only. multipart/form-data: the logo file (if any) is
-// uploaded to S3 server-side, which sets logoUrl on the tenant.
+// POST /api/tenants — admin only. multipart/form-data: the logo and backgroundImage
+// files (if any) are uploaded to S3 server-side, which sets logoUrl/backgroundImageUrl
+// on the tenant.
 export async function createTenant(input: CreateTenantInput): Promise<Tenant> {
   const formData = new FormData();
   formData.append('name', input.name);
@@ -32,8 +39,17 @@ export async function createTenant(input: CreateTenantInput): Promise<Tenant> {
   if (input.primaryColor) {
     formData.append('primaryColor', input.primaryColor);
   }
+  if (input.backgroundColor) {
+    formData.append('backgroundColor', input.backgroundColor);
+  }
+  if (input.logoWidth !== undefined) {
+    formData.append('logoWidth', String(input.logoWidth));
+  }
   if (input.logo) {
     formData.append('logo', input.logo);
+  }
+  if (input.backgroundImage) {
+    formData.append('backgroundImage', input.backgroundImage);
   }
 
   const { data } = await api.post<Tenant>('/tenants', formData);
@@ -51,10 +67,13 @@ export interface UpdateTenantInput {
   slug?: string;
   primaryColor?: string;
   logo?: File;
+  backgroundColor?: string;
+  backgroundImage?: File;
+  logoWidth?: number;
 }
 
 // PATCH /api/tenants/{id} — admin only. multipart/form-data; only send fields that
-// changed. A new logo file (if any) is uploaded to S3 server-side, replacing logoUrl.
+// changed. New logo/backgroundImage files (if any) are uploaded to S3 server-side.
 export async function updateTenant(id: string, input: UpdateTenantInput): Promise<Tenant> {
   const formData = new FormData();
   if (input.name !== undefined) {
@@ -66,8 +85,17 @@ export async function updateTenant(id: string, input: UpdateTenantInput): Promis
   if (input.primaryColor !== undefined) {
     formData.append('primaryColor', input.primaryColor);
   }
+  if (input.backgroundColor !== undefined) {
+    formData.append('backgroundColor', input.backgroundColor);
+  }
+  if (input.logoWidth !== undefined) {
+    formData.append('logoWidth', String(input.logoWidth));
+  }
   if (input.logo !== undefined) {
     formData.append('logo', input.logo);
+  }
+  if (input.backgroundImage !== undefined) {
+    formData.append('backgroundImage', input.backgroundImage);
   }
 
   const { data } = await api.patch<Tenant>(`/tenants/${id}`, formData);

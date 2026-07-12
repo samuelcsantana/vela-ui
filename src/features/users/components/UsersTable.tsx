@@ -3,6 +3,7 @@
    mobile, which strips the native table semantics - so every table role
    (rowgroup/row/cell/...) is declared explicitly to keep the table navigable
    for screen readers. The linter can't see CSS and reports them as redundant. */
+import { Pencil, Trash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { RoleBadge } from '../../../components/RoleBadge';
 import { formatDate } from '../../../lib/format';
@@ -13,6 +14,8 @@ interface UsersTableProps {
   isLoading: boolean;
   isError: boolean;
   showTenantColumn: boolean;
+  onEdit: (user: User) => void;
+  onDelete?: (user: User) => void;
 }
 
 const HEADER_CELL_CLASSNAME =
@@ -21,7 +24,7 @@ const CELL_CLASSNAME =
   'flex justify-between items-center md:table-cell py-3 px-4 border-b border-border/70 last:border-0 md:border-0';
 const CELL_LABEL_CLASSNAME = 'md:hidden font-bold text-gray-600 dark:text-gray-400';
 
-export const UsersTable = ({ users, isLoading, isError, showTenantColumn }: UsersTableProps) => {
+export const UsersTable = ({ users, isLoading, isError, showTenantColumn, onEdit, onDelete }: UsersTableProps) => {
   const { t, i18n } = useTranslation();
 
   if (isLoading) {
@@ -68,6 +71,9 @@ export const UsersTable = ({ users, isLoading, isError, showTenantColumn }: User
             <th scope="col" role="columnheader" className={HEADER_CELL_CLASSNAME}>
               {t('users.fields.dateJoined')}
             </th>
+            <th scope="col" role="columnheader" className={HEADER_CELL_CLASSNAME}>
+              {t('users.fields.actions')}
+            </th>
           </tr>
         </thead>
         <tbody role="rowgroup" className="block md:table-row-group">
@@ -106,6 +112,29 @@ export const UsersTable = ({ users, isLoading, isError, showTenantColumn }: User
               <td role="cell" className={`${CELL_CLASSNAME} text-muted-foreground`}>
                 <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.dateJoined')}</span>
                 {formatDate(user.createdAt, i18n.language)}
+              </td>
+              <td role="cell" className={CELL_CLASSNAME}>
+                <span className={CELL_LABEL_CLASSNAME}>{t('users.fields.actions')}</span>
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => onEdit(user)}
+                    aria-label={t('users.editUser')}
+                    className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white"
+                  >
+                    <Pencil size={16} aria-hidden="true" />
+                  </button>
+                  {onDelete ? (
+                    <button
+                      type="button"
+                      onClick={() => onDelete(user)}
+                      aria-label={t('users.deleteUser')}
+                      className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-red-950/40 dark:hover:text-red-400 dark:focus-visible:outline-white"
+                    >
+                      <Trash size={16} aria-hidden="true" />
+                    </button>
+                  ) : null}
+                </div>
               </td>
             </tr>
           ))}

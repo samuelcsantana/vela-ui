@@ -99,7 +99,8 @@
       "password": "Password",
       "role": "Role",
       "tenant": "Tenant",
-      "dateJoined": "Date Joined"
+      "dateJoined": "Date Joined",
+      "actions": "Actions"
     },
     "search": {
       "label": "Search user by email",
@@ -111,13 +112,28 @@
       "error": "Unable to load users.",
       "empty": "No users found."
     },
+    "editUser": "Edit user",
+    "deleteUser": "Delete user",
     "form": {
       "title": "Add user",
+      "editTitle": "Edit user",
       "submitError": "Unable to create user. Please try again.",
+      "editSubmitError": "Unable to update user. Please try again.",
+      "deleteSubmitError": "Unable to delete user. Please try again.",
       "createSuccess": "User created successfully.",
+      "editSuccess": "User updated successfully.",
+      "deleteSuccess": "User deleted successfully.",
+      "passwordPlaceholder": "Leave blank to keep current",
+      "passwordHelper": "Leave blank to keep the current password",
       "tenantPlaceholder": "Select a company",
       "tenantLoading": "Loading companies...",
       "tenantError": "Unable to load companies. Please try again."
+    },
+    "deleteDialog": {
+      "title": "Delete user?",
+      "description": "This will permanently delete \"{{email}}\". This action cannot be undone.",
+      "confirm": "Delete",
+      "confirmPending": "Deleting..."
     },
     "validation": {
       "searchTooLong": "Search is too long",
@@ -136,6 +152,9 @@
       "slug": "Slug",
       "primaryColor": "Primary Color",
       "logo": "Logo",
+      "backgroundColor": "Background Color",
+      "backgroundImage": "Background Image",
+      "logoWidth": "Logo Width",
       "dateCreated": "Date Created",
       "actions": "Actions"
     },
@@ -153,6 +172,14 @@
       "primaryColorPickerLabel": "Pick a color",
       "logoHelper": "Upload an image file (optional)",
       "logoPreviewAlt": "Logo preview",
+      "backgroundColorHelper": "Used for the login page background (optional)",
+      "backgroundColorPickerLabel": "Pick a background color",
+      "backgroundImageHelper": "Background image for the login page (optional)",
+      "backgroundImagePreviewAlt": "Background preview",
+      "logoWidthHelper": "Set a fixed width for the logo, or leave empty for auto-sizing",
+      "logoWidthAuto": "Auto",
+      "logoWidthCustom": "Custom (px)",
+      "preview": "Preview",
       "submitError": "Unable to create the tenant. Please try again.",
       "editSubmitError": "Unable to update the tenant. Please try again.",
       "editSuccess": "Tenant updated successfully.",

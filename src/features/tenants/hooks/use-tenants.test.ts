@@ -17,7 +17,7 @@ const mockUpdateTenant = vi.mocked(updateTenant);
 const mockDeleteTenant = vi.mocked(deleteTenant);
 
 const MOCK_TENANTS: Tenant[] = [
-  { id: '1', slug: 'vela', name: 'Vela Corp', primaryColor: '#0052cc', logoUrl: null, createdAt: '2026-01-01T00:00:00.000Z' },
+  { id: '1', slug: 'vela', name: 'Vela Corp', primaryColor: '#0052cc', logoUrl: null, backgroundColor: null, backgroundImageUrl: null, logoWidth: null, createdAt: '2026-01-01T00:00:00.000Z' },
 ];
 
 describe('useTenants', () => {
@@ -66,6 +66,9 @@ describe('useCreateTenant', () => {
       name: 'Sicredi',
       primaryColor: null,
       logoUrl: null,
+      backgroundColor: null,
+      backgroundImageUrl: null,
+      logoWidth: null,
       createdAt: '2026-01-02T00:00:00.000Z',
     };
     mockCreateTenant.mockResolvedValue(createdTenant);
@@ -110,6 +113,9 @@ describe('useUpdateTenant', () => {
       name: 'Vela Corp Updated',
       primaryColor: '#0052cc',
       logoUrl: null,
+      backgroundColor: null,
+      backgroundImageUrl: null,
+      logoWidth: null,
       createdAt: '2026-01-01T00:00:00.000Z',
     };
     mockUpdateTenant.mockResolvedValue(updatedTenant);
