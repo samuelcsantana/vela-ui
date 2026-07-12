@@ -1,6 +1,6 @@
 # Vela SaaS - Multi-tenant Architecture Portfolio
 
-### 🚀 [**Live Production Demo →**](https://vela-ui-scapps.vercel.app)
+### 🚀 [**Live Production Demo →**](https://vela-ui-drab.vercel.app)
 
 [![CI](https://github.com/samuelcsantana/vela-ui/actions/workflows/ci.yml/badge.svg)](https://github.com/samuelcsantana/vela-ui/actions/workflows/ci.yml)
 [![codecov](https://codecov.io/gh/samuelcsantana/vela-ui/branch/main/graph/badge.svg)](https://codecov.io/gh/samuelcsantana/vela-ui)
