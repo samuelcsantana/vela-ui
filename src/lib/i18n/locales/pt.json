@@ -166,7 +166,16 @@
     },
     "form": {
       "title": "Nova empresa",
+      "createSubtitle": "Configure uma empresa com URL de login e marca próprias.",
       "editTitle": "Editar empresa",
+      "editSubtitle": "Atualize o perfil e a identidade white-label da empresa.",
+      "sections": {
+        "identity": "Identidade",
+        "branding": "Marca",
+        "images": "Imagens"
+      },
+      "uploadCta": "Clique para enviar uma imagem",
+      "previewLive": "Ao vivo",
       "slugHelper": "Define a URL de login da empresa. Ex: /sicredi/login",
       "primaryColorHelper": "Usado para a marca White-label (opcional)",
       "primaryColorPickerLabel": "Escolher uma cor",

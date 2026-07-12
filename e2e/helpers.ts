@@ -34,6 +34,9 @@ export const ACME_TENANT = {
   slug: 'acme',
   primaryColor: '#ff5733',
   logoUrl: null,
+  backgroundColor: '#1f2937',
+  backgroundImageUrl: null,
+  logoWidth: null,
   createdAt: '2026-07-01T12:00:00.000Z',
 };
 
@@ -43,6 +46,9 @@ export const VELA_TENANT = {
   slug: 'vela',
   primaryColor: null,
   logoUrl: null,
+  backgroundColor: null,
+  backgroundImageUrl: null,
+  logoWidth: null,
   createdAt: '2026-06-01T12:00:00.000Z',
 };
 
