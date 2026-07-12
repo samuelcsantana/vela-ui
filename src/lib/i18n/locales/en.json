@@ -189,6 +189,7 @@
       "logoWidthAuto": "Auto",
       "logoWidthCustom": "Custom (px)",
       "preview": "Preview",
+      "previewToggle": "Show or hide the preview",
       "submitError": "Unable to create the tenant. Please try again.",
       "editSubmitError": "Unable to update the tenant. Please try again.",
       "editSuccess": "Tenant updated successfully.",
