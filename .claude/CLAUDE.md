@@ -26,7 +26,7 @@ Vela is a **multi-tenant SaaS platform** built as a portfolio piece whose explic
 ## 🧪 Quality Gates
 - `npm run lint` (eslint flat config: typescript-eslint typeChecked + react-hooks + jsx-a11y) and `npm run typecheck` must pass with zero errors; CI enforces both plus the build (`ci.yml`).
 - `security.yml` runs `npm audit --audit-level=high` + a secretlint sweep (weekly cron too); locally husky + lint-staged run secretlint on every commit - never bypass with `--no-verify`.
-- `tests.yml` runs the suite with coverage; the 100% threshold makes it a gate, not a report. Codecov gets the lcov upload.
+- `tests.yml` runs the suite with coverage (the 100% threshold makes it a gate, not a report; Codecov gets the lcov upload) plus the Playwright e2e job. The e2e suite (`e2e/`, `npm run test:e2e`) mocks every vela-core endpoint via `page.route()` so it runs without a backend - keep new e2e tests self-contained the same way, with fixtures mirroring vela-core's real response shapes (see `e2e/helpers.ts`).
 - Accessibility is a feature here (axe-core in dev, ARIA-complete tables, focus management) - new UI must keep `jsx-a11y` clean without blanket disables.
 
 ## 🌿 Version Control & Git Strategy

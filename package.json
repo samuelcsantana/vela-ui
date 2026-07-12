@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test"
   },
   "lint-staged": {
     "*": "secretlint"
@@ -46,6 +47,7 @@
   "devDependencies": {
     "@axe-core/react": "^4.12.1",
     "@eslint/js": "^9.39.5",
+    "@playwright/test": "^1.61.1",
     "@rsbuild/core": "^2.1.1",
     "@rsbuild/plugin-react": "^2.1.0",
     "@secretlint/secretlint-rule-preset-recommend": "^13.0.2",
