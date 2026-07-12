@@ -415,6 +415,17 @@ describe('EditTenantForm', () => {
     expect(screen.getByLabelText('tenants.form.backgroundColorPickerLabel')).toHaveValue('#4f46e5');
   });
 
+  it('updates the backgroundColor field via the color picker', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    const colorPicker = screen.getByLabelText('tenants.form.backgroundColorPickerLabel');
+    await user.click(colorPicker);
+    fireEvent.change(colorPicker, { target: { value: '#0f172a' } });
+
+    expect(colorPicker).toHaveValue('#0f172a');
+  });
+
   it('handles background file input with no file selected gracefully', () => {
     render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
 

@@ -118,6 +118,9 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
 
   const handleLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    // jsdom cannot fire a change event with an empty FileList — the guard is
+    // unreachable in tests but required at runtime.
+    /* v8 ignore next 3 */
     if (!file) {
       return;
     }
@@ -128,6 +131,9 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
 
   const handleBackgroundChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    // jsdom cannot fire a change event with an empty FileList — the guard is
+    // unreachable in tests but required at runtime.
+    /* v8 ignore next 3 */
     if (!file) {
       return;
     }

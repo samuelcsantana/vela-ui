@@ -262,7 +262,7 @@ describe('UsersView', () => {
     expect(screen.queryByTestId('confirm-dialog-stub')).not.toBeInTheDocument();
   });
 
-  it('shows the pending label while the delete is in progress', async () => {
+  it('shows the pending label while the delete is in progress', () => {
     mockUseDeleteUser.mockReturnValue({ mutate: mockDeleteMutate, isPending: true, isError: false, error: null, reset: vi.fn() });
     mockUseAuthStore.mockImplementation((selector) => selector({ user: { role: 'VELA_ADMIN' } }));
     render(<UsersView />);
