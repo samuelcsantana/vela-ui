@@ -166,7 +166,16 @@
     },
     "form": {
       "title": "New tenant",
+      "createSubtitle": "Set up a company with its own login URL and branding.",
       "editTitle": "Edit tenant",
+      "editSubtitle": "Update the company profile and white-label branding.",
+      "sections": {
+        "identity": "Identity",
+        "branding": "Branding",
+        "images": "Images"
+      },
+      "uploadCta": "Click to upload an image",
+      "previewLive": "Live",
       "slugHelper": "Defines the tenant's login URL. E.g.: /sicredi/login",
       "primaryColorHelper": "Used for White-label branding (optional)",
       "primaryColorPickerLabel": "Pick a color",

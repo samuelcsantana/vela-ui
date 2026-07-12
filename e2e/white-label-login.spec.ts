@@ -19,6 +19,9 @@ test.describe('white-label tenant login', () => {
       document.documentElement.style.getPropertyValue('--tenant-brand'),
     );
     expect(brandColor).toBe('#ff5733');
+
+    // The tenant's backgroundColor white-labels the page itself (#1f2937 = rgb(31, 41, 55)).
+    await expect(page.getByRole('main')).toHaveCSS('background-color', 'rgb(31, 41, 55)');
   });
 
   test('shows the not-found screen for a slug that does not exist', async ({ page }) => {

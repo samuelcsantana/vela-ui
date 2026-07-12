@@ -4,6 +4,8 @@ import type { MouseEvent } from 'react';
 interface UseDialogOptions {
   isOpen: boolean;
   onClose: () => void;
+  /** CSS selector for the element to focus on open; falls back to the first focusable element. */
+  initialFocus?: string;
 }
 
 const FOCUSABLE_SELECTOR =
@@ -13,7 +15,7 @@ const FOCUSABLE_SELECTOR =
  * Shared dialog behavior: body scroll lock, focus trap, Escape-to-close,
  * focus restoration, and backdrop-click dismissal via the returned overlay props.
  */
-export const useDialog = ({ isOpen, onClose }: UseDialogOptions) => {
+export const useDialog = ({ isOpen, onClose, initialFocus }: UseDialogOptions) => {
   const dialogRef = useRef<HTMLDivElement>(null);
 
   // Body scroll lock while the dialog is open.
@@ -41,9 +43,13 @@ export const useDialog = ({ isOpen, onClose }: UseDialogOptions) => {
     const getFocusableElements = () =>
       Array.from(dialogRef.current!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
 
-    // Focuses the first element (Cancel before Confirm in ConfirmDialog), so a
-    // destructive action is never triggered by a stray Enter press.
-    getFocusableElements()[0]?.focus();
+    // Without an initialFocus selector, the first element gets focus (Cancel before
+    // Confirm in ConfirmDialog), so a destructive action is never triggered by a
+    // stray Enter press. Forms pass their first field instead.
+    const initialFocusTarget = initialFocus
+      ? dialogRef.current!.querySelector<HTMLElement>(initialFocus)
+      : null;
+    (initialFocusTarget ?? getFocusableElements()[0])?.focus();
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -77,7 +83,7 @@ export const useDialog = ({ isOpen, onClose }: UseDialogOptions) => {
       document.removeEventListener('keydown', handleKeyDown);
       previouslyFocusedElement?.focus();
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, initialFocus]);
 
   const overlayProps = {
     role: 'presentation',

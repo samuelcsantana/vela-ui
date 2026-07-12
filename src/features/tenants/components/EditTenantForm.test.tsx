@@ -292,6 +292,33 @@ describe('EditTenantForm', () => {
     expect(mockMutate).not.toHaveBeenCalled();
   });
 
+  it('shows a validation error when backgroundColor is typed as an invalid hex', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    const backgroundColorInput = screen.getByLabelText('tenants.fields.backgroundColor');
+    await user.type(backgroundColorInput, 'not-a-hex');
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+    expect(await screen.findByText('tenants.validation.primaryColorInvalid')).toBeInTheDocument();
+    expect(backgroundColorInput).toHaveAttribute('aria-invalid', 'true');
+    expect(mockMutate).not.toHaveBeenCalled();
+  });
+
+  it('shows a validation error when the custom logo width is below the minimum', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    await user.click(screen.getByText('tenants.form.logoWidthCustom'));
+    const logoWidthInput = document.getElementById('logoWidth') as HTMLInputElement;
+    await user.type(logoWidthInput, '5');
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+    expect(await screen.findByText('tenants.validation.logoWidthTooSmall')).toBeInTheDocument();
+    expect(logoWidthInput).toHaveAttribute('aria-invalid', 'true');
+    expect(mockMutate).not.toHaveBeenCalled();
+  });
+
   it('sends undefined for primaryColor when it is dirtied and cleared to empty', async () => {
     mockMutate.mockImplementation((_variables, { onSuccess }: { onSuccess: () => void }) => {
       onSuccess();
@@ -305,6 +332,40 @@ describe('EditTenantForm', () => {
     await waitFor(() =>
       expect(mockMutate).toHaveBeenCalledWith(
         { id: 'tenant-1', input: { primaryColor: undefined } },
+        expect.objectContaining({ onSuccess: expect.any(Function) }),
+      ),
+    );
+  });
+
+  it('starts in custom logo width mode when the tenant has a stored width, and restores it on close', async () => {
+    const onClose = vi.fn();
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={{ ...MOCK_TENANT, logoWidth: 200 }} onClose={onClose} />);
+
+    expect(document.getElementById('logoWidth')).toHaveValue(200);
+
+    await user.click(screen.getByRole('button', { name: 'common.cancel' }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it('sends the selected background image and undefined for a cleared backgroundColor', async () => {
+    mockMutate.mockImplementation((_variables, { onSuccess }: { onSuccess: () => void }) => {
+      onSuccess();
+    });
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={{ ...MOCK_TENANT, backgroundColor: '#123456' }} onClose={vi.fn()} />);
+
+    await user.clear(screen.getByLabelText('tenants.fields.backgroundColor'));
+    const file = new File(['fake-bg'], 'bg.png', { type: 'image/png' });
+    await user.upload(screen.getByLabelText('tenants.fields.backgroundImage'), file);
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+    await waitFor(() =>
+      expect(mockMutate).toHaveBeenCalledWith(
+        {
+          id: 'tenant-1',
+          input: { backgroundColor: undefined, backgroundImage: file },
+        },
         expect.objectContaining({ onSuccess: expect.any(Function) }),
       ),
     );

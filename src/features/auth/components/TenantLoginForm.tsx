@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { LanguageToggle, LIGHT_TOGGLE_CLASSNAME } from '../../../components/LanguageToggle';
 import { TENANT_BRAND_CSS_VAR } from '../../tenants/hooks/use-tenant-branding';
-import { DEFAULT_BRAND_COLOR, TENANT_THEME_FALLBACK } from '../../tenants/theme';
+import { buildLoginBackgroundStyle, DEFAULT_BRAND_COLOR, TENANT_THEME_FALLBACK } from '../../tenants/theme';
 import { loginSchema, type LoginValues } from '../schema';
 import { useAuthStore } from '../store/auth-store';
 
@@ -54,16 +54,28 @@ export const TenantLoginForm = () => {
     }
   });
 
+  // White-label page background (color and/or image); shares the exact function
+  // that renders the live preview in the tenant edit dialog.
+  const pageBackground = buildLoginBackgroundStyle(tenant.backgroundColor, tenant.backgroundImageUrl);
+
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background p-4">
+    <main
+      className="flex min-h-screen items-center justify-center bg-background p-4"
+      style={pageBackground}
+    >
       <div className="fixed right-4 top-4 rounded-lg border border-border bg-card shadow-sm">
         <LanguageToggle className={LIGHT_TOGGLE_CLASSNAME} />
       </div>
 
-      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-sm">
+      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-lg">
         <div className="mb-6 text-center">
           {tenant.logoUrl ? (
-            <img src={tenant.logoUrl} alt={tenant.name} className="mx-auto mb-3 h-10 max-w-full object-contain" />
+            <img
+              src={tenant.logoUrl}
+              alt={tenant.name}
+              className={tenant.logoWidth ? 'mx-auto mb-3 max-w-full object-contain' : 'mx-auto mb-3 h-10 max-w-full object-contain'}
+              style={tenant.logoWidth ? { width: tenant.logoWidth } : undefined}
+            />
           ) : (
             <h1 className="text-2xl font-semibold text-foreground">{tenant.name}</h1>
           )}
