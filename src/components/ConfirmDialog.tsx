@@ -102,14 +102,23 @@ export const ConfirmDialog = ({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onCancel}>
+    <div
+      role="presentation"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      // Only a click on the backdrop itself dismisses - checking currentTarget
+      // replaces the stopPropagation handler the dialog panel used to need.
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          onCancel();
+        }
+      }}
+    >
       <div
         ref={dialogRef}
         role="alertdialog"
         aria-modal="true"
         aria-labelledby={DIALOG_TITLE_ID}
         aria-describedby={DIALOG_DESCRIPTION_ID}
-        onClick={(event) => event.stopPropagation()}
         className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-slate-900"
       >
         <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-slate-900 dark:text-white">
