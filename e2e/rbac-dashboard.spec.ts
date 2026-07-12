@@ -32,7 +32,9 @@ test.describe('RBAC-scoped dashboard', () => {
     await expect(page).toHaveURL('/');
     await expect(page.getByText('Total Companies')).toBeVisible();
     await expect(page.getByText('12', { exact: true })).toBeVisible();
-    await expect(page.getByText('87', { exact: true })).toBeVisible();
+    // 87 is both the Total Users KPI value and the donut center total;
+    // scope to a <p> element so only the KPI card is matched.
+    await expect(page.locator('p').getByText('87', { exact: true })).toBeVisible();
     await expect(page.getByText('Users by Company')).toBeVisible();
     await expect(page.getByText('Recent Signups')).toBeVisible();
     await expect(page.getByText('newest@acme.com')).toBeVisible();
