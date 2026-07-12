@@ -1,9 +1,11 @@
-import { coverageConfigDefaults, defineConfig } from 'vitest/config';
+import { configDefaults, coverageConfigDefaults, defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
+    // e2e/ is Playwright's turf (npm run test:e2e), not Vitest's.
+    exclude: [...configDefaults.exclude, 'e2e/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'html', 'lcov'],
@@ -18,7 +20,9 @@ export default defineConfig({
         'src/test/**',
         'rsbuild.config.ts',
         'vitest.config.ts',
+        'playwright.config.ts',
         'postcss.config.mjs',
+        'e2e/**',
       ],
       thresholds: {
         statements: 100,

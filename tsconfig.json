@@ -19,5 +19,5 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true
   },
-  "include": ["src", "vitest.config.ts", "rsbuild.config.ts"]
+  "include": ["src", "e2e", "vitest.config.ts", "rsbuild.config.ts", "playwright.config.ts"]
 }

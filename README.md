@@ -119,6 +119,10 @@ npm run test:coverage  # single run with a coverage report; fails below 100%
 
 The suite uses Vitest with `jsdom`, Testing Library, and `@testing-library/jest-dom`/`user-event`. External boundaries (TanStack Router, Zustand-backed stores, `react-i18next`, Recharts, Radix UI) are mocked per test file so each unit is verified in isolation. Coverage thresholds (`statements`, `branches`, `functions`, `lines`) are set to 100% in `vitest.config.ts` and enforced in CI.
 
+### End-to-end (Playwright)
+
+`npm run test:e2e` drives the real app in Chromium through the multi-tenant story end to end: route protection and role-based redirects, the RBAC-scoped dashboard (`VELA_ADMIN` sees `scope: GLOBAL` platform metrics, a `MEMBER` only their tenant's), the `TENANT_HAS_USERS` cascade-delete double confirmation, and white-label branding on `/$slug/login`. Every vela-core endpoint is mocked per-test via `page.route()` — the suite is deterministic and needs no backend or database, which is what lets it run in CI on every push (`tests.yml`'s `e2e` job).
+
 ## CI/CD
 
 Every push and pull request to `main` or `develop` runs three workflows:

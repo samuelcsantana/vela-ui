@@ -24,3 +24,7 @@ src/routeTree.gen.ts
 .vscode/*
 !.vscode/extensions.json
 .idea
+
+# Playwright
+playwright-report/
+test-results/
