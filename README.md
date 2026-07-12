@@ -119,15 +119,20 @@ npm run test:coverage  # single run with a coverage report; fails below 100%
 
 The suite uses Vitest with `jsdom`, Testing Library, and `@testing-library/jest-dom`/`user-event`. External boundaries (TanStack Router, Zustand-backed stores, `react-i18next`, Recharts, Radix UI) are mocked per test file so each unit is verified in isolation. Coverage thresholds (`statements`, `branches`, `functions`, `lines`) are set to 100% in `vitest.config.ts` and enforced in CI.
 
+### End-to-end (Playwright)
+
+`npm run test:e2e` drives the real app in Chromium through the multi-tenant story end to end: route protection and role-based redirects, the RBAC-scoped dashboard (`VELA_ADMIN` sees `scope: GLOBAL` platform metrics, a `MEMBER` only their tenant's), the `TENANT_HAS_USERS` cascade-delete double confirmation, and white-label branding on `/$slug/login`. Every vela-core endpoint is mocked per-test via `page.route()` — the suite is deterministic and needs no backend or database, which is what lets it run in CI on every push (`tests.yml`'s `e2e` job).
+
 ## CI/CD
 
-Every push and pull request to `main` or `develop` runs [`.github/workflows/ci.yml`](./.github/workflows/ci.yml):
+Every push and pull request to `main` or `develop` runs three workflows:
 
-1. Checkout
-2. Setup Node.js (with npm cache)
-3. `npm ci`
-4. `npm audit --audit-level=high` — fails the build on any high/critical severity vulnerability
-5. `npm run test:coverage` — fails the build if coverage drops below 100% on any metric
-6. Upload `coverage/lcov.info` to [Codecov](https://codecov.io/gh/samuelcsantana/vela-ui) via `codecov/codecov-action@v4`, authenticated with a `CODECOV_TOKEN` repository secret
+- **[`ci.yml`](./.github/workflows/ci.yml)** — lint (ESLint: typescript-eslint typeChecked + react-hooks + jsx-a11y), typecheck (`tsc --noEmit`) and production build.
+- **[`security.yml`](./.github/workflows/security.yml)** — `npm audit --audit-level=high` plus a full secretlint sweep (also on a weekly cron, to catch new advisories against unchanged code). Locally, a husky pre-commit hook runs secretlint on every commit via lint-staged.
+- **[`tests.yml`](./.github/workflows/tests.yml)** — `npm run test:coverage`, which fails if coverage drops below 100% on any metric, then uploads `coverage/lcov.info` to [Codecov](https://codecov.io/gh/samuelcsantana/vela-ui).
 
 Production deploys are handled by Vercel on every push to `main`, with a `vercel.json` rewrite rule so client-side routes (TanStack Router) resolve correctly on refresh/deep-link instead of 404ing.
+
+## License
+
+Released under the [MIT License](./LICENSE).

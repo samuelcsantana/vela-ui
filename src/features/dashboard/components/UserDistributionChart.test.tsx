@@ -47,6 +47,6 @@ describe('UserDistributionChart', () => {
 
     const cells = screen.getAllByTestId('cell');
     expect(cells).toHaveLength(7);
-    expect(cells[0]).toHaveAttribute('data-fill', cells[6].getAttribute('data-fill') as string);
+    expect(cells[0]).toHaveAttribute('data-fill', cells[6].getAttribute('data-fill'));
   });
 });

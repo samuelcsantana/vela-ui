@@ -1,3 +1,8 @@
+/* eslint-disable jsx-a11y/no-redundant-roles, jsx-a11y/no-interactive-element-to-noninteractive-role --
+   The responsive layout switches the table to `display: block` cards on
+   mobile, which strips the native table semantics - so every table role
+   (rowgroup/row/cell/...) is declared explicitly to keep the table navigable
+   for screen readers. The linter can't see CSS and reports them as redundant. */
 import { Pencil, Trash } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../../lib/format';
