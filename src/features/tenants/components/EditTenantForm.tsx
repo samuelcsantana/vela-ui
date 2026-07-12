@@ -43,6 +43,16 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(tenantLogoUrl);
 
+  // Background image state — same pattern as logo
+  const tenantBackgroundUrl = tenant?.backgroundImageUrl ?? null;
+  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
+  const [backgroundPreviewUrl, setBackgroundPreviewUrl] = useState<string | null>(tenantBackgroundUrl);
+
+  // Logo width mode: derived from whether the tenant already has a configured logoWidth
+  const [logoWidthMode, setLogoWidthMode] = useState<'auto' | 'custom'>(
+    tenant?.logoWidth != null ? 'custom' : 'auto',
+  );
+
   const {
     register,
     handleSubmit,
@@ -55,18 +65,38 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
     // `values` (not `defaultValues`) keeps the form in sync whenever a different
     // tenant is opened for editing, re-computing dirtyFields against the new entity.
     values: tenant
-      ? { name: tenant.name, slug: tenant.slug, primaryColor: tenant.primaryColor ?? DEFAULT_BRAND_COLOR }
+      ? {
+          name: tenant.name,
+          slug: tenant.slug,
+          primaryColor: tenant.primaryColor ?? DEFAULT_BRAND_COLOR,
+          backgroundColor: tenant.backgroundColor ?? '',
+          logoWidth: tenant.logoWidth ?? undefined,
+        }
       : undefined,
   });
 
   const primaryColor = watch('primaryColor');
   const primaryColorSwatchValue = primaryColor && HEX_COLOR_REGEX.test(primaryColor) ? primaryColor : DEFAULT_BRAND_COLOR;
 
+  const backgroundColor = watch('backgroundColor');
+  const backgroundColorSwatchValue =
+    backgroundColor && HEX_COLOR_REGEX.test(backgroundColor) ? backgroundColor : DEFAULT_BRAND_COLOR;
+
+  const watchedName = watch('name');
+  const watchedLogoWidth = watch('logoWidth');
+
   // Resets the locally-selected file and preview whenever a different tenant is opened.
   useEffect(() => {
     setLogoFile(null);
     setLogoPreviewUrl(tenantLogoUrl);
   }, [tenant?.id, tenantLogoUrl]);
+
+  // Resets background image state whenever a different tenant is opened.
+  useEffect(() => {
+    setBackgroundFile(null);
+    setBackgroundPreviewUrl(tenantBackgroundUrl);
+    setLogoWidthMode(tenant?.logoWidth != null ? 'custom' : 'auto');
+  }, [tenant?.id, tenantBackgroundUrl, tenant?.logoWidth]);
 
   // Revokes object URLs created for a locally-selected file; never revokes a remote logoUrl.
   useEffect(() => {
@@ -77,8 +107,20 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
     };
   }, [logoPreviewUrl]);
 
+  // Revokes object URLs created for a locally-selected background image.
+  useEffect(() => {
+    return () => {
+      if (backgroundPreviewUrl?.startsWith('blob:')) {
+        URL.revokeObjectURL(backgroundPreviewUrl);
+      }
+    };
+  }, [backgroundPreviewUrl]);
+
   const handleLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    // jsdom cannot fire a change event with an empty FileList — the guard is
+    // unreachable in tests but required at runtime.
+    /* v8 ignore next 3 */
     if (!file) {
       return;
     }
@@ -87,10 +129,26 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
     setLogoPreviewUrl(URL.createObjectURL(file));
   };
 
+  const handleBackgroundChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    // jsdom cannot fire a change event with an empty FileList — the guard is
+    // unreachable in tests but required at runtime.
+    /* v8 ignore next 3 */
+    if (!file) {
+      return;
+    }
+
+    setBackgroundFile(file);
+    setBackgroundPreviewUrl(URL.createObjectURL(file));
+  };
+
   const handleClose = () => {
     reset();
     setLogoFile(null);
     setLogoPreviewUrl(tenantLogoUrl);
+    setBackgroundFile(null);
+    setBackgroundPreviewUrl(tenantBackgroundUrl);
+    setLogoWidthMode(tenant?.logoWidth != null ? 'custom' : 'auto');
     onClose();
   };
 
@@ -163,11 +221,22 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
   }
 
   const onSubmit = handleSubmit((values) => {
-    const changedFields: { name?: string; slug?: string; primaryColor?: string; logo?: File } = {};
+    const changedFields: {
+      name?: string;
+      slug?: string;
+      primaryColor?: string;
+      logo?: File;
+      backgroundColor?: string;
+      logoWidth?: number;
+      backgroundImage?: File;
+    } = {};
     if (dirtyFields.name) changedFields.name = values.name;
     if (dirtyFields.slug) changedFields.slug = values.slug;
     if (dirtyFields.primaryColor) changedFields.primaryColor = values.primaryColor || undefined;
     if (logoFile) changedFields.logo = logoFile;
+    if (dirtyFields.backgroundColor) changedFields.backgroundColor = values.backgroundColor || undefined;
+    if (dirtyFields.logoWidth) changedFields.logoWidth = values.logoWidth;
+    if (backgroundFile) changedFields.backgroundImage = backgroundFile;
 
     if (Object.keys(changedFields).length === 0) {
       handleClose();
@@ -181,6 +250,7 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
           showToast(t('tenants.form.editSuccess'));
           reset();
           setLogoFile(null);
+          setBackgroundFile(null);
           onClose();
         },
       },
@@ -190,6 +260,22 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
   const errorMessage = updateTenantMutation.isError
     ? t(getEditTenantErrorKey(getApiErrorMessage(updateTenantMutation.error)))
     : '';
+
+  // Build the preview background style
+  const previewBackgroundStyle: React.CSSProperties = {};
+  if (backgroundPreviewUrl) {
+    previewBackgroundStyle.backgroundImage = `url(${backgroundPreviewUrl})`;
+    previewBackgroundStyle.backgroundSize = 'cover';
+    previewBackgroundStyle.backgroundPosition = 'center';
+  }
+  if (backgroundColor && HEX_COLOR_REGEX.test(backgroundColor)) {
+    previewBackgroundStyle.backgroundColor = backgroundColor;
+  } else if (!backgroundPreviewUrl) {
+    previewBackgroundStyle.backgroundColor = '#f8fafc';
+  }
+
+  const previewLogoWidth =
+    watchedLogoWidth && watchedLogoWidth >= 16 ? `${watchedLogoWidth}px` : undefined;
 
   return (
     <div
@@ -315,6 +401,151 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
                 className="mt-1 h-16 w-16 rounded-md border border-slate-200 object-contain dark:border-slate-700"
               />
             ) : null}
+          </div>
+
+          {/* Background Color — same pattern as Primary Color */}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="backgroundColor" className="text-sm font-medium text-foreground">
+              {t('tenants.fields.backgroundColor')}
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="color"
+                aria-label={t('tenants.form.backgroundColorPickerLabel')}
+                value={backgroundColorSwatchValue}
+                onChange={(event) =>
+                  setValue('backgroundColor', event.target.value, { shouldValidate: true, shouldDirty: true })
+                }
+                className="h-11 w-11 shrink-0 cursor-pointer rounded-md border border-slate-300 bg-white p-1 dark:border-slate-700 dark:bg-slate-800"
+              />
+              <input
+                id="backgroundColor"
+                type="text"
+                placeholder="#f8fafc"
+                aria-invalid={Boolean(errors.backgroundColor)}
+                aria-describedby={
+                  errors.backgroundColor
+                    ? 'backgroundColor-helper backgroundColor-error'
+                    : 'backgroundColor-helper'
+                }
+                className={`${FIELD_CLASSNAME} flex-1`}
+                {...register('backgroundColor')}
+              />
+            </div>
+            <p id="backgroundColor-helper" className={HELPER_TEXT_CLASSNAME}>
+              {t('tenants.form.backgroundColorHelper')}
+            </p>
+            <p id="backgroundColor-error" aria-live="polite" className="text-sm text-destructive">
+              {errors.backgroundColor?.message ? t(errors.backgroundColor.message) : ''}
+            </p>
+          </div>
+
+          {/* Background Image — same pattern as Logo */}
+          <div className="flex flex-col gap-1">
+            <label htmlFor="backgroundImage" className="text-sm font-medium text-foreground">
+              {t('tenants.fields.backgroundImage')}
+            </label>
+            <input
+              id="backgroundImage"
+              type="file"
+              accept="image/*"
+              onChange={handleBackgroundChange}
+              className={FILE_FIELD_CLASSNAME}
+            />
+            <p className={HELPER_TEXT_CLASSNAME}>{t('tenants.form.backgroundImageHelper')}</p>
+            {backgroundPreviewUrl ? (
+              <img
+                src={backgroundPreviewUrl}
+                alt={t('tenants.form.backgroundImagePreviewAlt')}
+                className="mt-1 h-16 w-24 rounded-md border border-slate-200 object-cover dark:border-slate-700"
+              />
+            ) : null}
+          </div>
+
+          {/* Logo Width — Auto / Custom radio with conditional number input */}
+          <div className="flex flex-col gap-2">
+            <span className="text-sm font-medium text-foreground">
+              {t('tenants.fields.logoWidth')}
+            </span>
+            <div className="flex gap-4">
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="logoWidthMode"
+                  checked={logoWidthMode === 'auto'}
+                  onChange={() => {
+                    setLogoWidthMode('auto');
+                    setValue('logoWidth', undefined, { shouldDirty: true });
+                  }}
+                  className="cursor-pointer"
+                />
+                <span className="text-sm text-foreground">{t('tenants.form.logoWidthAuto')}</span>
+              </label>
+              <label className="flex cursor-pointer items-center gap-2">
+                <input
+                  type="radio"
+                  name="logoWidthMode"
+                  checked={logoWidthMode === 'custom'}
+                  onChange={() => {
+                    setLogoWidthMode('custom');
+                  }}
+                  className="cursor-pointer"
+                />
+                <span className="text-sm text-foreground">{t('tenants.form.logoWidthCustom')}</span>
+              </label>
+            </div>
+            {logoWidthMode === 'custom' ? (
+              <div className="flex flex-col gap-1">
+                <input
+                  id="logoWidth"
+                  type="number"
+                  min={16}
+                  max={512}
+                  placeholder="200"
+                  aria-invalid={Boolean(errors.logoWidth)}
+                  aria-describedby={errors.logoWidth ? 'logoWidth-error' : undefined}
+                  className={FIELD_CLASSNAME}
+                  {...register('logoWidth', { valueAsNumber: true })}
+                />
+                <p id="logoWidth-error" aria-live="polite" className="text-sm text-destructive">
+                  {errors.logoWidth?.message ? t(errors.logoWidth.message) : ''}
+                </p>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Live Preview */}
+          <div className="rounded-lg border border-slate-200 overflow-hidden">
+            <div className="bg-slate-50 border-b border-slate-200 px-3 py-2">
+              <p className="text-xs font-medium text-slate-500">{t('tenants.form.previewTitle')}</p>
+            </div>
+            <div
+              className="flex flex-col items-center justify-center p-8 min-h-[180px]"
+              style={previewBackgroundStyle}
+            >
+              {logoPreviewUrl ? (
+                <img
+                  src={logoPreviewUrl}
+                  alt=""
+                  className="mb-3 max-w-full object-contain"
+                  style={{
+                    width: previewLogoWidth ?? 'auto',
+                    maxWidth: previewLogoWidth ? previewLogoWidth : '80%',
+                    height: 'auto',
+                  }}
+                />
+              ) : null}
+              <h3
+                className="text-lg font-semibold text-center"
+                style={{ color: primaryColorSwatchValue }}
+              >
+                {watchedName || t('tenants.form.previewPlaceholder')}
+              </h3>
+              <div
+                className="mt-3 h-1 w-16 rounded-full"
+                style={{ backgroundColor: primaryColorSwatchValue }}
+              />
+            </div>
           </div>
 
           <p aria-live="polite" className="text-sm text-destructive">

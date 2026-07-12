@@ -5,7 +5,16 @@ import {
   type UseMutationResult,
   type UseQueryResult,
 } from '@tanstack/react-query';
-import { createUser, fetchUsers, type CreatedUser, type CreateUserInput, type User } from '../api/users-api';
+import {
+  createUser,
+  deleteUser,
+  fetchUsers,
+  updateUser,
+  type CreatedUser,
+  type CreateUserInput,
+  type UpdateUserInput,
+  type User,
+} from '../api/users-api';
 import type { UsersSearchValues } from '../schema';
 
 const USERS_QUERY_KEY = ['users'] as const;
@@ -30,6 +39,28 @@ export function useCreateUser(): UseMutationResult<CreatedUser, Error, CreateUse
 
   return useMutation({
     mutationFn: createUser,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+    },
+  });
+}
+
+export function useUpdateUser(): UseMutationResult<CreatedUser, Error, { id: string; input: UpdateUserInput }> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, input }) => updateUser(id, input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
+    },
+  });
+}
+
+export function useDeleteUser(): UseMutationResult<void, Error, string> {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: deleteUser,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: USERS_QUERY_KEY });
     },

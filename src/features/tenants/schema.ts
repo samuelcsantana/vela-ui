@@ -13,6 +13,17 @@ export const createTenantSchema = z.object({
     .regex(HEX_COLOR_REGEX, 'tenants.validation.primaryColorInvalid')
     .optional()
     .or(z.literal('')),
+  backgroundColor: z
+    .string()
+    .regex(HEX_COLOR_REGEX, 'tenants.validation.primaryColorInvalid')
+    .optional()
+    .or(z.literal('')),
+  logoWidth: z
+    .number()
+    .int()
+    .min(16, 'tenants.validation.logoWidthTooSmall')
+    .max(512, 'tenants.validation.logoWidthTooLarge')
+    .optional(),
 });
 
 export type CreateTenantValues = z.infer<typeof createTenantSchema>;

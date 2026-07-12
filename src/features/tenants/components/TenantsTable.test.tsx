@@ -13,8 +13,8 @@ vi.mock('react-i18next', () => ({
 }));
 
 const MOCK_TENANTS: Tenant[] = [
-  { id: '1', slug: 'vela', name: 'Vela Corp', primaryColor: '#0052cc', logoUrl: null, createdAt: '2026-01-15T00:00:00.000Z' },
-  { id: '2', slug: 'sicredi', name: 'Sicredi', primaryColor: null, logoUrl: null, createdAt: '2026-02-20T00:00:00.000Z' },
+  { id: '1', slug: 'vela', name: 'Vela Corp', primaryColor: '#0052cc', logoUrl: null, backgroundColor: null, backgroundImageUrl: null, logoWidth: null, createdAt: '2026-01-15T00:00:00.000Z' },
+  { id: '2', slug: 'sicredi', name: 'Sicredi', primaryColor: null, logoUrl: null, backgroundColor: null, backgroundImageUrl: null, logoWidth: null, createdAt: '2026-02-20T00:00:00.000Z' },
 ];
 
 describe('TenantsTable', () => {

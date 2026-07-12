@@ -2,16 +2,20 @@ import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createQueryWrapper, createTestQueryClient } from '../../../test/react-query';
 import type { CreatedUser, User } from '../api/users-api';
-import { createUser, fetchUsers } from '../api/users-api';
-import { useCreateUser, useUsers } from './use-users';
+import { createUser, deleteUser, fetchUsers, updateUser } from '../api/users-api';
+import { useCreateUser, useDeleteUser, useUpdateUser, useUsers } from './use-users';
 
 vi.mock('../api/users-api', () => ({
   fetchUsers: vi.fn(),
   createUser: vi.fn(),
+  updateUser: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 
 const mockFetchUsers = vi.mocked(fetchUsers);
 const mockCreateUser = vi.mocked(createUser);
+const mockUpdateUser = vi.mocked(updateUser);
+const mockDeleteUser = vi.mocked(deleteUser);
 
 const MOCK_USERS: User[] = [
   {
@@ -118,6 +122,89 @@ describe('useCreateUser', () => {
 
     act(() => {
       result.current.mutate({ email: 'new@velaui.demo', password: 'secret123', tenantId: 'tenant-alpha', role: 'MEMBER' });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(invalidateSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('useUpdateUser', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('calls updateUser with id and input, and invalidates the users query on success', async () => {
+    const updatedUser: CreatedUser = {
+      id: '1',
+      email: 'updated@velaui.demo',
+      role: 'MEMBER',
+      tenantId: 'tenant-alpha',
+      createdAt: '2026-01-01T00:00:00.000Z',
+    };
+    mockUpdateUser.mockResolvedValue(updatedUser);
+    const queryClient = createTestQueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    const { result } = renderHook(() => useUpdateUser(), { wrapper: createQueryWrapper(queryClient) });
+
+    act(() => {
+      result.current.mutate({ id: '1', input: { email: 'updated@velaui.demo', role: 'MEMBER' } });
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(mockUpdateUser).toHaveBeenCalledWith('1', { email: 'updated@velaui.demo', role: 'MEMBER' });
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['users'] });
+  });
+
+  it('does not invalidate the users query when the mutation fails', async () => {
+    mockUpdateUser.mockRejectedValue(new Error('failed'));
+    const queryClient = createTestQueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    const { result } = renderHook(() => useUpdateUser(), { wrapper: createQueryWrapper(queryClient) });
+
+    act(() => {
+      result.current.mutate({ id: '1', input: { email: 'bad@velaui.demo' } });
+    });
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(invalidateSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('useDeleteUser', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('calls deleteUser with the user id and invalidates the users query on success', async () => {
+    mockDeleteUser.mockResolvedValue(undefined);
+    const queryClient = createTestQueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    const { result } = renderHook(() => useDeleteUser(), { wrapper: createQueryWrapper(queryClient) });
+
+    act(() => {
+      result.current.mutate('1');
+    });
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    // TanStack Query passes the mutation context as the second argument when
+    // mutationFn is a direct reference (not wrapped in an arrow function).
+    expect(mockDeleteUser).toHaveBeenCalledWith('1', expect.any(Object));
+    expect(invalidateSpy).toHaveBeenCalledWith({ queryKey: ['users'] });
+  });
+
+  it('does not invalidate the users query when the mutation fails', async () => {
+    mockDeleteUser.mockRejectedValue(new Error('failed'));
+    const queryClient = createTestQueryClient();
+    const invalidateSpy = vi.spyOn(queryClient, 'invalidateQueries');
+
+    const { result } = renderHook(() => useDeleteUser(), { wrapper: createQueryWrapper(queryClient) });
+
+    act(() => {
+      result.current.mutate('1');
     });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
