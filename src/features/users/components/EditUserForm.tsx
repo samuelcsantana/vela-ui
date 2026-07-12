@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
-import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
@@ -10,6 +9,7 @@ import { useTenants } from '../../tenants/hooks/use-tenants';
 import { useToastStore } from '../../../store/toast-store';
 import { useUpdateUser } from '../hooks/use-users';
 import type { User } from '../api/users-api';
+import { useDialog } from '../../../hooks/use-dialog';
 
 const editUserSchema = z.object({
   email: z.string().email('users.validation.invalidEmail'),
@@ -28,8 +28,6 @@ interface EditUserFormProps {
 }
 
 const DIALOG_TITLE_ID = 'edit-user-title';
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 const FIELD_CLASSNAME =
   'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15';
@@ -42,7 +40,6 @@ export const EditUserForm = ({ user, onClose }: EditUserFormProps) => {
   const isVelaAdmin = useAuthStore((state) => state.user?.role) === 'VELA_ADMIN';
   const updateUserMutation = useUpdateUser();
   const tenantsQuery = useTenants({ enabled: isVelaAdmin });
-  const dialogRef = useRef<HTMLDivElement>(null);
 
   const {
     register,
@@ -68,69 +65,7 @@ export const EditUserForm = ({ user, onClose }: EditUserFormProps) => {
     onClose();
   };
 
-  // Body scroll lock while the dialog is open.
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [user]);
-
-  // Focus trap + Escape-to-close + focus restoration on close.
-  useEffect(() => {
-    if (!user) {
-      return;
-    }
-
-    const previouslyFocusedElement = document.activeElement as HTMLElement | null;
-
-    // The dialog panel is always mounted while this effect is active, so the ref is always attached.
-    const getFocusableElements = () =>
-      Array.from(dialogRef.current!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-
-    // Falls back to the first focusable element if the form structure ever changes and #email is removed.
-    /* v8 ignore next */
-    const initialFocusTarget = dialogRef.current?.querySelector<HTMLElement>('#email') ?? getFocusableElements()[0];
-    initialFocusTarget?.focus();
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        handleClose();
-        return;
-      }
-
-      if (event.key !== 'Tab') {
-        return;
-      }
-
-      const elements = getFocusableElements();
-      if (elements.length === 0) {
-        return;
-      }
-
-      const first = elements[0];
-      const last = elements[elements.length - 1];
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      previouslyFocusedElement?.focus();
-    };
-  }, [user]);
+  const { dialogRef, overlayProps } = useDialog({ isOpen: Boolean(user), onClose: handleClose, initialFocusSelector: '#email' });
 
   if (!user) {
     return null;
@@ -163,17 +98,7 @@ export const EditUserForm = ({ user, onClose }: EditUserFormProps) => {
   });
 
   return (
-    <div
-      role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4"
-      // Only a click on the backdrop itself dismisses - checking currentTarget
-      // replaces the stopPropagation handler the dialog panel used to need.
-      onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          handleClose();
-        }
-      }}
-    >
+    <div {...overlayProps}>
       <div
         ref={dialogRef}
         role="dialog"

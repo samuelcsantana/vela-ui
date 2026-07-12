@@ -1,14 +1,17 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Sailboat, X } from 'lucide-react';
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { getApiErrorMessage } from '../../../lib/api';
+import { useDialog } from '../../../hooks/use-dialog';
+import { useImageFile } from '../../../hooks/use-image-file';
 import { useToastStore } from '../../../store/toast-store';
 import type { Tenant } from '../api/tenants-api';
 import { useUpdateTenant } from '../hooks/use-tenants';
 import { createTenantSchema, HEX_COLOR_REGEX, type CreateTenantValues } from '../schema';
 import { DEFAULT_BRAND_COLOR } from '../theme';
+import { LoginPreview } from './LoginPreview';
 
 interface EditTenantFormProps {
   tenant: Tenant | null;
@@ -16,8 +19,6 @@ interface EditTenantFormProps {
 }
 
 const DIALOG_TITLE_ID = 'edit-tenant-title';
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 const FIELD_CLASSNAME =
   'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15';
@@ -38,18 +39,24 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
   const { t } = useTranslation();
   const showToast = useToastStore((state) => state.showToast);
   const updateTenantMutation = useUpdateTenant();
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const tenantLogoUrl = tenant?.logoUrl ?? null;
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(tenantLogoUrl);
 
-  const tenantBackgroundUrl = tenant?.backgroundImageUrl ?? null;
-  const [backgroundFile, setBackgroundFile] = useState<File | null>(null);
-  const [backgroundPreviewUrl, setBackgroundPreviewUrl] = useState<string | null>(tenantBackgroundUrl);
+  const logo = useImageFile(tenant?.logoUrl);
+  const background = useImageFile(tenant?.backgroundImageUrl);
 
   const [logoWidthMode, setLogoWidthMode] = useState<'auto' | 'custom'>(
     tenant?.logoWidth != null ? 'custom' : 'auto',
   );
+
+  const handleClose = () => {
+    reset();
+    logo.reset(tenant?.logoUrl);
+    background.reset(tenant?.backgroundImageUrl);
+    setLogoWidthMode(tenant?.logoWidth != null ? 'custom' : 'auto');
+    onClose();
+  };
+
+  const isOpen = tenant !== null;
+  const { dialogRef, overlayProps } = useDialog({ isOpen, onClose: handleClose, initialFocusSelector: '#name' });
 
   const {
     register,
@@ -61,124 +68,24 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
   } = useForm<CreateTenantValues>({
     resolver: zodResolver(createTenantSchema),
     values: tenant
-      ? {
-          name: tenant.name,
-          slug: tenant.slug,
-          primaryColor: tenant.primaryColor ?? DEFAULT_BRAND_COLOR,
-          backgroundColor: tenant.backgroundColor ?? '',
-          logoWidth: tenant.logoWidth ?? undefined,
-        }
+      ? { name: tenant.name, slug: tenant.slug, primaryColor: tenant.primaryColor ?? DEFAULT_BRAND_COLOR, backgroundColor: tenant.backgroundColor ?? '', logoWidth: tenant.logoWidth ?? undefined }
       : undefined,
   });
 
   const primaryColor = watch('primaryColor');
-  const primaryColorSwatchValue =
-    primaryColor && HEX_COLOR_REGEX.test(primaryColor) ? primaryColor : DEFAULT_BRAND_COLOR;
+  const primaryColorSwatchValue = primaryColor && HEX_COLOR_REGEX.test(primaryColor) ? primaryColor : DEFAULT_BRAND_COLOR;
 
   const backgroundColor = watch('backgroundColor');
-  const backgroundColorSwatchValue =
-    backgroundColor && HEX_COLOR_REGEX.test(backgroundColor) ? backgroundColor : DEFAULT_BRAND_COLOR;
+  const backgroundColorSwatchValue = backgroundColor && HEX_COLOR_REGEX.test(backgroundColor) ? backgroundColor : DEFAULT_BRAND_COLOR;
 
   const watchedName = watch('name');
   const watchedLogoWidth = watch('logoWidth');
 
   useEffect(() => {
-    setLogoFile(null);
-    setLogoPreviewUrl(tenantLogoUrl);
-  }, [tenant?.id, tenantLogoUrl]);
-
-  useEffect(() => {
-    setBackgroundFile(null);
-    setBackgroundPreviewUrl(tenantBackgroundUrl);
+    logo.reset(tenant?.logoUrl);
+    background.reset(tenant?.backgroundImageUrl);
     setLogoWidthMode(tenant?.logoWidth != null ? 'custom' : 'auto');
-  }, [tenant?.id, tenantBackgroundUrl, tenant?.logoWidth]);
-
-  useEffect(() => {
-    return () => {
-      if (logoPreviewUrl?.startsWith('blob:')) {
-        URL.revokeObjectURL(logoPreviewUrl);
-      }
-    };
-  }, [logoPreviewUrl]);
-
-  useEffect(() => {
-    return () => {
-      if (backgroundPreviewUrl?.startsWith('blob:')) {
-        URL.revokeObjectURL(backgroundPreviewUrl);
-      }
-    };
-  }, [backgroundPreviewUrl]);
-
-  const handleLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    /* v8 ignore next 3 */
-    if (!file) return;
-    setLogoFile(file);
-    setLogoPreviewUrl(URL.createObjectURL(file));
-  };
-
-  const handleBackgroundChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    /* v8 ignore next 3 */
-    if (!file) return;
-    setBackgroundFile(file);
-    setBackgroundPreviewUrl(URL.createObjectURL(file));
-  };
-
-  const handleClose = () => {
-    reset();
-    setLogoFile(null);
-    setLogoPreviewUrl(tenantLogoUrl);
-    setBackgroundFile(null);
-    setBackgroundPreviewUrl(tenantBackgroundUrl);
-    setLogoWidthMode(tenant?.logoWidth != null ? 'custom' : 'auto');
-    onClose();
-  };
-
-  useEffect(() => {
-    if (!tenant) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [tenant]);
-
-  useEffect(() => {
-    if (!tenant) return;
-    const previouslyFocusedElement = document.activeElement as HTMLElement | null;
-    const getFocusableElements = () =>
-      Array.from(dialogRef.current!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-    /* v8 ignore next */
-    const initialFocusTarget =
-      dialogRef.current?.querySelector<HTMLElement>('#name') ?? getFocusableElements()[0];
-    initialFocusTarget?.focus();
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        handleClose();
-        return;
-      }
-      if (event.key !== 'Tab') return;
-      const elements = getFocusableElements();
-      if (elements.length === 0) return;
-      const first = elements[0];
-      const last = elements[elements.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      previouslyFocusedElement?.focus();
-    };
-  }, [tenant]);
+  }, [tenant?.id]);
 
   if (!tenant) return null;
 
@@ -190,93 +97,39 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
     if (dirtyFields.name) changedFields.name = values.name;
     if (dirtyFields.slug) changedFields.slug = values.slug;
     if (dirtyFields.primaryColor) changedFields.primaryColor = values.primaryColor || undefined;
-    if (logoFile) changedFields.logo = logoFile;
     if (dirtyFields.backgroundColor) changedFields.backgroundColor = values.backgroundColor || undefined;
     if (dirtyFields.logoWidth) changedFields.logoWidth = values.logoWidth;
-    if (backgroundFile) changedFields.backgroundImage = backgroundFile;
+    if (logo.file) changedFields.logo = logo.file;
+    if (background.file) changedFields.backgroundImage = background.file;
 
-    if (Object.keys(changedFields).length === 0) {
-      handleClose();
-      return;
-    }
+    if (Object.keys(changedFields).length === 0) { handleClose(); return; }
 
     updateTenantMutation.mutate(
       { id: tenant.id, input: changedFields },
-      {
-        onSuccess: () => {
-          showToast(t('tenants.form.editSuccess'));
-          reset();
-          setLogoFile(null);
-          setBackgroundFile(null);
-          onClose();
-        },
-      },
+      { onSuccess: () => { showToast(t('tenants.form.editSuccess')); reset(); logo.reset(); background.reset(); onClose(); } },
     );
   });
 
   const errorMessage = updateTenantMutation.isError
-    ? t(getEditTenantErrorKey(getApiErrorMessage(updateTenantMutation.error)))
-    : '';
+    ? t(getEditTenantErrorKey(getApiErrorMessage(updateTenantMutation.error))) : '';
 
-  // --- Preview values ---
-  const previewBg: React.CSSProperties = {};
-  if (backgroundPreviewUrl) {
-    previewBg.backgroundImage = `url(${backgroundPreviewUrl})`;
-    previewBg.backgroundSize = 'cover';
-    previewBg.backgroundPosition = 'center';
-  }
-  if (backgroundColor && HEX_COLOR_REGEX.test(backgroundColor)) {
-    previewBg.backgroundColor = backgroundColor;
-  } else if (!backgroundPreviewUrl) {
-    previewBg.backgroundColor = '#0f172a';
-  }
-
-  const previewLogoWidth =
-    watchedLogoWidth && watchedLogoWidth >= 16 ? `${watchedLogoWidth}px` : undefined;
-
-  const previewName = watchedName || tenant.name;
-  const previewBrandColor = primaryColorSwatchValue;
+  const previewBgHex = backgroundColor && HEX_COLOR_REGEX.test(backgroundColor) ? backgroundColor : '';
 
   return (
-    <div
-      role="presentation"
-      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-slate-950/60 backdrop-blur-sm p-4 pt-8 pb-8"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) handleClose();
-      }}
-    >
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={DIALOG_TITLE_ID}
-        className="flex w-full max-w-5xl flex-col rounded-xl border border-border bg-card shadow-lg"
-      >
-        {/* Header */}
+    <div {...overlayProps}>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby={DIALOG_TITLE_ID} className="flex w-full max-w-5xl flex-col rounded-xl border border-border bg-card shadow-lg">
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-foreground">
-            {t('tenants.form.editTitle')}
-          </h2>
-          <button
-            type="button"
-            onClick={handleClose}
-            aria-label={t('common.close')}
-            className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
-          >
+          <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-foreground">{t('tenants.form.editTitle')}</h2>
+          <button type="button" onClick={handleClose} aria-label={t('common.close')} className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900">
             <X size={18} aria-hidden="true" />
           </button>
         </div>
 
-        {/* Body: form left, preview right */}
         <div className="flex flex-col gap-0 md:flex-row">
-          {/* === FORM COLUMN === */}
           <div className="flex-1 overflow-y-auto border-b border-border p-6 md:border-b-0 md:border-r md:max-h-[calc(100vh-12rem)]">
             <form id="edit-tenant-form" onSubmit={onSubmit} className="flex flex-col gap-5">
-              {/* Identity section */}
               <fieldset className="flex flex-col gap-4 rounded-lg border border-border p-4">
-                <legend className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Identity
-                </legend>
+                <legend className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Identity</legend>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="name" className="text-sm font-medium text-foreground">{t('tenants.fields.name')}</label>
                   <input id="name" type="text" aria-invalid={Boolean(errors.name)} aria-describedby={errors.name ? 'name-error' : undefined} className={FIELD_CLASSNAME} {...register('name')} />
@@ -290,12 +143,8 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
                 </div>
               </fieldset>
 
-              {/* Branding section */}
               <fieldset className="flex flex-col gap-4 rounded-lg border border-border p-4">
-                <legend className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Branding
-                </legend>
-                {/* Primary Color */}
+                <legend className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Branding</legend>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="primaryColor" className="text-sm font-medium text-foreground">{t('tenants.fields.primaryColor')}</label>
                   <div className="flex gap-2">
@@ -305,8 +154,6 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
                   <p id="primaryColor-helper" className={HELPER_TEXT_CLASSNAME}>{t('tenants.form.primaryColorHelper')}</p>
                   <p id="primaryColor-error" aria-live="polite" className="text-sm text-destructive">{errors.primaryColor?.message ? t(errors.primaryColor.message) : ''}</p>
                 </div>
-
-                {/* Background Color */}
                 <div className="flex flex-col gap-1">
                   <label htmlFor="backgroundColor" className="text-sm font-medium text-foreground">{t('tenants.fields.backgroundColor')}</label>
                   <div className="flex gap-2">
@@ -318,20 +165,14 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
                 </div>
               </fieldset>
 
-              {/* Media section */}
               <fieldset className="flex flex-col gap-4 rounded-lg border border-border p-4">
-                <legend className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Images
-                </legend>
-                {/* Logo */}
+                <legend className="px-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Images</legend>
                 <div className="flex flex-col gap-1">
                   <label htmlFor="logo" className="text-sm font-medium text-foreground">{t('tenants.fields.logo')}</label>
-                  <input id="logo" type="file" accept="image/*" onChange={handleLogoChange} className={FILE_FIELD_CLASSNAME} />
+                  <input id="logo" type="file" accept="image/*" onChange={logo.handleChange} className={FILE_FIELD_CLASSNAME} />
                   <p className={HELPER_TEXT_CLASSNAME}>{t('tenants.form.logoHelper')}</p>
-                  {logoPreviewUrl ? <img src={logoPreviewUrl} alt={t('tenants.form.logoPreviewAlt')} className="mt-1 h-12 rounded-lg border border-slate-200 object-contain" /> : null}
+                  {logo.previewUrl ? <img src={logo.previewUrl} alt={t('tenants.form.logoPreviewAlt')} className="mt-1 h-12 rounded-lg border border-slate-200 object-contain" /> : null}
                 </div>
-
-                {/* Logo Width */}
                 <div className="flex flex-col gap-2">
                   <span className="text-sm font-medium text-foreground">{t('tenants.fields.logoWidth')}</span>
                   <div className="flex gap-4">
@@ -344,127 +185,39 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
                       <span className="text-sm text-foreground">{t('tenants.form.logoWidthCustom')}</span>
                     </label>
                   </div>
-                  {logoWidthMode === 'custom' ? (
-                    <input id="logoWidth" type="number" min={16} max={512} placeholder="200" aria-invalid={Boolean(errors.logoWidth)} aria-describedby={errors.logoWidth ? 'logoWidth-error' : undefined} className={FIELD_CLASSNAME} {...register('logoWidth', { valueAsNumber: true })} />
-                  ) : null}
+                  {logoWidthMode === 'custom' ? <input id="logoWidth" type="number" min={16} max={512} placeholder="200" aria-invalid={Boolean(errors.logoWidth)} aria-describedby={errors.logoWidth ? 'logoWidth-error' : undefined} className={FIELD_CLASSNAME} {...register('logoWidth', { valueAsNumber: true })} /> : null}
                   <p id="logoWidth-error" aria-live="polite" className="text-sm text-destructive">{errors.logoWidth?.message ? t(errors.logoWidth.message) : ''}</p>
                 </div>
-
-                {/* Background Image */}
                 <div className="flex flex-col gap-1">
                   <label htmlFor="backgroundImage" className="text-sm font-medium text-foreground">{t('tenants.fields.backgroundImage')}</label>
-                  <input id="backgroundImage" type="file" accept="image/*" onChange={handleBackgroundChange} className={FILE_FIELD_CLASSNAME} />
+                  <input id="backgroundImage" type="file" accept="image/*" onChange={background.handleChange} className={FILE_FIELD_CLASSNAME} />
                   <p className={HELPER_TEXT_CLASSNAME}>{t('tenants.form.backgroundImageHelper')}</p>
-                  {backgroundPreviewUrl ? <img src={backgroundPreviewUrl} alt={t('tenants.form.backgroundImagePreviewAlt')} className="mt-1 h-12 w-20 rounded-lg border border-slate-200 object-cover" /> : null}
+                  {background.previewUrl ? <img src={background.previewUrl} alt={t('tenants.form.backgroundImagePreviewAlt')} className="mt-1 h-12 w-20 rounded-lg border border-slate-200 object-cover" /> : null}
                 </div>
               </fieldset>
             </form>
           </div>
 
-          {/* === PREVIEW COLUMN === */}
           <div className="flex flex-1 flex-col">
             <div className="border-b border-border bg-muted/30 px-4 py-2.5">
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                {t('tenants.form.preview')}
-              </p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{t('tenants.form.preview')}</p>
             </div>
-            {/* Login screen preview */}
-            <div className="flex min-h-[500px] flex-1 bg-slate-50">
-              {/* Hero panel — mirrors the actual LoginForm */}
-              <div
-                className="relative flex w-[44%] flex-col justify-between overflow-hidden p-6"
-                style={previewBg}
-              >
-                <div
-                  aria-hidden="true"
-                  className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_color-mix(in_srgb,_var(--tenant-brand)_35%,transparent),_transparent_55%),radial-gradient(ellipse_at_bottom_right,_color-mix(in_srgb,_var(--tenant-brand)_25%,transparent),_transparent_60%)]"
-                  style={{ '--tenant-brand': previewBrandColor } as React.CSSProperties}
-                />
-                <div className="relative flex items-center gap-2">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-white shadow-lg shadow-brand/40" style={{ backgroundColor: previewBrandColor }}>
-                    <Sailboat size={15} aria-hidden="true" />
-                  </span>
-                  <span className="text-sm font-semibold tracking-tight text-white">{previewName}</span>
-                </div>
-                <div className="relative">
-                  <h3 className="text-xl font-semibold leading-tight tracking-tight text-white">
-                    {t('auth.hero.title')}
-                  </h3>
-                  <p className="mt-2 text-xs leading-relaxed text-slate-300">{t('auth.hero.subtitle')}</p>
-                </div>
-                <p className="relative text-[10px] text-slate-500">Vela — multi-tenant SaaS portfolio demo</p>
-              </div>
-
-              {/* Form panel */}
-              <div className="flex flex-1 items-center justify-center p-4">
-                <div className="w-full max-w-[240px]">
-                  {logoPreviewUrl ? (
-                    <div className="mb-4 flex justify-center">
-                      <img
-                        src={logoPreviewUrl}
-                        alt=""
-                        className="max-w-full object-contain"
-                        style={{
-                          width: previewLogoWidth ?? 'auto',
-                          maxWidth: previewLogoWidth ? previewLogoWidth : '60%',
-                          height: 'auto',
-                        }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="mb-5 flex justify-center">
-                      <span className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-lg shadow-brand/30" style={{ backgroundColor: previewBrandColor }}>
-                        <Sailboat size={20} aria-hidden="true" />
-                      </span>
-                    </div>
-                  )}
-                  <h4 className="mb-1 text-center text-base font-semibold tracking-tight text-slate-900">
-                    {previewName}
-                  </h4>
-                  <p className="mb-5 text-center text-[11px] leading-relaxed text-slate-500">
-                    {t('auth.tenantLoginSubtitle')}
-                  </p>
-                  <div className="flex flex-col gap-2">
-                    <div className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-400 leading-9">
-                      {t('users.fields.email')}
-                    </div>
-                    <div className="h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-400 leading-9">
-                      {t('users.fields.password')}
-                    </div>
-                    <div
-                      className="flex h-9 items-center justify-center gap-1.5 rounded-lg text-xs font-semibold text-white shadow-lg"
-                      style={{ backgroundColor: previewBrandColor }}
-                    >
-                      {t('auth.loginSubmit')}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <LoginPreview
+              backgroundColor={previewBgHex}
+              backgroundImageUrl={background.previewUrl}
+              logoUrl={logo.previewUrl}
+              logoWidth={watchedLogoWidth}
+              name={watchedName || tenant.name}
+              primaryColor={primaryColorSwatchValue}
+            />
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex items-center justify-between border-t border-border px-6 py-4">
-          <p aria-live="polite" className="text-sm text-destructive">
-            {errorMessage}
-          </p>
+          <p aria-live="polite" className="text-sm text-destructive">{errorMessage}</p>
           <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleClose}
-              className="min-h-11 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
-            >
-              {t('common.cancel')}
-            </button>
-            <button
-              type="submit"
-              form="edit-tenant-form"
-              disabled={updateTenantMutation.isPending}
-              className="min-h-11 cursor-pointer rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-90 hover:shadow-brand/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {updateTenantMutation.isPending ? t('common.saving') : t('common.save')}
-            </button>
+            <button type="button" onClick={handleClose} className="min-h-11 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900">{t('common.cancel')}</button>
+            <button type="submit" form="edit-tenant-form" disabled={updateTenantMutation.isPending} className="min-h-11 cursor-pointer rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-90 hover:shadow-brand/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60">{updateTenantMutation.isPending ? t('common.saving') : t('common.save')}</button>
           </div>
         </div>
       </div>

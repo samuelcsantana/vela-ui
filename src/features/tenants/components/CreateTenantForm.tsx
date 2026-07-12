@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { X } from 'lucide-react';
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { getApiErrorMessage } from '../../../lib/api';
@@ -8,6 +8,8 @@ import { slugify } from '../../../lib/format';
 import { useCreateTenant } from '../hooks/use-tenants';
 import { createTenantSchema, HEX_COLOR_REGEX, type CreateTenantValues } from '../schema';
 import { DEFAULT_BRAND_COLOR } from '../theme';
+import { useDialog } from '../../../hooks/use-dialog';
+import { useImageFile } from '../../../hooks/use-image-file';
 
 interface CreateTenantFormProps {
   isOpen: boolean;
@@ -15,8 +17,6 @@ interface CreateTenantFormProps {
 }
 
 const DIALOG_TITLE_ID = 'create-tenant-title';
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 const FIELD_CLASSNAME =
   'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15';
@@ -36,10 +36,8 @@ const getCreateTenantErrorKey = (apiMessage: string | undefined): string =>
 export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => {
   const { t } = useTranslation();
   const createTenantMutation = useCreateTenant();
-  const dialogRef = useRef<HTMLDivElement>(null);
   const isSlugEdited = useRef(false);
-  const [logoFile, setLogoFile] = useState<File | null>(null);
-  const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  const logo = useImageFile();
 
   const {
     register,
@@ -65,100 +63,14 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
     setValue('slug', slugify(name));
   }, [name, setValue]);
 
-  // Revokes the previous preview URL whenever it changes or the component unmounts.
-  useEffect(() => {
-    return () => {
-      if (logoPreviewUrl) {
-        URL.revokeObjectURL(logoPreviewUrl);
-      }
-    };
-  }, [logoPreviewUrl]);
-
-  const resetLogo = () => {
-    setLogoFile(null);
-    setLogoPreviewUrl(null);
-  };
-
-  const handleLogoChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    setLogoFile(file);
-    setLogoPreviewUrl(URL.createObjectURL(file));
-  };
-
   const handleClose = () => {
     reset();
     isSlugEdited.current = false;
-    resetLogo();
+    logo.reset();
     onClose();
   };
 
-  // Body scroll lock while the dialog is open.
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, [isOpen]);
-
-  // Focus trap + Escape-to-close + focus restoration on close.
-  useEffect(() => {
-    if (!isOpen) {
-      return;
-    }
-
-    const previouslyFocusedElement = document.activeElement as HTMLElement | null;
-
-    // The dialog panel is always mounted while this effect is active, so the ref is always attached.
-    const getFocusableElements = () =>
-      Array.from(dialogRef.current!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR));
-
-    // Falls back to the first focusable element if the form structure ever changes and #name is removed.
-    /* v8 ignore next */
-    const initialFocusTarget = dialogRef.current?.querySelector<HTMLElement>('#name') ?? getFocusableElements()[0];
-    initialFocusTarget?.focus();
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        handleClose();
-        return;
-      }
-
-      if (event.key !== 'Tab') {
-        return;
-      }
-
-      const elements = getFocusableElements();
-      if (elements.length === 0) {
-        return;
-      }
-
-      const first = elements[0];
-      const last = elements[elements.length - 1];
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-      previouslyFocusedElement?.focus();
-    };
-  }, [isOpen]);
+  const { dialogRef, overlayProps } = useDialog({ isOpen, onClose: handleClose, initialFocusSelector: '#name' });
 
   if (!isOpen) {
     return null;
@@ -170,13 +82,13 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
         name: values.name,
         slug: values.slug,
         primaryColor: values.primaryColor || undefined,
-        logo: logoFile ?? undefined,
+        logo: logo.file ?? undefined,
       },
       {
         onSuccess: () => {
           reset();
           isSlugEdited.current = false;
-          resetLogo();
+          logo.reset();
           onClose();
         },
       },
@@ -188,17 +100,7 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
     : '';
 
   return (
-    <div
-      role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4"
-      // Only a click on the backdrop itself dismisses - checking currentTarget
-      // replaces the stopPropagation handler the dialog panel used to need.
-      onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          handleClose();
-        }
-      }}
-    >
+    <div {...overlayProps}>
       <div
         ref={dialogRef}
         role="dialog"
@@ -304,13 +206,13 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
               id="logo"
               type="file"
               accept="image/*"
-              onChange={handleLogoChange}
+              onChange={logo.handleChange}
               className={FILE_FIELD_CLASSNAME}
             />
             <p className={HELPER_TEXT_CLASSNAME}>{t('tenants.form.logoHelper')}</p>
-            {logoPreviewUrl ? (
+            {logo.previewUrl ? (
               <img
-                src={logoPreviewUrl}
+                src={logo.previewUrl}
                 alt={t('tenants.form.logoPreviewAlt')}
                 className="mt-1 h-16 w-16 rounded-md border border-slate-200 object-contain dark:border-slate-700"
               />
