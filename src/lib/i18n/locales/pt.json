@@ -189,6 +189,7 @@
       "logoWidthAuto": "Automático",
       "logoWidthCustom": "Personalizado (px)",
       "preview": "Pré-visualização",
+      "previewToggle": "Mostrar ou ocultar a pré-visualização",
       "submitError": "Não foi possível criar a empresa. Tente novamente.",
       "editSubmitError": "Não foi possível atualizar a empresa. Tente novamente.",
       "editSuccess": "Empresa atualizada com sucesso.",
