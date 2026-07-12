@@ -34,7 +34,8 @@
     },
     "charts": {
       "usersByCompany": "Users by Company",
-      "usersByRole": "Users by Role"
+      "usersByRole": "Users by Role",
+      "other": "Other"
     },
     "recentSignups": {
       "title": "Recent Signups",
@@ -73,6 +74,15 @@
     "validation": {
       "tenantRequired": "Select a company",
       "passwordRequired": "Password is required"
+    },
+    "hero": {
+      "title": "One platform, every tenant.",
+      "subtitle": "A multi-tenant SaaS demo with tenant-scoped data isolation, role-based access control and white-label theming.",
+      "features": {
+        "rbac": "Three-tier RBAC: VELA_ADMIN, ADMIN and MEMBER",
+        "isolation": "Query-level tenant data isolation",
+        "whiteLabel": "White-label branding per tenant"
+      }
     }
   },
   "notFound": {
@@ -163,7 +173,7 @@
       "nameTooShort": "Enter at least 2 characters",
       "slugTooShort": "Enter at least 2 characters",
       "slugInvalid": "Use only lowercase letters, numbers, and hyphens",
-      "primaryColorInvalid": "Use a hex color, e.g. #0052cc"
+      "primaryColorInvalid": "Use a hex color, e.g. #4f46e5"
     },
     "errors": {
       "slugTaken": "This slug is already taken. Please choose another one."

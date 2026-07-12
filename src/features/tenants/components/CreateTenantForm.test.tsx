@@ -238,11 +238,11 @@ describe('CreateTenantForm', () => {
     const user = userEvent.setup();
     render(<CreateTenantForm isOpen onClose={vi.fn()} />);
 
-    expect(screen.getByLabelText('tenants.form.primaryColorPickerLabel')).toHaveValue('#0052cc');
+    expect(screen.getByLabelText('tenants.form.primaryColorPickerLabel')).toHaveValue('#4f46e5');
 
     await user.type(screen.getByLabelText('tenants.fields.primaryColor'), 'not-a-hex');
 
-    expect(screen.getByLabelText('tenants.form.primaryColorPickerLabel')).toHaveValue('#0052cc');
+    expect(screen.getByLabelText('tenants.form.primaryColorPickerLabel')).toHaveValue('#4f46e5');
   });
 
   it('shows a translated message when the slug is already taken', () => {

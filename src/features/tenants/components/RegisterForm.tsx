@@ -11,9 +11,9 @@ import { useJoinTenant } from '../hooks/use-join-tenant';
 import { joinTenantSchema, type JoinTenantValues } from '../schema';
 
 const FIELD_CLASSNAME =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
+  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15';
 
-const HELPER_TEXT_CLASSNAME = 'text-xs text-slate-500';
+const HELPER_TEXT_CLASSNAME = 'text-xs text-muted-foreground';
 
 // The API returns plain-English error strings (see swagger.json), which can't be
 // rendered as-is in a localized UI. Known conflicts are mapped to translated
@@ -67,25 +67,25 @@ export const RegisterForm = () => {
   const shouldShowFieldError = (field: keyof JoinTenantValues) => Boolean(dirtyFields[field]) || isSubmitted;
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      <div className="fixed right-4 top-4 rounded-md border border-slate-200 bg-white shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="fixed right-4 top-4 rounded-lg border border-border bg-card shadow-sm">
         <LanguageToggle className={LIGHT_TOGGLE_CLASSNAME} />
       </div>
 
-      <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-sm">
         <div className="mb-6 text-center">
-          <h1 className="text-2xl font-semibold text-slate-900">{t('auth.register.title')}</h1>
-          <p className="mt-2 text-sm text-slate-500">{t('auth.register.subtitle')}</p>
+          <h1 className="text-2xl font-semibold text-foreground">{t('auth.register.title')}</h1>
+          <p className="mt-2 text-sm text-muted-foreground">{t('auth.register.subtitle')}</p>
         </div>
 
-        <div role="note" className="mb-6 flex gap-2 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
+        <div role="note" className="mb-6 flex gap-2 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
           <Info size={18} className="mt-0.5 shrink-0" aria-hidden="true" />
           <p>{t('auth.register.sandboxNotice')}</p>
         </div>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1">
-            <label htmlFor="tenantId" className="text-sm font-medium text-slate-700">
+            <label htmlFor="tenantId" className="text-sm font-medium text-foreground">
               {t('auth.register.tenantLabel')}
             </label>
             <select
@@ -107,20 +107,20 @@ export const RegisterForm = () => {
               <p className={HELPER_TEXT_CLASSNAME}>{t('auth.register.tenantLoading')}</p>
             ) : null}
             {publicTenantsQuery.isError ? (
-              <p role="alert" className="text-sm text-red-600">
+              <p role="alert" className="text-sm text-destructive">
                 {t('auth.register.tenantError')}
               </p>
             ) : null}
             {publicTenantsQuery.isSuccess && publicTenantsQuery.data.length === 0 ? (
               <p className={HELPER_TEXT_CLASSNAME}>{t('auth.register.tenantEmpty')}</p>
             ) : null}
-            <p id="tenantId-error" aria-live="polite" className="text-sm text-red-600">
+            <p id="tenantId-error" aria-live="polite" className="text-sm text-destructive">
               {shouldShowFieldError('tenantId') && errors.tenantId?.message ? t(errors.tenantId.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="role" className="text-sm font-medium text-slate-700">
+            <label htmlFor="role" className="text-sm font-medium text-foreground">
               {t('auth.register.roleLabel')}
             </label>
             <select id="role" className={FIELD_CLASSNAME} {...register('role')}>
@@ -131,7 +131,7 @@ export const RegisterForm = () => {
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm font-medium text-slate-700">
+            <label htmlFor="email" className="text-sm font-medium text-foreground">
               {t('users.fields.email')}
             </label>
             <input
@@ -142,13 +142,13 @@ export const RegisterForm = () => {
               className={FIELD_CLASSNAME}
               {...register('email')}
             />
-            <p id="email-error" aria-live="polite" className="text-sm text-red-600">
+            <p id="email-error" aria-live="polite" className="text-sm text-destructive">
               {shouldShowFieldError('email') && errors.email?.message ? t(errors.email.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm font-medium text-slate-700">
+            <label htmlFor="password" className="text-sm font-medium text-foreground">
               {t('users.fields.password')}
             </label>
             <input
@@ -164,25 +164,25 @@ export const RegisterForm = () => {
             <p id="password-helper" className={HELPER_TEXT_CLASSNAME}>
               {t('auth.register.passwordHelper')}
             </p>
-            <p id="password-error" aria-live="polite" className="text-sm text-red-600">
+            <p id="password-error" aria-live="polite" className="text-sm text-destructive">
               {shouldShowFieldError('password') && errors.password?.message ? t(errors.password.message) : ''}
             </p>
           </div>
 
-          <p aria-live="polite" className="text-sm text-red-600">
+          <p aria-live="polite" className="text-sm text-destructive">
             {errorMessage}
           </p>
 
           <button
             type="submit"
             disabled={joinTenantMutation.isPending}
-            className="flex min-h-11 cursor-pointer items-center justify-center rounded-md bg-brand px-4 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-11 cursor-pointer items-center justify-center rounded-lg bg-brand px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-90 hover:shadow-brand/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
           >
             {joinTenantMutation.isPending ? t('auth.register.submitting') : t('auth.register.submit')}
           </button>
         </form>
 
-        <p className="mt-4 text-center text-sm text-slate-500">
+        <p className="mt-4 text-center text-sm text-muted-foreground">
           <Link to="/login" className="font-medium text-brand hover:underline">
             {t('auth.register.backToLogin')}
           </Link>

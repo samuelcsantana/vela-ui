@@ -59,7 +59,7 @@ describe('TenantLoginForm', () => {
     mockUseLoaderData.mockReturnValue({ tenant: { ...MOCK_TENANT, slug: 'vela', primaryColor: null } });
     render(<TenantLoginForm />);
 
-    expect(document.documentElement.style.getPropertyValue(TENANT_BRAND_CSS_VAR)).toBe('#0052cc');
+    expect(document.documentElement.style.getPropertyValue(TENANT_BRAND_CSS_VAR)).toBe('#4f46e5');
   });
 
   it('falls back to the default brand color when primaryColor is null and the slug is unknown', () => {

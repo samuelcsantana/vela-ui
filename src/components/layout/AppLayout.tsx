@@ -27,7 +27,7 @@ export const AppLayout = ({ children }: AppLayoutProps) => {
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex flex-1 items-center justify-center bg-slate-50 focus:outline-none dark:bg-slate-950"
+          className="flex flex-1 justify-center bg-background focus:outline-none"
         >
           {children}
         </main>
