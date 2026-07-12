@@ -100,12 +100,12 @@ export const TenantsView = () => {
   return (
     <div className="flex w-full max-w-4xl flex-col gap-4 p-4 md:p-6">
       <div className="flex items-center justify-between gap-2">
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">{t('tenants.title')}</h1>
+        <h1 className="text-2xl font-semibold text-foreground">{t('tenants.title')}</h1>
         {isVelaAdmin ? (
           <button
             type="button"
             onClick={() => setIsCreateFormOpen(true)}
-            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg bg-brand px-4 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand dark:focus-visible:outline-white"
+            className="flex h-10 cursor-pointer items-center gap-2 rounded-lg bg-brand px-4 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-90 hover:shadow-brand/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             <Plus size={16} aria-hidden="true" />
             {t('tenants.addTenant')}

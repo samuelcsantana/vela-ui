@@ -20,9 +20,9 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 const FIELD_CLASSNAME =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus-visible:outline-white';
+  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15';
 
-const HELPER_TEXT_CLASSNAME = 'text-xs text-slate-500 dark:text-gray-400';
+const HELPER_TEXT_CLASSNAME = 'text-xs text-muted-foreground';
 
 export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
   const { t } = useTranslation();
@@ -136,7 +136,7 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
   return (
     <div
       role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4"
       // Only a click on the backdrop itself dismisses - checking currentTarget
       // replaces the stopPropagation handler the dialog panel used to need.
       onClick={(event) => {
@@ -150,17 +150,17 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
         role="dialog"
         aria-modal="true"
         aria-labelledby={DIALOG_TITLE_ID}
-        className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-slate-900"
+        className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-lg"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-slate-900 dark:text-white">
+          <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-foreground">
             {t('users.form.title')}
           </h2>
           <button
             type="button"
             onClick={handleClose}
             aria-label={t('common.close')}
-            className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white"
+            className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
           >
             <X size={18} aria-hidden="true" />
           </button>
@@ -168,7 +168,7 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+            <label htmlFor="email" className="text-sm font-medium text-foreground">
               {t('users.fields.email')}
             </label>
             <input
@@ -179,13 +179,13 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               className={FIELD_CLASSNAME}
               {...register('email')}
             />
-            <p id="email-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+            <p id="email-error" aria-live="polite" className="text-sm text-destructive">
               {errors.email?.message ? t(errors.email.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+            <label htmlFor="password" className="text-sm font-medium text-foreground">
               {t('users.fields.password')}
             </label>
             <input
@@ -196,13 +196,13 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               className={FIELD_CLASSNAME}
               {...register('password')}
             />
-            <p id="password-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+            <p id="password-error" aria-live="polite" className="text-sm text-destructive">
               {errors.password?.message ? t(errors.password.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="role" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+            <label htmlFor="role" className="text-sm font-medium text-foreground">
               {t('users.fields.role')}
             </label>
             <Select
@@ -223,7 +223,7 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
 
           {isVelaAdmin ? (
             <div className="flex flex-col gap-1">
-              <label htmlFor="tenantId" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+              <label htmlFor="tenantId" className="text-sm font-medium text-foreground">
                 {t('users.fields.tenant')}
               </label>
               <Select
@@ -249,17 +249,17 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
               </Select>
               {tenantsQuery.isLoading ? <p className={HELPER_TEXT_CLASSNAME}>{t('users.form.tenantLoading')}</p> : null}
               {tenantsQuery.isError ? (
-                <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+                <p role="alert" className="text-sm text-destructive">
                   {t('users.form.tenantError')}
                 </p>
               ) : null}
-              <p id="tenantId-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+              <p id="tenantId-error" aria-live="polite" className="text-sm text-destructive">
                 {errors.tenantId?.message ? t(errors.tenantId.message) : ''}
               </p>
             </div>
           ) : null}
 
-          <p aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+          <p aria-live="polite" className="text-sm text-destructive">
             {createUserMutation.isError ? t('users.form.submitError') : ''}
           </p>
 
@@ -267,14 +267,14 @@ export const CreateUserForm = ({ isOpen, onClose }: CreateUserFormProps) => {
             <button
               type="button"
               onClick={handleClose}
-              className="min-h-11 cursor-pointer rounded-md px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-300 dark:hover:bg-slate-800 dark:focus-visible:outline-white"
+              className="min-h-11 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={createUserMutation.isPending}
-              className="min-h-11 cursor-pointer rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:outline-white"
+              className="min-h-11 cursor-pointer rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-90 hover:shadow-brand/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
             >
               {createUserMutation.isPending ? t('common.saving') : t('common.save')}
             </button>

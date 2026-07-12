@@ -71,7 +71,7 @@ describe('useTenantBranding', () => {
     renderHook(() => useTenantBranding(), { wrapper: createQueryWrapper(queryClient) });
 
     await waitFor(() =>
-      expect(document.documentElement.style.getPropertyValue(TENANT_BRAND_CSS_VAR)).toBe('#0052cc'),
+      expect(document.documentElement.style.getPropertyValue(TENANT_BRAND_CSS_VAR)).toBe('#4f46e5'),
     );
   });
 

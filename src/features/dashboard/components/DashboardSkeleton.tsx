@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 
 const KPI_SKELETON_COUNT = 3;
-const SKELETON_BLOCK_CLASSNAME = 'animate-pulse rounded-xl bg-gray-100 dark:bg-slate-800';
+const SKELETON_BLOCK_CLASSNAME = 'animate-pulse rounded-xl bg-muted';
 
 export const DashboardSkeleton = () => {
   const { t } = useTranslation();

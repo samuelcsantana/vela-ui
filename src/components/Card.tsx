@@ -7,18 +7,18 @@ interface CardProps {
 
 export const Card = ({ children, className = '' }: CardProps) => (
   <div
-    className={`rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 ${className}`}
+    className={`rounded-xl border border-border bg-card p-5 shadow-sm shadow-slate-900/[0.03] transition-shadow hover:shadow-md hover:shadow-slate-900/[0.05] dark:shadow-none ${className}`}
   >
     {children}
   </div>
 );
 
 export const CardHeader = ({ children, className = '' }: CardProps) => (
-  <div className={`mb-2 flex items-center justify-between gap-2 ${className}`}>{children}</div>
+  <div className={`mb-3 flex items-center justify-between gap-2 ${className}`}>{children}</div>
 );
 
 export const CardTitle = ({ children, className = '' }: CardProps) => (
-  <h3 className={`text-sm font-medium text-gray-500 dark:text-gray-400 ${className}`}>{children}</h3>
+  <h3 className={`text-sm font-medium text-muted-foreground ${className}`}>{children}</h3>
 );
 
 export const CardContent = ({ children, className = '' }: CardProps) => <div className={className}>{children}</div>;
