@@ -1,4 +1,4 @@
-import { zodResolver } from '@hookform/resolvers/zod';
+﻿import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { Layers, LogIn, Palette, Sailboat, ShieldCheck, UserPlus } from 'lucide-react';
 import { useState } from 'react';
@@ -57,7 +57,7 @@ export const LoginForm = () => {
 
   return (
     <main className="flex min-h-screen bg-slate-50">
-      <section className="relative hidden w-[44%] flex-col justify-between overflow-hidden bg-slate-950 p-10 lg:flex">
+      <section className="relative hidden w-[40%] flex-col justify-between overflow-hidden bg-slate-950 p-8 md:flex lg:w-[44%] lg:p-10">
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_color-mix(in_srgb,var(--tenant-brand)_35%,transparent),_transparent_55%),radial-gradient(ellipse_at_bottom_right,_color-mix(in_srgb,var(--tenant-brand)_25%,transparent),_transparent_60%)]"
@@ -70,7 +70,7 @@ export const LoginForm = () => {
         </div>
 
         <div className="relative">
-          <h2 className="max-w-md text-4xl font-semibold leading-tight tracking-tight text-white">
+          <h2 className="max-w-md text-3xl font-semibold leading-tight tracking-tight text-white lg:text-4xl">
             {t('auth.hero.title')}
           </h2>
           <p className="mt-4 max-w-md text-[15px] leading-relaxed text-slate-300">{t('auth.hero.subtitle')}</p>

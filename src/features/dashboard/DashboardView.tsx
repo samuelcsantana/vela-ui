@@ -59,13 +59,13 @@ function DashboardMetricsSection({ data }: DashboardMetricsSectionProps) {
 
   return (
     <>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <KpiCard key={kpi.id} label={t(kpi.labelKey)} value={kpi.value} icon={kpi.icon} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>{t(titleKey)}</CardTitle>
