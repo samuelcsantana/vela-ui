@@ -78,7 +78,7 @@ describe('RegisterForm', () => {
   it('populates the tenant select from the public tenants list', () => {
     render(<RegisterForm />);
 
-    const select = screen.getByLabelText('auth.register.tenantLabel') as HTMLSelectElement;
+    const select = screen.getByLabelText('auth.register.tenantLabel');
     expect(screen.getByRole('option', { name: 'Vela Corp' })).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Sicredi' })).toBeInTheDocument();
     expect(select).not.toBeDisabled();
@@ -109,7 +109,7 @@ describe('RegisterForm', () => {
   it('renders the role select defaulting to MEMBER, with an explanatory helper', () => {
     render(<RegisterForm />);
 
-    const roleSelect = screen.getByLabelText('auth.register.roleLabel') as HTMLSelectElement;
+    const roleSelect = screen.getByLabelText<HTMLSelectElement>('auth.register.roleLabel');
     expect(roleSelect.value).toBe('MEMBER');
     expect(screen.getByRole('option', { name: 'ADMIN' })).toBeInTheDocument();
     expect(screen.getByText('auth.register.roleHelper')).toBeInTheDocument();

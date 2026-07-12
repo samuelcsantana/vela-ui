@@ -188,13 +188,22 @@ export const CreateTenantForm = ({ isOpen, onClose }: CreateTenantFormProps) => 
     : '';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={handleClose}>
+    <div
+      role="presentation"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      // Only a click on the backdrop itself dismisses - checking currentTarget
+      // replaces the stopPropagation handler the dialog panel used to need.
+      onClick={(event) => {
+        if (event.target === event.currentTarget) {
+          handleClose();
+        }
+      }}
+    >
       <div
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={DIALOG_TITLE_ID}
-        onClick={(event) => event.stopPropagation()}
         className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-slate-900"
       >
         <div className="mb-4 flex items-center justify-between">

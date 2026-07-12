@@ -123,8 +123,8 @@ describe('CreateTenantForm', () => {
     const user = userEvent.setup();
     render(<CreateTenantForm isOpen onClose={vi.fn()} />);
 
-    const nameInput = screen.getByLabelText('tenants.fields.name');
-    const slugInput = screen.getByLabelText('tenants.fields.slug') as HTMLInputElement;
+    const nameInput = screen.getByLabelText<HTMLInputElement>('tenants.fields.name');
+    const slugInput = screen.getByLabelText<HTMLInputElement>('tenants.fields.slug');
 
     await user.type(nameInput, 'Sicredi Corp');
     await waitFor(() => expect(slugInput.value).toBe('sicredi-corp'));
