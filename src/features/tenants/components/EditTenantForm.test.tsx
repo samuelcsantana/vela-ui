@@ -30,6 +30,9 @@ const MOCK_TENANT: Tenant = {
   name: 'Vela Corp',
   primaryColor: '#0052cc',
   logoUrl: 'https://example.com/logo.png',
+  backgroundColor: null,
+  backgroundImageUrl: null,
+  logoWidth: null,
   createdAt: '2026-01-01T00:00:00.000Z',
 };
 

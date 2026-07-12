@@ -36,27 +36,28 @@ describe('UsersTable', () => {
   });
 
   it('shows a loading status while fetching', () => {
-    render(<UsersTable users={undefined} isLoading isError={false} showTenantColumn={false} />);
+    const onEdit = vi.fn();
+    render(<UsersTable users={undefined} isLoading isError={false} showTenantColumn={false} onEdit={onEdit} />);
     expect(screen.getByRole('status')).toHaveTextContent('users.table.loading');
   });
 
   it('shows an alert when the fetch fails', () => {
-    render(<UsersTable users={undefined} isLoading={false} isError showTenantColumn={false} />);
+    render(<UsersTable users={undefined} isLoading={false} isError showTenantColumn={false} onEdit={vi.fn()} />);
     expect(screen.getByRole('alert')).toHaveTextContent('users.table.error');
   });
 
   it('shows an empty state when users is undefined', () => {
-    render(<UsersTable users={undefined} isLoading={false} isError={false} showTenantColumn={false} />);
+    render(<UsersTable users={undefined} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
     expect(screen.getByRole('status')).toHaveTextContent('users.table.empty');
   });
 
   it('shows an empty state when the users list is empty', () => {
-    render(<UsersTable users={[]} isLoading={false} isError={false} showTenantColumn={false} />);
+    render(<UsersTable users={[]} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
     expect(screen.getByRole('status')).toHaveTextContent('users.table.empty');
   });
 
   it('renders every user with email, role badge, and formatted join date', () => {
-    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} />);
+    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
 
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(screen.getAllByRole('row')).toHaveLength(3); // header + 2 users
@@ -71,20 +72,20 @@ describe('UsersTable', () => {
 
   it('formats the join date using the active i18n language', () => {
     mockUseTranslation.mockReturnValue({ t: (key: string) => key, i18n: { language: 'pt' } });
-    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} />);
+    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
 
     expect(screen.getByText('15 de jan. de 2026')).toBeInTheDocument();
   });
 
   it('hides the Tenant column and cells when showTenantColumn is false', () => {
-    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} />);
+    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
 
     expect(screen.queryByRole('columnheader', { name: 'users.fields.tenant' })).not.toBeInTheDocument();
     expect(screen.queryByText('Vela Corp')).not.toBeInTheDocument();
   });
 
   it('shows the Tenant column with each user tenant name when showTenantColumn is true', () => {
-    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn />);
+    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn onEdit={vi.fn()} />);
 
     expect(screen.getByRole('columnheader', { name: 'users.fields.tenant' })).toBeInTheDocument();
     expect(screen.getByText('Vela Corp')).toBeInTheDocument();
@@ -102,7 +103,7 @@ describe('UsersTable', () => {
         tenant: { name: 'Vela Corp', slug: 'vela' },
       },
     ];
-    render(<UsersTable users={velaAdminUser} isLoading={false} isError={false} showTenantColumn={false} />);
+    render(<UsersTable users={velaAdminUser} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
 
     expect(screen.getByText('VELA_ADMIN')).toHaveClass('bg-amber-100');
   });
@@ -120,7 +121,7 @@ describe('UsersTable', () => {
         tenant: { name: 'Vela Corp', slug: 'vela' },
       },
     ] as unknown as User[];
-    render(<UsersTable users={unknownRoleUser} isLoading={false} isError={false} showTenantColumn={false} />);
+    render(<UsersTable users={unknownRoleUser} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
 
     expect(screen.getByText('OWNER')).toHaveClass('bg-gray-100');
   });
