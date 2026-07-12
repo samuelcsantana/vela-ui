@@ -66,6 +66,20 @@ describe('EditTenantForm', () => {
     expect(screen.queryByAltText('tenants.form.logoPreviewAlt')).not.toBeInTheDocument();
   });
 
+  it('expands and collapses the login preview via the mobile toggle', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    const toggle = screen.getByRole('button', { name: 'tenants.form.previewToggle' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    await user.click(toggle);
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('pre-fills the color input with the default brand color when the tenant has none set', () => {
     render(<EditTenantForm tenant={{ ...MOCK_TENANT, primaryColor: null }} onClose={vi.fn()} />);
 

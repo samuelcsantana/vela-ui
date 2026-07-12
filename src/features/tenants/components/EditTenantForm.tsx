@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Building2, Image as ImageIcon, Palette, X } from 'lucide-react';
+import { Building2, ChevronDown, Image as ImageIcon, Palette, X } from 'lucide-react';
 import { useCallback, useEffect, useState, type ChangeEvent } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
@@ -63,6 +63,10 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
   const [logoWidthMode, setLogoWidthMode] = useState<'auto' | 'custom'>(
     tenant?.logoWidth != null ? 'custom' : 'auto',
   );
+
+  // Mobile-only: the login mock starts collapsed so the form fields get the screen;
+  // on lg the preview column is always visible and this state is ignored (lg:flex).
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const {
     register,
@@ -236,29 +240,46 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
           </button>
         </div>
 
-        {/* Body: one scroll container on mobile (preview stays sticky on top while the
-            form scrolls under it); side-by-side columns with independent scroll on lg. */}
+        {/* Body: one scroll container on mobile (the preview collapses to a slim sticky
+            bar so the fields keep the screen); side-by-side columns with independent
+            scroll on lg. */}
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto lg:grid lg:grid-cols-[minmax(0,10fr)_minmax(0,9fr)] lg:overflow-hidden">
           {/* === PREVIEW === */}
           <div className="sticky top-0 z-10 border-b border-border bg-muted/95 backdrop-blur-sm lg:static lg:order-2 lg:flex lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-l lg:bg-muted/40 lg:backdrop-blur-none">
-            <div className="flex items-center justify-between px-5 pt-3 sm:px-6">
+            <div className="flex items-center justify-between gap-3 px-5 py-1.5 sm:px-6 lg:py-0 lg:pt-3">
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 {t('tenants.form.preview')}
               </p>
-              <span className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
-                <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 motion-safe:animate-ping" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              <div className="flex items-center gap-1.5">
+                <span className="flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-emerald-700">
+                  <span className="relative flex h-1.5 w-1.5" aria-hidden="true">
+                    <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75 motion-safe:animate-ping" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  </span>
+                  {t('tenants.form.previewLive')}
                 </span>
-                {t('tenants.form.previewLive')}
-              </span>
+                <button
+                  type="button"
+                  onClick={() => setIsPreviewOpen((open) => !open)}
+                  aria-expanded={isPreviewOpen}
+                  aria-label={t('tenants.form.previewToggle')}
+                  className={`${DIALOG_CLOSE_BUTTON_CLASSNAME} lg:hidden`}
+                >
+                  <ChevronDown
+                    size={16}
+                    aria-hidden="true"
+                    className={`transition-transform ${isPreviewOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+              </div>
             </div>
 
             {/* Browser-framed mock of the tenant login page (a visual duplicate of the
-                form values, so it is hidden from assistive tech). */}
+                form values, so it is hidden from assistive tech). `hidden` only applies
+                below lg while the mock is collapsed; lg:flex always wins on desktop. */}
             <div
               aria-hidden="true"
-              className="p-4 sm:p-6 lg:flex lg:flex-1 lg:items-center lg:p-8 lg:[background-image:radial-gradient(hsl(var(--border))_1px,transparent_1px)] lg:[background-size:14px_14px]"
+              className={`${isPreviewOpen ? '' : 'hidden'} p-4 pt-2 sm:p-6 sm:pt-2 lg:flex lg:flex-1 lg:items-center lg:p-8 lg:[background-image:radial-gradient(hsl(var(--border))_1px,transparent_1px)] lg:[background-size:14px_14px]`}
             >
               <div className="w-full overflow-hidden rounded-xl border border-border bg-white shadow-xl shadow-slate-900/10">
                 {/* Browser chrome */}
