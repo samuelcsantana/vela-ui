@@ -39,6 +39,7 @@
     },
     "recentSignups": {
       "title": "Recent Signups",
+      "caption": "Recently registered users, with email, role and date joined",
       "empty": "No recent signups yet."
     }
   },
