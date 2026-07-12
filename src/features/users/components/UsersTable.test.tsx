@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { User } from '../api/users-api';
 import { UsersTable } from './UsersTable';
@@ -124,5 +125,67 @@ describe('UsersTable', () => {
     render(<UsersTable users={unknownRoleUser} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
 
     expect(screen.getByText('OWNER')).toHaveClass('bg-gray-100');
+  });
+
+  it('renders edit button for each user row', () => {
+    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
+
+    const editButtons = screen.getAllByRole('button', { name: 'users.editUser' });
+    expect(editButtons).toHaveLength(2);
+  });
+
+  it('calls onEdit with the correct user when edit button is clicked', async () => {
+    const onEdit = vi.fn();
+    const user = userEvent.setup();
+    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} onEdit={onEdit} />);
+
+    const editButtons = screen.getAllByRole('button', { name: 'users.editUser' });
+    await user.click(editButtons[1]);
+
+    expect(onEdit).toHaveBeenCalledTimes(1);
+    expect(onEdit).toHaveBeenCalledWith(MOCK_USERS[1]);
+  });
+
+  it('renders delete button when onDelete is provided', () => {
+    render(
+      <UsersTable
+        users={MOCK_USERS}
+        isLoading={false}
+        isError={false}
+        showTenantColumn={false}
+        onEdit={vi.fn()}
+        onDelete={vi.fn()}
+      />,
+    );
+
+    const deleteButtons = screen.getAllByRole('button', { name: 'users.deleteUser' });
+    expect(deleteButtons).toHaveLength(2);
+  });
+
+  it('does NOT render delete button when onDelete is undefined', () => {
+    render(<UsersTable users={MOCK_USERS} isLoading={false} isError={false} showTenantColumn={false} onEdit={vi.fn()} />);
+
+    expect(screen.queryByRole('button', { name: 'users.deleteUser' })).not.toBeInTheDocument();
+  });
+
+  it('calls onDelete with the correct user when delete button is clicked', async () => {
+    const onDelete = vi.fn();
+    const user = userEvent.setup();
+    render(
+      <UsersTable
+        users={MOCK_USERS}
+        isLoading={false}
+        isError={false}
+        showTenantColumn={false}
+        onEdit={vi.fn()}
+        onDelete={onDelete}
+      />,
+    );
+
+    const deleteButtons = screen.getAllByRole('button', { name: 'users.deleteUser' });
+    await user.click(deleteButtons[0]);
+
+    expect(onDelete).toHaveBeenCalledTimes(1);
+    expect(onDelete).toHaveBeenCalledWith(MOCK_USERS[0]);
   });
 });

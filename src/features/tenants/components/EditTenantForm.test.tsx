@@ -360,4 +360,67 @@ describe('EditTenantForm', () => {
     const saveButton = screen.getByRole('button', { name: 'common.saving' });
     expect(saveButton).toBeDisabled();
   });
+
+  it('shows the logo width custom number input when Custom mode is selected', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    await user.click(screen.getByText('tenants.form.logoWidthCustom'));
+
+    expect(document.getElementById('logoWidth')).toBeInTheDocument();
+  });
+
+  it('submits backgroundColor and logoWidth when changed', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    await user.clear(screen.getByLabelText('tenants.fields.backgroundColor'));
+    await user.type(screen.getByLabelText('tenants.fields.backgroundColor'), '#0f172a');
+    await user.click(screen.getByText('tenants.form.logoWidthCustom'));
+    const logoWidthInput = document.getElementById('logoWidth') as HTMLInputElement;
+    await user.type(logoWidthInput, '200');
+    await user.click(screen.getByRole('button', { name: 'common.save' }));
+
+    expect(mockMutate).toHaveBeenCalledWith(
+      { id: 'tenant-1', input: { backgroundColor: '#0f172a', logoWidth: 200 } },
+      expect.any(Object),
+    );
+  });
+
+  it('switches back to Auto logo width mode clearing the value', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    await user.click(screen.getByText('tenants.form.logoWidthCustom'));
+    expect(document.getElementById('logoWidth')).toBeInTheDocument();
+
+    await user.click(screen.getByText('tenants.form.logoWidthAuto'));
+    expect(document.getElementById('logoWidth')).not.toBeInTheDocument();
+  });
+
+  it('shows a background image preview when a file is selected', async () => {
+    const user = userEvent.setup();
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    const file = new File(['fake-bg'], 'bg.png', { type: 'image/png' });
+    const bgInput = screen.getByLabelText('tenants.fields.backgroundImage');
+    await user.upload(bgInput, file);
+
+    expect(screen.getAllByAltText('tenants.form.backgroundImagePreviewAlt')).toHaveLength(1);
+  });
+
+  it('shows the backgroundColor picker with the default brand color fallback', () => {
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    expect(screen.getByLabelText('tenants.form.backgroundColorPickerLabel')).toHaveValue('#4f46e5');
+  });
+
+  it('handles background file input with no file selected gracefully', () => {
+    render(<EditTenantForm tenant={MOCK_TENANT} onClose={vi.fn()} />);
+
+    const bgInput = screen.getByLabelText('tenants.fields.backgroundImage');
+    fireEvent.change(bgInput, { target: { files: null } });
+
+    expect(screen.queryByAltText('tenants.form.backgroundImagePreviewAlt')).not.toBeInTheDocument();
+  });
 });
