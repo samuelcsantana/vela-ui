@@ -34,7 +34,7 @@ export const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b-2 border-brand bg-white px-4 dark:bg-slate-900">
+    <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border bg-white/80 px-4 backdrop-blur-md md:px-6 dark:bg-slate-900/80">
       <button
         type="button"
         onClick={toggleSidebar}
@@ -60,11 +60,19 @@ export const Header = () => {
 
         {user ? (
           <>
-            <div className="text-right leading-tight">
-              <p className="text-sm font-medium text-slate-900 dark:text-white">
-                {getDisplayNameFromEmail(user.email)}
-              </p>
-              <p className="text-xs text-slate-500 dark:text-gray-400">{user.role}</p>
+            <div className="ml-1 flex items-center gap-2.5 rounded-full border border-border py-1 pl-1 pr-3">
+              <span
+                aria-hidden="true"
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 text-sm font-semibold text-brand"
+              >
+                {getDisplayNameFromEmail(user.email).charAt(0).toUpperCase()}
+              </span>
+              <div className="text-left leading-tight">
+                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  {getDisplayNameFromEmail(user.email)}
+                </p>
+                <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{user.role}</p>
+              </div>
             </div>
             <button
               type="button"

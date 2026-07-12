@@ -19,7 +19,7 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 const CONFIRM_BUTTON_BASE_CLASSNAME =
-  'min-h-11 cursor-pointer rounded-md px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:outline-white';
+  'min-h-11 cursor-pointer rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-lg transition-all hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-60';
 
 export const ConfirmDialog = ({
   isOpen,
@@ -104,7 +104,7 @@ export const ConfirmDialog = ({
   return (
     <div
       role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4"
       // Only a click on the backdrop itself dismisses - checking currentTarget
       // replaces the stopPropagation handler the dialog panel used to need.
       onClick={(event) => {
@@ -119,16 +119,16 @@ export const ConfirmDialog = ({
         aria-modal="true"
         aria-labelledby={DIALOG_TITLE_ID}
         aria-describedby={DIALOG_DESCRIPTION_ID}
-        className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-slate-900"
+        className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-lg"
       >
-        <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-slate-900 dark:text-white">
+        <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-foreground">
           {title}
         </h2>
-        <p id={DIALOG_DESCRIPTION_ID} className="mt-2 text-sm text-slate-600 dark:text-gray-300">
+        <p id={DIALOG_DESCRIPTION_ID} className="mt-2 text-sm text-muted-foreground">
           {description}
         </p>
 
-        <p aria-live="polite" className="mt-2 text-sm text-red-600 dark:text-red-400">
+        <p aria-live="polite" className="mt-2 text-sm text-destructive">
           {errorMessage}
         </p>
 
@@ -137,7 +137,7 @@ export const ConfirmDialog = ({
             type="button"
             onClick={onCancel}
             disabled={isLoading}
-            className="min-h-11 cursor-pointer rounded-md px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:cursor-not-allowed disabled:opacity-60 dark:text-gray-300 dark:hover:bg-slate-800 dark:focus-visible:outline-white"
+            className="min-h-11 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {cancelLabel}
           </button>

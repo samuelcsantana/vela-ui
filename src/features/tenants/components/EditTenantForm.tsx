@@ -20,12 +20,12 @@ const FOCUSABLE_SELECTOR =
   'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])';
 
 const FIELD_CLASSNAME =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:focus-visible:outline-white';
+  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15';
 
 const FILE_FIELD_CLASSNAME =
-  'w-full cursor-pointer rounded-md border border-slate-300 bg-white text-sm text-slate-900 file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:file:bg-slate-700 dark:file:text-gray-200 dark:hover:file:bg-slate-600';
+  'w-full cursor-pointer rounded-lg border border-slate-300 bg-white text-sm text-slate-900 shadow-sm file:mr-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200';
 
-const HELPER_TEXT_CLASSNAME = 'text-xs text-slate-500 dark:text-gray-400';
+const HELPER_TEXT_CLASSNAME = 'text-xs text-muted-foreground';
 
 const KNOWN_ERROR_KEYS: Record<string, string> = {
   'Another tenant already uses this slug': 'tenants.errors.slugTaken',
@@ -194,7 +194,7 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
   return (
     <div
       role="presentation"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4"
       // Only a click on the backdrop itself dismisses - checking currentTarget
       // replaces the stopPropagation handler the dialog panel used to need.
       onClick={(event) => {
@@ -208,17 +208,17 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
         role="dialog"
         aria-modal="true"
         aria-labelledby={DIALOG_TITLE_ID}
-        className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg dark:bg-slate-900"
+        className="w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-lg"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-slate-900 dark:text-white">
+          <h2 id={DIALOG_TITLE_ID} className="text-lg font-semibold text-foreground">
             {t('tenants.form.editTitle')}
           </h2>
           <button
             type="button"
             onClick={handleClose}
             aria-label={t('common.close')}
-            className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-md text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-400 dark:hover:bg-slate-800 dark:hover:text-white dark:focus-visible:outline-white"
+            className="flex min-h-11 min-w-11 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
           >
             <X size={18} aria-hidden="true" />
           </button>
@@ -226,7 +226,7 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="name" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+            <label htmlFor="name" className="text-sm font-medium text-foreground">
               {t('tenants.fields.name')}
             </label>
             <input
@@ -237,13 +237,13 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
               className={FIELD_CLASSNAME}
               {...register('name')}
             />
-            <p id="name-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+            <p id="name-error" aria-live="polite" className="text-sm text-destructive">
               {errors.name?.message ? t(errors.name.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="slug" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+            <label htmlFor="slug" className="text-sm font-medium text-foreground">
               {t('tenants.fields.slug')}
             </label>
             <input
@@ -257,13 +257,13 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
             <p id="slug-helper" className={HELPER_TEXT_CLASSNAME}>
               {t('tenants.form.slugHelper')}
             </p>
-            <p id="slug-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+            <p id="slug-error" aria-live="polite" className="text-sm text-destructive">
               {errors.slug?.message ? t(errors.slug.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="primaryColor" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+            <label htmlFor="primaryColor" className="text-sm font-medium text-foreground">
               {t('tenants.fields.primaryColor')}
             </label>
             <div className="flex gap-2">
@@ -279,7 +279,7 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
               <input
                 id="primaryColor"
                 type="text"
-                placeholder="#0052cc"
+                placeholder="#4f46e5"
                 aria-invalid={Boolean(errors.primaryColor)}
                 aria-describedby={
                   errors.primaryColor ? 'primaryColor-helper primaryColor-error' : 'primaryColor-helper'
@@ -291,13 +291,13 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
             <p id="primaryColor-helper" className={HELPER_TEXT_CLASSNAME}>
               {t('tenants.form.primaryColorHelper')}
             </p>
-            <p id="primaryColor-error" aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+            <p id="primaryColor-error" aria-live="polite" className="text-sm text-destructive">
               {errors.primaryColor?.message ? t(errors.primaryColor.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="logo" className="text-sm font-medium text-slate-700 dark:text-gray-300">
+            <label htmlFor="logo" className="text-sm font-medium text-foreground">
               {t('tenants.fields.logo')}
             </label>
             <input
@@ -317,7 +317,7 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
             ) : null}
           </div>
 
-          <p aria-live="polite" className="text-sm text-red-600 dark:text-red-400">
+          <p aria-live="polite" className="text-sm text-destructive">
             {errorMessage}
           </p>
 
@@ -325,14 +325,14 @@ export const EditTenantForm = ({ tenant, onClose }: EditTenantFormProps) => {
             <button
               type="button"
               onClick={handleClose}
-              className="min-h-11 cursor-pointer rounded-md px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900 dark:text-gray-300 dark:hover:bg-slate-800 dark:focus-visible:outline-white"
+              className="min-h-11 cursor-pointer rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
             >
               {t('common.cancel')}
             </button>
             <button
               type="submit"
               disabled={updateTenantMutation.isPending}
-              className="min-h-11 cursor-pointer rounded-md bg-brand px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60 dark:focus-visible:outline-white"
+              className="min-h-11 cursor-pointer rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-90 hover:shadow-brand/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
             >
               {updateTenantMutation.isPending ? t('common.saving') : t('common.save')}
             </button>

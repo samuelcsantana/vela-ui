@@ -53,7 +53,7 @@ export const UserFilters = () => {
         <Search
           size={16}
           aria-hidden="true"
-          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+          className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
         />
         <input
           id={SEARCH_INPUT_ID}
@@ -61,11 +61,11 @@ export const UserFilters = () => {
           placeholder={t('users.search.placeholder')}
           aria-invalid={hasError}
           aria-describedby={hasError ? SEARCH_ERROR_ID : undefined}
-          className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-900/10 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:placeholder:text-gray-500 dark:focus:border-white dark:focus:ring-white/10"
+          className="h-10 w-full rounded-lg border border-slate-300 bg-white pl-9 pr-3 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15"
           {...register('search')}
         />
       </div>
-      <p id={SEARCH_ERROR_ID} aria-live="polite" className="text-sm text-red-600 sm:self-center dark:text-red-400">
+      <p id={SEARCH_ERROR_ID} aria-live="polite" className="text-sm text-destructive sm:self-center">
         {errors.search?.message ? t(errors.search.message) : ''}
       </p>
     </div>

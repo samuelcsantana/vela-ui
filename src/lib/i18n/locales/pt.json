@@ -34,7 +34,8 @@
     },
     "charts": {
       "usersByCompany": "Usuários por Empresa",
-      "usersByRole": "Usuários por Papel"
+      "usersByRole": "Usuários por Papel",
+      "other": "Outros"
     },
     "recentSignups": {
       "title": "Cadastros Recentes",
@@ -73,6 +74,15 @@
     "validation": {
       "tenantRequired": "Selecione uma empresa",
       "passwordRequired": "Senha é obrigatória"
+    },
+    "hero": {
+      "title": "Uma plataforma, todos os tenants.",
+      "subtitle": "Uma demo de SaaS multi-tenant com isolamento de dados por tenant, controle de acesso por papel e white-label.",
+      "features": {
+        "rbac": "RBAC em três níveis: VELA_ADMIN, ADMIN e MEMBER",
+        "isolation": "Isolamento de dados por tenant no nível da query",
+        "whiteLabel": "Marca white-label por tenant"
+      }
     }
   },
   "notFound": {
@@ -163,7 +173,7 @@
       "nameTooShort": "Informe ao menos 2 caracteres",
       "slugTooShort": "Informe ao menos 2 caracteres",
       "slugInvalid": "Use apenas letras minúsculas, números e hífens",
-      "primaryColorInvalid": "Use uma cor hexadecimal, ex: #0052cc"
+      "primaryColorInvalid": "Use uma cor hexadecimal, ex: #4f46e5"
     },
     "errors": {
       "slugTaken": "Este slug já está em uso. Escolha outro."

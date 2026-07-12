@@ -66,7 +66,7 @@ describe('EditTenantForm', () => {
   it('pre-fills the color input with the default brand color when the tenant has none set', () => {
     render(<EditTenantForm tenant={{ ...MOCK_TENANT, primaryColor: null }} onClose={vi.fn()} />);
 
-    expect(screen.getByLabelText('tenants.fields.primaryColor')).toHaveValue('#0052cc');
+    expect(screen.getByLabelText('tenants.fields.primaryColor')).toHaveValue('#4f46e5');
   });
 
   it('locks body scroll while open and restores it on close', () => {
@@ -272,7 +272,7 @@ describe('EditTenantForm', () => {
     await user.clear(primaryColorInput);
     await user.type(primaryColorInput, 'not-a-hex');
 
-    expect(screen.getByLabelText('tenants.form.primaryColorPickerLabel')).toHaveValue('#0052cc');
+    expect(screen.getByLabelText('tenants.form.primaryColorPickerLabel')).toHaveValue('#4f46e5');
   });
 
   it('shows a validation error when primaryColor is typed as an invalid hex', async () => {

@@ -97,16 +97,16 @@ export const DashboardView = () => {
   return (
     <div className="flex w-full max-w-6xl flex-col gap-6 p-4 md:p-6">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900 dark:text-white">
+        <h1 className="text-2xl font-semibold text-foreground">
           {t('dashboard.welcome', { appName: t('common.appName') })}
         </h1>
-        <p className="text-slate-500 dark:text-gray-400">{t('dashboard.subtitle')}</p>
+        <p className="text-muted-foreground">{t('dashboard.subtitle')}</p>
       </div>
 
       {isLoading ? <DashboardSkeleton /> : null}
 
       {isError ? (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+        <p role="alert" className="text-sm text-destructive">
           {t('dashboard.error')}
         </p>
       ) : null}

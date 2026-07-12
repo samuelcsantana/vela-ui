@@ -13,7 +13,7 @@ import { useAuthStore } from '../store/auth-store';
 const routeApi = getRouteApi('/$slug/login');
 
 const FIELD_CLASSNAME =
-  'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500';
+  'w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition-colors placeholder:text-slate-400 focus:border-brand focus:outline-none focus:ring-4 focus:ring-brand/15';
 
 export const TenantLoginForm = () => {
   const { tenant } = routeApi.useLoaderData();
@@ -55,24 +55,24 @@ export const TenantLoginForm = () => {
   });
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 p-4">
-      <div className="fixed right-4 top-4 rounded-md border border-slate-200 bg-white shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="fixed right-4 top-4 rounded-lg border border-border bg-card shadow-sm">
         <LanguageToggle className={LIGHT_TOGGLE_CLASSNAME} />
       </div>
 
-      <div className="w-full max-w-sm rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
+      <div className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-sm">
         <div className="mb-6 text-center">
           {tenant.logoUrl ? (
             <img src={tenant.logoUrl} alt={tenant.name} className="mx-auto mb-3 h-10 max-w-full object-contain" />
           ) : (
-            <h1 className="text-2xl font-semibold text-slate-900">{tenant.name}</h1>
+            <h1 className="text-2xl font-semibold text-foreground">{tenant.name}</h1>
           )}
-          <p className="mt-2 text-sm text-slate-500">{t('auth.tenantLoginSubtitle')}</p>
+          <p className="mt-2 text-sm text-muted-foreground">{t('auth.tenantLoginSubtitle')}</p>
         </div>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <label htmlFor="email" className="text-sm font-medium text-slate-700">
+            <label htmlFor="email" className="text-sm font-medium text-foreground">
               {t('users.fields.email')}
             </label>
             <input
@@ -83,13 +83,13 @@ export const TenantLoginForm = () => {
               className={FIELD_CLASSNAME}
               {...register('email')}
             />
-            <p id="email-error" aria-live="polite" className="text-sm text-red-600">
+            <p id="email-error" aria-live="polite" className="text-sm text-destructive">
               {errors.email?.message ? t(errors.email.message) : ''}
             </p>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label htmlFor="password" className="text-sm font-medium text-slate-700">
+            <label htmlFor="password" className="text-sm font-medium text-foreground">
               {t('users.fields.password')}
             </label>
             <input
@@ -100,7 +100,7 @@ export const TenantLoginForm = () => {
               className={FIELD_CLASSNAME}
               {...register('password')}
             />
-            <p id="password-error" aria-live="polite" className="text-sm text-red-600">
+            <p id="password-error" aria-live="polite" className="text-sm text-destructive">
               {errors.password?.message ? t(errors.password.message) : ''}
             </p>
           </div>
@@ -108,7 +108,7 @@ export const TenantLoginForm = () => {
           <button
             type="submit"
             disabled={isPending}
-            className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md bg-brand px-4 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-brand px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-brand/25 transition-all hover:opacity-90 hover:shadow-brand/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand disabled:cursor-not-allowed disabled:opacity-60"
           >
             <LogIn size={18} aria-hidden="true" />
             {isPending ? t('auth.loginSubmitting') : t('auth.loginSubmit')}
@@ -116,7 +116,7 @@ export const TenantLoginForm = () => {
         </form>
 
         {error ? (
-          <p role="alert" className="mt-4 text-center text-sm text-red-600">
+          <p role="alert" className="mt-4 text-center text-sm text-destructive">
             {error}
           </p>
         ) : null}
