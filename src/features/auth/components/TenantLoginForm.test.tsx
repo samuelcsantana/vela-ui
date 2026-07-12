@@ -83,6 +83,34 @@ describe('TenantLoginForm', () => {
     expect(screen.getByRole('img', { name: 'Sicredi' })).toHaveAttribute('src', 'https://example.com/logo.png');
   });
 
+  it('applies the tenant background color and image to the page', () => {
+    mockUseLoaderData.mockReturnValue({
+      tenant: { ...MOCK_TENANT, backgroundColor: '#134e4a', backgroundImageUrl: 'https://example.com/bg.png' },
+    });
+    render(<TenantLoginForm />);
+
+    const main = screen.getByRole('main');
+    expect(main).toHaveStyle({ backgroundColor: '#134e4a' });
+    expect(main.style.backgroundImage).toBe('url("https://example.com/bg.png")');
+  });
+
+  it('keeps the default page background when the tenant has no background branding', () => {
+    render(<TenantLoginForm />);
+
+    const main = screen.getByRole('main');
+    expect(main.style.backgroundColor).toBe('');
+    expect(main.style.backgroundImage).toBe('');
+  });
+
+  it('renders the logo at the tenant-configured width when logoWidth is set', () => {
+    mockUseLoaderData.mockReturnValue({
+      tenant: { ...MOCK_TENANT, logoUrl: 'https://example.com/logo.png', logoWidth: 200 },
+    });
+    render(<TenantLoginForm />);
+
+    expect(screen.getByRole('img', { name: 'Sicredi' })).toHaveStyle({ width: '200px' });
+  });
+
   it('renders the email and password fields with a submit button', () => {
     render(<TenantLoginForm />);
 
