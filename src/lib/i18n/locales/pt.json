@@ -39,6 +39,7 @@
     },
     "recentSignups": {
       "title": "Cadastros Recentes",
+      "caption": "Usuários cadastrados recentemente, com email, papel e data de entrada",
       "empty": "Nenhum cadastro recente ainda."
     }
   },
