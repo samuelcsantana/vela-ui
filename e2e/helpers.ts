@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import type { AuthUser } from '../src/features/auth/store/auth-store';
 
 // Must stay in sync with webServer.env.VITE_API_URL in playwright.config.ts.
-export const API_URL = 'http://localhost:3333/api';
+export const API_URL = 'http://localhost:3010/api';
 
 export const VELA_TENANT_ID = '11111111-1111-4111-8111-111111111111';
 export const ACME_TENANT_ID = '22222222-2222-4222-8222-222222222222';
