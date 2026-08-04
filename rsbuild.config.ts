@@ -13,6 +13,9 @@ export default defineConfig({
   source: {
     define: publicVars,
   },
+  server: {
+    port: 3011,
+  },
   tools: {
     rspack: {
       plugins: [TanStackRouterRspack({ target: 'react' })],

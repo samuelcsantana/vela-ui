@@ -101,14 +101,32 @@ cp .env.example .env
 
 ```env
 # .env
-VITE_API_URL="http://localhost:3333/api"
+VITE_API_URL="http://localhost:3010/api"
 ```
 
 ```bash
-npm run dev       # start the dev server at http://localhost:3000
+npm run dev       # start the dev server at http://localhost:3011
 npm run build     # production build
 npm run preview   # preview the production build locally
 ```
+
+## Docker
+
+This is the frontend half of a front+back pair with **vela-core** (the Fastify API, `http://localhost:3010`).
+
+```bash
+docker compose up -d --build
+```
+
+Serves the production build via Nginx at `http://localhost:3011`:
+
+| Service | Port |
+|---|---|
+| `web` | `3011` |
+
+The compose file intentionally does **not** define an `api` service — `vela-core` lives in its own repository with its own `docker-compose.yml`. `VITE_API_URL` is passed as a build arg (Rsbuild inlines `VITE_`-prefixed vars into the static bundle at build time, same as Vite — there's no runtime env for a plain Nginx-served SPA) and defaults to `http://localhost:3010/api`, matching vela-core's default port. Run both compose stacks side by side for full-stack local development.
+
+The dev server (`npm run dev`) also runs on the fixed port `3011` (`server.port` in `rsbuild.config.ts`), so the URL is the same whether you're running Docker or developing locally.
 
 ## Testing
 

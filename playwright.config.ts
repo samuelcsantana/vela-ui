@@ -11,7 +11,7 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: process.env.CI ? 'list' : 'html',
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: 'http://localhost:3011',
     trace: 'on-first-retry',
     // Pinned so i18next's browser-language detection is deterministic: the
     // assertions below use the English copy, regardless of the locale of the
@@ -26,12 +26,12 @@ export default defineConfig({
   ],
   webServer: {
     command: 'npx rsbuild dev',
-    url: 'http://localhost:3000',
+    url: 'http://localhost:3011',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     // CI has no .env file; the exact value doesn't matter since every
     // request to it is intercepted, but it must be an absolute URL so the
     // intercept glob in e2e/helpers.ts matches.
-    env: { VITE_API_URL: 'http://localhost:3333/api' },
+    env: { VITE_API_URL: 'http://localhost:3010/api' },
   },
 });
